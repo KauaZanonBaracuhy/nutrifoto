@@ -12,5 +12,8 @@ local.properties
 # Chave de API pessoal (NÃO COMMITAR)
 www/js/config.local.js
 
+# Netlify CLI (configuração local, não versionar)
+.netlify/
+
 # Referência local de Git para Claude Code (NÃO COMMITAR)
 GIT_INFO.local.md

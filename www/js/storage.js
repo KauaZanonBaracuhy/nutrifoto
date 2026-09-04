@@ -1,6 +1,15 @@
 // storage.js — localStorage para metas diárias + leitura da chave OpenRouter
 
-import { OPENROUTER_API_KEY } from './config.local.js';
+// Import opcional: se config.local.js não existir (não commitado no GitHub),
+// o site continua funcionando, apenas sem chave de IA pré-configurada.
+let OPENROUTER_API_KEY = '';
+try {
+  const mod = await import('./config.local.js');
+  OPENROUTER_API_KEY = mod.OPENROUTER_API_KEY || '';
+} catch {
+  // config.local.js ausente — usuário precisará configurar manualmente depois.
+  OPENROUTER_API_KEY = '';
+}
 
 const KEY_GOALS = 'nutrifoto.goals';
 
@@ -11,7 +20,7 @@ const DEFAULT_GOALS = {
   fat: 70,
 };
 
-// ---------- API key (fixa, vem de config.local.js) ----------
+// ---------- API key (vem de config.local.js, se existir) ----------
 
 export function getApiKey() {
   return OPENROUTER_API_KEY;
