@@ -1,5 +1,5 @@
 // app.js — v2 layout: hero donut, macro bars, mini chart, FAB, timeline, receipt
-import { getGoals, setGoals, isConfigured } from './storage.js';
+import { getGoals, setGoals, isConfigured, getApiKey } from './storage.js';
 import { salvarRefeicao, listarRefeicoesDoDia, listarHistorico, deletarRefeicao, listarTotaisPorDia } from './db.js';
 import { captureFromCamera, pickFromGallery, downscaleImage } from './camera.js';
 import { analyzeImage, recalcularTotal, testConnection } from './visionApi.js';
@@ -184,7 +184,7 @@ async function handleImage(captureFn) {
 async function handleAnalyze() {
   if (!state.currentImage) return;
   if (!isConfigured()) {
-    toast('Configure o provedor de IA primeiro', true);
+    toast('Configure sua chave da OpenRouter em Configurações', true);
     showScreen('settings');
     return;
   }
@@ -412,6 +412,88 @@ function renderSettings() {
   $('#goal-carb').value = g.carb;
   $('#goal-fat').value = g.fat;
   $('#test-result').style.display = 'none';
+
+  // Pré-preencher campo de API key (mascarado) se já houver chave salva
+  const apiKeyInput = $('#api-key-input');
+  if (apiKeyInput) {
+    const existing = getApiKey();
+    if (existing) {
+      apiKeyInput.value = maskKey(existing);
+      apiKeyInput.dataset.masked = '1';
+    } else {
+      apiKeyInput.value = '';
+      apiKeyInput.dataset.masked = '0';
+    }
+    apiKeyInput.type = 'password';
+    const eyeOn = apiKeyInput.parentElement.querySelector('.icon-eye');
+    const eyeOff = apiKeyInput.parentElement.querySelector('.icon-eye-off');
+    if (eyeOn) eyeOn.style.display = '';
+    if (eyeOff) eyeOff.style.display = 'none';
+    $('#api-key-status').style.display = 'none';
+  }
+}
+
+function maskKey(key) {
+  if (!key || key.length < 12) return key;
+  return key.substring(0, 7) + '••••••••••••' + key.substring(key.length - 4);
+}
+
+function handleSaveApiKey() {
+  const input = $('#api-key-input');
+  const status = $('#api-key-status');
+  let raw = input.value.trim();
+
+  // Se está mascarado, não salvar
+  if (raw.includes('••')) {
+    status.style.display = 'block';
+    status.className = 'test-result success';
+    status.textContent = '✓ Chave já está salva (mascarada). Edite o campo para alterar.';
+    return;
+  }
+
+  if (!raw) {
+    setApiKey('');
+    status.style.display = 'block';
+    status.className = 'test-result error';
+    status.textContent = 'Chave removida. Análise de imagem ficará desabilitada.';
+    input.dataset.masked = '0';
+    return;
+  }
+
+  if (!raw.startsWith('sk-or-')) {
+    status.style.display = 'block';
+    status.className = 'test-result error';
+    status.textContent = '✗ Formato inválido. Chave deve começar com "sk-or-".';
+    return;
+  }
+
+  const ok = setApiKey(raw);
+  if (ok) {
+    status.style.display = 'block';
+    status.className = 'test-result success';
+    status.textContent = '✓ Chave salva neste dispositivo.';
+    input.value = maskKey(raw);
+    input.dataset.masked = '1';
+  } else {
+    status.style.display = 'block';
+    status.className = 'test-result error';
+    status.textContent = '✗ Não foi possível salvar.';
+  }
+}
+
+function handleToggleApiKey() {
+  const input = $('#api-key-input');
+  const eyeOn = $('#btn-toggle-api-key').querySelector('.icon-eye');
+  const eyeOff = $('#btn-toggle-api-key').querySelector('.icon-eye-off');
+  if (input.type === 'password') {
+    input.type = 'text';
+    eyeOn.style.display = 'none';
+    eyeOff.style.display = '';
+  } else {
+    input.type = 'password';
+    eyeOn.style.display = '';
+    eyeOff.style.display = 'none';
+  }
 }
 
 function handleSaveSettings() {
@@ -741,6 +823,8 @@ function bind() {
   $('#btn-save-meal').addEventListener('click', handleSaveMeal);
   $('#btn-save-settings').addEventListener('click', handleSaveSettings);
   $('#btn-test-connection').addEventListener('click', handleTestConnection);
+  $('#btn-save-api-key').addEventListener('click', handleSaveApiKey);
+  $('#btn-toggle-api-key').addEventListener('click', handleToggleApiKey);
   $('#btn-cancel-capture').addEventListener('click', () => showScreen('dashboard'));
   $('#btn-toggle-theme').addEventListener('click', toggleTheme);
   $('#btn-expand-charts').addEventListener('click', toggleCharts);

@@ -75,7 +75,7 @@ export function recalcularTotal(alimentos) {
 export async function analyzeImage({ base64, mediaType }) {
   const apiKey = getApiKey();
   if (!apiKey) {
-    throw new Error('Chave da API não configurada.');
+    throw new Error('Chave da API não configurada. Vá em Configurações para adicionar.');
   }
 
   const headers = {

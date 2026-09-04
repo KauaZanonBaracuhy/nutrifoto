@@ -1,14 +1,12 @@
 // storage.js — localStorage para metas diárias + leitura da chave OpenRouter
 
-// Carregamos a chave via um script tag síncrono (não ESM) injetado pelo index.html.
-// Isso evita o erro MIME type do import() dinâmico.
-// Veja: <script src="js/config.local.js"></script> no index.html (síncrono, sem type=module)
-// e <script src="js/config.example.js"></script> como fallback.
-
-// Como config.local.js define window.OPENROUTER_API_KEY_GLOBAL e config.example.js
-// define window.OPENROUTER_API_KEY_PLACEHOLDER, o storage.js pega o que existir.
+// Config local em desenvolvimento: config.local.js (definido em outro <script>)
+// define window.OPENROUTER_API_KEY. Em produção, esse arquivo não existe (não é
+// commitado) e o usuário precisa digitar a chave na tela de Configurações, que
+// fica salva em localStorage.
 
 const KEY_GOALS = 'nutrifoto.goals';
+const KEY_API = 'nutrifoto.apiKey';
 
 const DEFAULT_GOALS = {
   calories: 2200,
@@ -17,23 +15,52 @@ const DEFAULT_GOALS = {
   fat: 70,
 };
 
-function loadApiKey() {
-  if (typeof window === 'undefined') return '';
-  // config.local.js define window.OPENROUTER_API_KEY (chave real)
-  if (typeof window.OPENROUTER_API_KEY === 'string') return window.OPENROUTER_API_KEY;
-  // config.example.js define window.OPENROUTER_API_KEY como placeholder
-  // (já coberto acima)
+function readApiKey() {
+  try {
+    const stored = localStorage.getItem(KEY_API);
+    if (stored && stored.trim().length > 0) return stored.trim();
+  } catch {}
+  if (typeof window !== 'undefined' && typeof window.OPENROUTER_API_KEY === 'string') {
+    const fromConfig = window.OPENROUTER_API_KEY.trim();
+    if (fromConfig && !fromConfig.includes('SUA_CHAVE')) return fromConfig;
+  }
   return '';
 }
 
-const OPENROUTER_API_KEY = loadApiKey();
-
 export function getApiKey() {
-  return OPENROUTER_API_KEY;
+  return readApiKey();
+}
+
+export function setApiKey(key) {
+  try {
+    if (key && key.trim().length > 0) {
+      localStorage.setItem(KEY_API, key.trim());
+    } else {
+      localStorage.removeItem(KEY_API);
+    }
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function isConfigured() {
-  return Boolean(OPENROUTER_API_KEY) && !OPENROUTER_API_KEY.includes('SUA_CHAVE');
+  const k = readApiKey();
+  return Boolean(k) && !k.includes('SUA_CHAVE');
+}
+
+export function getApiKeySource() {
+  // Retorna 'localStorage' se a chave veio do localStorage, 'config' se veio
+  // do config.local.js, ou 'none' se não há chave configurada.
+  try {
+    const stored = localStorage.getItem(KEY_API);
+    if (stored && stored.trim().length > 0) return 'localStorage';
+  } catch {}
+  if (typeof window !== 'undefined' && typeof window.OPENROUTER_API_KEY === 'string') {
+    const fromConfig = window.OPENROUTER_API_KEY.trim();
+    if (fromConfig && !fromConfig.includes('SUA_CHAVE')) return 'config';
+  }
+  return 'none';
 }
 
 export function getGoals() {

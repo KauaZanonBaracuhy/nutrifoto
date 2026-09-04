@@ -158,6 +158,23 @@
             <h3>Conexão</h3>
           </div>
           <p class="provider-info">Provedor: <strong>OpenRouter</strong> · Modelo: <strong>openai/gpt-4o-mini</strong></p>
+
+          <div class="api-key-field">
+            <label for="api-key-input">Chave da API OpenRouter</label>
+            <div class="api-key-wrap">
+              <input type="password" id="api-key-input" autocomplete="off" spellcheck="false" placeholder="sk-or-v1-..." />
+              <button type="button" class="icon-btn api-key-toggle" id="btn-toggle-api-key" aria-label="Mostrar ou ocultar chave">
+                <i data-lucide="eye" class="icon-eye"></i>
+                <i data-lucide="eye-off" class="icon-eye-off" style="display:none"></i>
+              </button>
+            </div>
+            <p class="api-key-help">Seus dados ficam salvos apenas neste dispositivo.</p>
+            <button class="btn-secondary" id="btn-save-api-key" style="margin-top:4px">
+              <i data-lucide="save" style="width:16px;height:16px"></i> Salvar chave
+            </button>
+            <div id="api-key-status" class="test-result" style="display:none"></div>
+          </div>
+
           <button class="btn-secondary" id="btn-test-connection">
             <i data-lucide="wifi" style="width:16px;height:16px"></i> Testar conexão
           </button>

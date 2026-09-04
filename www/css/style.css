@@ -887,6 +887,67 @@ input, textarea, select { font-family: inherit; }
   border: 1px solid var(--coral);
 }
 
+/* ============ API KEY FIELD (Settings) ============ */
+.api-key-field {
+  margin: 14px 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.api-key-field label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.api-key-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color var(--dur-fast) var(--ease-smooth);
+}
+.api-key-wrap:focus-within {
+  border-color: var(--jade);
+  box-shadow: 0 0 0 3px rgba(0, 214, 143, 0.15);
+}
+.api-key-wrap input {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+.api-key-wrap input::placeholder {
+  color: var(--text-dim);
+  font-family: var(--font-sans);
+  letter-spacing: normal;
+}
+.api-key-toggle {
+  width: 36px;
+  height: 36px;
+  margin-right: 4px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  color: var(--text-muted);
+}
+.api-key-toggle:hover { color: var(--jade); background: rgba(0, 214, 143, 0.08); }
+.api-key-toggle i { width: 18px; height: 18px; }
+.api-key-help {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin: 0;
+  line-height: 1.4;
+}
+
 /* ============ BOTTOM NAV ============ */
 .nav {
   position: fixed;
