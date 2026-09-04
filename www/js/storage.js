@@ -1,14 +1,20 @@
 // storage.js — localStorage para metas diárias + leitura da chave OpenRouter
 
-// Import opcional: se config.local.js não existir (não commitado no GitHub),
-// o site continua funcionando, apenas sem chave de IA pré-configurada.
+// Em produção, config.local.js (chave real) não é commitado. Como fallback,
+// usamos config.example.js que sempre está presente. Se nem ele estiver,
+// a app continua funcionando (sem chave de IA).
 let OPENROUTER_API_KEY = '';
 try {
   const mod = await import('./config.local.js');
   OPENROUTER_API_KEY = mod.OPENROUTER_API_KEY || '';
 } catch {
-  // config.local.js ausente — usuário precisará configurar manualmente depois.
-  OPENROUTER_API_KEY = '';
+  // config.local.js ausente (não commitado) — tenta o placeholder.
+  try {
+    const ex = await import('./config.example.js');
+    OPENROUTER_API_KEY = ex.OPENROUTER_API_KEY || '';
+  } catch {
+    // Nada disponível, app segue sem chave de IA.
+  }
 }
 
 const KEY_GOALS = 'nutrifoto.goals';
@@ -20,14 +26,14 @@ const DEFAULT_GOALS = {
   fat: 70,
 };
 
-// ---------- API key (vem de config.local.js, se existir) ----------
+// ---------- API key ----------
 
 export function getApiKey() {
   return OPENROUTER_API_KEY;
 }
 
 export function isConfigured() {
-  return Boolean(OPENROUTER_API_KEY);
+  return Boolean(OPENROUTER_API_KEY) && !OPENROUTER_API_KEY.includes('SUA_CHAVE');
 }
 
 // ---------- Goals ----------
