@@ -1,0 +1,18 @@
+{
+  "name": "nutrifoto",
+  "version": "0.1.0",
+  "description": "Análise nutricional por foto usando a API do Claude",
+  "type": "module",
+  "scripts": {
+    "serve": "npx serve .",
+    "sync": "npx cap sync android",
+    "cap:open": "npx cap open android",
+    "android:build": "cd android && ./gradlew.bat assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/camera": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  }
+}

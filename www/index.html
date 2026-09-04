@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0C0F14" />
+  <title>NutriFoto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- ============ DASHBOARD ============ -->
+    <section id="screen-dashboard" class="screen active">
+      <header class="header">
+        <div class="header-row">
+          <h1>NutriFoto</h1>
+          <button class="icon-btn" id="btn-toggle-theme" aria-label="Alternar tema">
+            <i data-lucide="sun" class="icon-sun"></i>
+            <i data-lucide="moon" class="icon-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <main class="main" id="dashboard-main">
+        <div class="hero-donut" id="hero-donut">
+          <canvas id="donut-hero" width="180" height="180"></canvas>
+          <div class="hero-donut-center">
+            <div class="hero-value" id="hero-cal-value">0</div>
+            <div class="hero-label">/ <span id="hero-cal-goal">2200</span> kcal</div>
+            <div class="streak-badge" id="streak-badge">
+              <i data-lucide="flame" class="streak-icon"></i>
+              <span class="streak-num" id="streak-num">7</span>
+              <span class="streak-label">dias</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="macro-bars" id="macro-bars"></div>
+
+        <div class="mini-chart-section" id="mini-chart-section">
+          <div class="mini-chart-bar" id="mini-chart-bar"></div>
+          <button class="mini-chart-expand" id="btn-expand-charts">
+            <span>Gráficos da semana</span>
+            <i data-lucide="chevron-down" class="expand-icon"></i>
+          </button>
+        </div>
+
+        <div class="charts-expanded" id="charts-expanded" style="display:none">
+          <div class="chart-card">
+            <h3 class="chart-title">Calorias — últimos 7 dias</h3>
+            <div class="chart-wrap"><canvas id="chart-bars"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">Proteína — últimos 7 dias</h3>
+            <div class="chart-wrap"><canvas id="chart-line"></canvas></div>
+          </div>
+        </div>
+
+        <div class="section-separator">Hoje</div>
+        <div class="meals-list" id="meals-list"></div>
+      </main>
+
+      <button class="fab" id="btn-add-meal" aria-label="Adicionar refeição">
+        <i data-lucide="plus" style="width:24px;height:24px"></i>
+      </button>
+    </section>
+
+    <!-- ============ CAPTURE ============ -->
+    <section id="screen-capture" class="screen">
+      <header class="header">
+        <div class="header-row">
+          <h2>Nova refeição</h2>
+          <button class="icon-btn" id="btn-cancel-capture" aria-label="Cancelar">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+      </header>
+      <main class="main">
+        <div class="image-preview" id="image-preview">
+          <i data-lucide="image-plus" class="preview-icon"></i>
+          <span>Tire uma foto ou escolha da galeria</span>
+        </div>
+        <div class="capture-actions">
+          <button class="chip-btn" id="btn-camera">
+            <i data-lucide="camera" style="width:16px;height:16px"></i> Câmera
+          </button>
+          <button class="chip-btn" id="btn-gallery">
+            <i data-lucide="image" style="width:16px;height:16px"></i> Galeria
+          </button>
+        </div>
+        <button class="btn-primary" id="btn-analyze" disabled>
+          <i data-lucide="scan" style="width:18px;height:18px"></i> Analisar
+        </button>
+
+        <div class="skeleton-container" id="skeleton-loading" style="display:none">
+          <div class="skeleton skeleton-title"></div>
+          <div class="skeleton skeleton-row"></div>
+          <div class="skeleton skeleton-row short"></div>
+          <div class="skeleton skeleton-row"></div>
+          <div class="skeleton skeleton-row short"></div>
+          <div class="skeleton skeleton-row"></div>
+        </div>
+      </main>
+    </section>
+
+    <!-- ============ RESULTS ============ -->
+    <section id="screen-results" class="screen">
+      <header class="header">
+        <div class="header-row">
+          <h2>Resultado</h2>
+          <button class="icon-btn" id="btn-back-analyze" aria-label="Voltar">
+            <i data-lucide="arrow-left"></i>
+          </button>
+        </div>
+      </header>
+      <main class="main main-results">
+        <div class="result-hero" id="result-hero"></div>
+        <div id="foods-list"></div>
+        <div class="totals-summary" id="totals-summary"></div>
+        <div class="sticky-save">
+          <button class="btn-primary" id="btn-save-meal">
+            <i data-lucide="check" style="width:18px;height:18px"></i> Salvar refeição
+          </button>
+        </div>
+      </main>
+    </section>
+
+    <!-- ============ HISTORY ============ -->
+    <section id="screen-history" class="screen">
+      <header class="header">
+        <h2>Histórico</h2>
+      </header>
+      <main class="main" id="history-list"></main>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section id="screen-settings" class="screen">
+      <header class="header">
+        <h2>Configurações</h2>
+      </header>
+      <main class="main main-settings">
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i data-lucide="wifi" style="width:20px;height:20px"></i>
+            <h3>Conexão</h3>
+          </div>
+          <p class="provider-info">Provedor: <strong>OpenRouter</strong> · Modelo: <strong>openai/gpt-4o-mini</strong></p>
+          <button class="btn-secondary" id="btn-test-connection">
+            <i data-lucide="wifi" style="width:16px;height:16px"></i> Testar conexão
+          </button>
+          <div id="test-result" class="test-result" style="display:none"></div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i data-lucide="target" style="width:20px;height:20px"></i>
+            <h3>Metas diárias</h3>
+          </div>
+          <div class="goals-grid">
+            <div class="goal-field">
+              <label>Calorias</label>
+              <div class="goal-input-wrap">
+                <input type="number" id="goal-calories" />
+                <span class="goal-unit">kcal</span>
+              </div>
+            </div>
+            <div class="goal-field">
+              <label>Proteína</label>
+              <div class="goal-input-wrap">
+                <input type="number" id="goal-protein" />
+                <span class="goal-unit">g</span>
+              </div>
+            </div>
+            <div class="goal-field">
+              <label>Carboidrato</label>
+              <div class="goal-input-wrap">
+                <input type="number" id="goal-carb" />
+                <span class="goal-unit">g</span>
+              </div>
+            </div>
+            <div class="goal-field">
+              <label>Gordura</label>
+              <div class="goal-input-wrap">
+                <input type="number" id="goal-fat" />
+                <span class="goal-unit">g</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sticky-save">
+          <button class="btn-primary" id="btn-save-settings">
+            <i data-lucide="save" style="width:18px;height:18px"></i> Salvar tudo
+          </button>
+        </div>
+      </main>
+    </section>
+
+    <!-- ============ DIET PLAN ============ -->
+    <section id="screen-diet" class="screen">
+      <header class="header">
+        <div class="header-row">
+          <h2>Meu Plano</h2>
+          <button class="icon-btn" id="btn-edit-profile" aria-label="Editar perfil">
+            <i data-lucide="pencil" style="width:18px;height:18px"></i>
+          </button>
+        </div>
+      </header>
+      <main class="main main-diet" id="diet-main">
+        <!-- Form mode -->
+        <div id="diet-form-container">
+          <div id="diet-form-content">
+            <!-- will be rendered by dietPlan.js -->
+          </div>
+        </div>
+
+        <!-- Loading state -->
+        <div class="skeleton-container" id="diet-skeleton" style="display:none">
+          <div class="skeleton skeleton-title"></div>
+          <div class="skeleton skeleton-row"></div>
+          <div class="skeleton skeleton-row short"></div>
+          <div class="skeleton skeleton-row"></div>
+          <div class="skeleton skeleton-row short"></div>
+          <div class="skeleton skeleton-row"></div>
+        </div>
+
+        <!-- Plan view -->
+        <div id="diet-plan-view" style="display:none">
+          <div class="plan-header-card">
+            <div class="plan-header-top">
+              <div class="plan-tdee-card">
+                <div class="plan-tdee-label">TDEE (gasto diário)</div>
+                <div class="plan-tdee-value" id="plan-tdee-val">0</div>
+                <div class="plan-tdee-sub">kcal/dia</div>
+              </div>
+              <div class="plan-meta-card">
+                <div class="plan-meta-label">Meta calórica</div>
+                <div class="plan-meta-value" id="plan-meta-val">0</div>
+                <div class="plan-meta-sub">kcal/dia</div>
+              </div>
+            </div>
+            <div class="plan-objective" id="plan-objective">Objetivo</div>
+          </div>
+
+          <div class="plan-section-title">Distribuição de macros</div>
+          <div class="macro-bars plan-macro-bars" id="plan-macro-bars"></div>
+
+          <div class="plan-section-title">Refeições sugeridas</div>
+          <div class="plan-meals-timeline" id="plan-meals-timeline"></div>
+
+          <div class="sticky-save">
+            <button class="btn-secondary" id="btn-edit-form">
+              <i data-lucide="edit-3" style="width:16px;height:16px"></i> Editar formulário
+            </button>
+            <button class="btn-primary" id="btn-apply-goals">
+              <i data-lucide="target" style="width:18px;height:18px"></i> Aplicar às metas diárias
+            </button>
+            <button class="btn-secondary" id="btn-regen-plan" style="margin-top:8px">
+              <i data-lucide="refresh-cw" style="width:16px;height:16px"></i> Gerar novo plano
+            </button>
+          </div>
+        </div>
+      </main>
+    </section>
+
+    <!-- ============ CONFIRMATION OVERLAY ============ -->
+    <div class="confirm-overlay" id="confirm-overlay" style="display:none">
+      <div class="confirm-check">
+        <svg viewBox="0 0 52 52" class="confirm-svg">
+          <circle cx="26" cy="26" r="25" fill="none" class="confirm-circle"/>
+          <path fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" class="confirm-checkmark"/>
+        </svg>
+        <p>Refeição salva!</p>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <nav class="nav">
+      <button class="nav-btn active" data-screen="dashboard">
+        <i data-lucide="layout-dashboard"></i>
+        <span>Início</span>
+      </button>
+      <button class="nav-btn" data-screen="history">
+        <i data-lucide="calendar-days"></i>
+        <span>Histórico</span>
+      </button>
+      <button class="nav-btn" data-screen="diet">
+        <i data-lucide="clipboard-list"></i>
+        <span>Meu Plano</span>
+      </button>
+      <button class="nav-btn" data-screen="settings">
+        <i data-lucide="settings"></i>
+        <span>Config.</span>
+      </button>
+    </nav>
+  </div>
+   <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+node_modules/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/captures/
+android/.idea/
+*.iml
+.gradle/
+local.properties
+
+# Chave de API pessoal (NÃO COMMITAR)
+www/js/config.local.js
