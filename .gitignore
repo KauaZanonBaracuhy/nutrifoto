@@ -11,3 +11,6 @@ local.properties
 
 # Chave de API pessoal (NÃO COMMITAR)
 www/js/config.local.js
+
+# Referência local de Git para Claude Code (NÃO COMMITAR)
+GIT_INFO.local.md
