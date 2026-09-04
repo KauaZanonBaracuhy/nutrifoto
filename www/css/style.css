@@ -84,7 +84,7 @@ input, textarea, select { font-family: inherit; }
 /* Header */
 .header {
   flex: 0 0 auto;
-  padding: calc(env(safe-area-inset-top, 0px) + 18px) 20px 14px;
+  padding: max(env(safe-area-inset-top), 14px) 20px 14px;
   background: transparent;
   z-index: 5;
 }
@@ -124,7 +124,7 @@ input, textarea, select { font-family: inherit; }
   flex: 1 1 auto;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 8px 20px 110px;
+  padding: 8px 20px calc(56px + env(safe-area-inset-bottom) + 24px);
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
@@ -373,7 +373,7 @@ input, textarea, select { font-family: inherit; }
 /* FAB */
 .fab {
   position: fixed;
-  bottom: calc(72px + env(safe-area-inset-bottom, 12px)) !important;
+  bottom: calc(56px + env(safe-area-inset-bottom) + 14px) !important;
   right: 20px;
   width: 58px;
   height: 58px;
@@ -518,7 +518,7 @@ input, textarea, select { font-family: inherit; }
 }
 
 /* ============ RESULTS SCREEN ============ */
-.main-results { padding-bottom: 80px; }
+.main-results { padding-bottom: calc(56px + env(safe-area-inset-bottom) + 60px); }
 .result-hero {
   display: flex;
   gap: 12px;
@@ -780,7 +780,7 @@ input, textarea, select { font-family: inherit; }
 .timeline-meal-kcal { text-align: right; color: var(--text-dim); font-weight: 600; }
 
 /* ============ SETTINGS ============ */
-.main-settings { padding-bottom: 110px; }
+.main-settings { padding-bottom: calc(56px + env(safe-area-inset-bottom) + 100px); }
 .settings-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -896,8 +896,8 @@ input, textarea, select { font-family: inherit; }
   display: flex;
   justify-content: space-around;
   align-items: center;
-  height: calc(56px + env(safe-area-inset-bottom, 16px));
-  padding: 8px calc(20px) calc(12px + env(safe-area-inset-bottom, 12px));
+  height: 56px;
+  padding-bottom: env(safe-area-inset-bottom);
   background:
     radial-gradient(800px 300px at 50% -100%, rgba(22, 27, 38, 0.95), transparent 70%),
     var(--surface);
@@ -946,7 +946,7 @@ input, textarea, select { font-family: inherit; }
 /* ============ TOAST ============ */
 .toast {
   position: fixed;
-  bottom: calc(104px + env(safe-area-inset-bottom, 16px));
+  bottom: calc(56px + env(safe-area-inset-bottom) + 64px);
   left: 50%;
   transform: translateX(-50%);
   padding: 12px 24px;
@@ -1019,7 +1019,7 @@ input, textarea, select { font-family: inherit; }
 }
 
 /* ============ DIET PLAN (Meu Plano) ============ */
-.main-diet { padding-bottom: 120px; }
+.main-diet { padding-bottom: calc(56px + env(safe-area-inset-bottom) + 110px); }
 
 /* Form sections */
 .diet-section {
@@ -1297,19 +1297,53 @@ input, textarea, select { font-family: inherit; }
 }
 
 /* ============ RESPONSIVE ============ */
-@media (max-width: 390px) {
-  .header h1 { font-size: 24px; }
-  .hero-value { font-size: 40px; }
-  .hero-donut { width: 200px; height: 200px; }
+
+/* Telas muito pequenas (iPhone SE) */
+@media (max-width: 380px) {
+  .header h1 { font-size: 22px; }
+  .hero-value { font-size: 36px; }
+  .hero-donut { width: 180px; height: 180px; }
   .meals-list { gap: 8px; }
   .meal-item { padding: 12px; }
   .goal-input-wrap input { font-size: 14px; }
-}
-@media (max-width: 360px) {
-  .header h1 { font-size: 22px; }
-  .hero-value { font-size: 36px; }
   .nav { font-size: 9px; }
   .nav-btn i { width: 20px; height: 20px; }
+  .nav-btn span { font-size: 9px; }
+}
+
+/* Tablets em modo retrato e telas grandes (768px+) */
+@media (min-width: 768px) {
+  body {
+    background:
+      radial-gradient(1400px 800px at 50% -20%, rgba(0, 214, 143, 0.10), transparent 60%),
+      radial-gradient(1200px 700px at 50% 120%, rgba(59, 130, 246, 0.08), transparent 60%),
+      var(--bg);
+  }
+  .app {
+    max-width: 560px;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
+  .header { padding-left: 28px; padding-right: 28px; }
+  .header h1 { font-size: 30px; }
+  .hero-value { font-size: 52px; }
+  .hero-donut { width: 240px; height: 240px; }
+  .main { padding-left: 28px; padding-right: 28px; }
+}
+
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+  .app { max-width: 620px; }
+  .hero-donut { width: 260px; height: 260px; }
+}
+
+/* Landscape no celular - layouts muito largos horizontalmente */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero-donut { width: 160px; height: 160px; }
+  .hero-value { font-size: 32px; }
+  .header h1 { font-size: 22px; }
+  .main { padding-bottom: calc(56px + env(safe-area-inset-bottom) + 16px); }
 }
 
 /* ============ UTILIDADES ============ */
