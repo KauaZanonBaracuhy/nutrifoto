@@ -731,24 +731,24 @@ function handleRegenPlan() {
 // ============ INIT ============
 function bind() {
   $$('.nav-btn').forEach(b => {
-    b.onclick = () => showScreen(b.dataset.screen);
+    b.addEventListener('click', () => showScreen(b.dataset.screen));
   });
-  $('#btn-add-meal').onclick = () => { setCaptureImage(null); showScreen('capture'); };
-  $('#btn-camera').onclick = () => handleImage(captureFromCamera);
-  $('#btn-gallery').onclick = () => handleImage(pickFromGallery);
-  $('#btn-analyze').onclick = handleAnalyze;
-  $('#btn-back-analyze').onclick = () => showScreen('capture');
-  $('#btn-save-meal').onclick = handleSaveMeal;
-  $('#btn-save-settings').onclick = handleSaveSettings;
-  $('#btn-test-connection').onclick = handleTestConnection;
-  $('#btn-cancel-capture').onclick = () => showScreen('dashboard');
-  $('#btn-toggle-theme').onclick = toggleTheme;
-  $('#btn-expand-charts').onclick = toggleCharts;
-  $('#mini-chart-bar').onclick = toggleCharts;
-  $('#btn-edit-profile').onclick = handleShowForm;
-  $('#btn-edit-form').onclick = handleShowForm;
-  $('#btn-apply-goals').onclick = handleApplyGoals;
-  $('#btn-regen-plan').onclick = handleRegenPlan;
+  $('#btn-add-meal').addEventListener('click', () => { setCaptureImage(null); showScreen('capture'); });
+  $('#btn-camera').addEventListener('click', () => handleImage(captureFromCamera));
+  $('#btn-gallery').addEventListener('click', () => handleImage(pickFromGallery));
+  $('#btn-analyze').addEventListener('click', handleAnalyze);
+  $('#btn-back-analyze').addEventListener('click', () => showScreen('capture'));
+  $('#btn-save-meal').addEventListener('click', handleSaveMeal);
+  $('#btn-save-settings').addEventListener('click', handleSaveSettings);
+  $('#btn-test-connection').addEventListener('click', handleTestConnection);
+  $('#btn-cancel-capture').addEventListener('click', () => showScreen('dashboard'));
+  $('#btn-toggle-theme').addEventListener('click', toggleTheme);
+  $('#btn-expand-charts').addEventListener('click', toggleCharts);
+  $('#mini-chart-bar').addEventListener('click', toggleCharts);
+  $('#btn-edit-profile').addEventListener('click', handleShowForm);
+  $('#btn-edit-form').addEventListener('click', handleShowForm);
+  $('#btn-apply-goals').addEventListener('click', handleApplyGoals);
+  $('#btn-regen-plan').addEventListener('click', handleRegenPlan);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
