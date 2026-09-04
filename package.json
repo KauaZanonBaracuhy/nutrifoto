@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "generate-config": "node scripts/generate-config.js",
-    "prebuild": "node scripts/generate-config.js",
-    "build": "echo 'Static site — no build step needed'",
+    "build:web": "node scripts/generate-config.js",
+    "build:android": "node scripts/generate-config.js && npx cap copy android",
+    "build:apk": "node scripts/generate-config.js && npx cap copy android && cd android && gradlew.bat assembleDebug",
+    "build": "node scripts/generate-config.js",
     "serve": "npx serve .",
     "sync": "npx cap sync android",
-    "cap:open": "npx cap open android",
-    "android:build": "cd android && ./gradlew.bat assembleDebug"
+    "cap:open": "npx cap open android"
   },
   "dependencies": {
     "@capacitor/android": "^6.0.0",
