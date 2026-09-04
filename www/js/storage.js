@@ -22,7 +22,7 @@ function readApiKey() {
   } catch {}
   if (typeof window !== 'undefined' && typeof window.OPENROUTER_API_KEY === 'string') {
     const fromConfig = window.OPENROUTER_API_KEY.trim();
-    if (fromConfig && !fromConfig.includes('SUA_CHAVE')) return fromConfig;
+    if (fromConfig) return fromConfig;
   }
   return '';
 }
@@ -45,8 +45,7 @@ export function setApiKey(key) {
 }
 
 export function isConfigured() {
-  const k = readApiKey();
-  return Boolean(k) && !k.includes('SUA_CHAVE');
+  return Boolean(readApiKey());
 }
 
 export function getApiKeySource() {
@@ -58,7 +57,7 @@ export function getApiKeySource() {
   } catch {}
   if (typeof window !== 'undefined' && typeof window.OPENROUTER_API_KEY === 'string') {
     const fromConfig = window.OPENROUTER_API_KEY.trim();
-    if (fromConfig && !fromConfig.includes('SUA_CHAVE')) return 'config';
+    if (fromConfig) return 'config';
   }
   return 'none';
 }

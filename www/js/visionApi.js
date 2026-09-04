@@ -100,12 +100,20 @@ export async function analyzeImage({ base64, mediaType }) {
 
   let res;
   try {
-    res = await fetch(OPENROUTER_ENDPOINT, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-    });
-  } catch {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 25000);
+    try {
+      res = await fetch(OPENROUTER_ENDPOINT, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+  } catch (e) {
+    if (e && e.name === 'AbortError') throw new Error('Tempo esgotado (25s). Verifique sua conexão.');
     throw new Error('Sem internet ou API inacessível.');
   }
 
@@ -176,15 +184,23 @@ export async function testConnection() {
   };
 
   try {
-    const res = await fetch(OPENROUTER_ENDPOINT, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-    });
-    if (res.ok) return { ok: true, message: 'Conexão OK!' };
-    const errText = await res.text().catch(() => '');
-    return { ok: false, error: `HTTP ${res.status}: ${errText.slice(0, 300)}` };
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    try {
+      const res = await fetch(OPENROUTER_ENDPOINT, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      if (res.ok) return { ok: true, message: 'Conexão OK!' };
+      const errText = await res.text().catch(() => '');
+      return { ok: false, error: `HTTP ${res.status}: ${errText.slice(0, 300)}` };
+    } finally {
+      clearTimeout(timer);
+    }
   } catch (e) {
+    if (e && e.name === 'AbortError') return { ok: false, error: 'Tempo esgotado (15s). Verifique sua conexão.' };
     return { ok: false, error: `Falha na conexão: ${e.message}` };
   }
 }

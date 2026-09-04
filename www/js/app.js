@@ -413,14 +413,20 @@ function renderSettings() {
   $('#goal-fat').value = g.fat;
   $('#test-result').style.display = 'none';
 
-  // Pré-preencher campo de API key (mascarado) se já houver chave salva
+  // Pré-preencher campo de API key (mascarado) só se o cliente já salvou a dele
+  // no localStorage manualmente. A chave embutida no código não aparece no campo.
   const apiKeyInput = $('#api-key-input');
   if (apiKeyInput) {
-    const existing = getApiKey();
-    if (existing) {
-      apiKeyInput.value = maskKey(existing);
-      apiKeyInput.dataset.masked = '1';
-    } else {
+    try {
+      const stored = localStorage.getItem('nutrifoto.apiKey');
+      if (stored && stored.trim().length > 0) {
+        apiKeyInput.value = maskKey(stored.trim());
+        apiKeyInput.dataset.masked = '1';
+      } else {
+        apiKeyInput.value = '';
+        apiKeyInput.dataset.masked = '0';
+      }
+    } catch {
       apiKeyInput.value = '';
       apiKeyInput.dataset.masked = '0';
     }

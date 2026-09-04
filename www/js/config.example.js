@@ -1,8 +1,4 @@
-// config.example.js — arquivo de configuração genérico (SEMPRE commitado)
-// Define window.OPENROUTER_API_KEY com placeholder se ainda não estiver definido.
-// O index.html carrega config.local.js ANTES deste arquivo (se existir).
-// Em produção (deploy sem config.local.js), este arquivo define o placeholder.
-// O app.js verifica se a chave contém "SUA_CHAVE" e redireciona para configuração.
-if (!window.OPENROUTER_API_KEY) {
-  window.OPENROUTER_API_KEY = 'sk-or-v1-SUA_CHAVE_AQUI';
-}
+// config.example.js — chave da OpenRouter embutida no app
+// ATENÇÃO: esta chave está commitada no repositório por opção de produto.
+// Se você trocar de provedor ou revogar esta chave, edite este arquivo e faça deploy.
+window.OPENROUTER_API_KEY = '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';
