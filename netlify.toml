@@ -1,6 +1,9 @@
 [build]
 publish = "www"
-command = ""
+command = "echo 'Static site — no build step needed'"
+
+[build.environment]
+NODE_VERSION = ""
 
 [dev]
 port = 3000

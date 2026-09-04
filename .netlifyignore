@@ -1,0 +1,28 @@
+# .netlifyignore — arquivos e pastas que o Netlify deve ignorar
+# Site é 100% estático na pasta www/, nada mais precisa ser deployado
+
+# Android (só para gerar APK local, irrelevante para o site)
+android/
+android/.gradle/
+android/app/build/
+android/build/
+
+# Configuração Node/Android local
+node_modules/
+package-lock.json
+
+# Documentação de desenvolvimento
+README.md
+FUNCIONALIDADES.md
+ROADMAP_IDEIAS.md
+
+# Scripts de build/teste locais
+*.bat
+test_*.py
+test_automated.py
+
+# Documentação interna
+GIT_INFO.local.md
+
+# Chave de API pessoal
+www/js/config.local.js
