@@ -1,21 +1,12 @@
 // storage.js — localStorage para metas diárias + leitura da chave OpenRouter
 
-// Em produção, config.local.js (chave real) não é commitado. Como fallback,
-// usamos config.example.js que sempre está presente. Se nem ele estiver,
-// a app continua funcionando (sem chave de IA).
-let OPENROUTER_API_KEY = '';
-try {
-  const mod = await import('./config.local.js');
-  OPENROUTER_API_KEY = mod.OPENROUTER_API_KEY || '';
-} catch {
-  // config.local.js ausente (não commitado) — tenta o placeholder.
-  try {
-    const ex = await import('./config.example.js');
-    OPENROUTER_API_KEY = ex.OPENROUTER_API_KEY || '';
-  } catch {
-    // Nada disponível, app segue sem chave de IA.
-  }
-}
+// Carregamos a chave via um script tag síncrono (não ESM) injetado pelo index.html.
+// Isso evita o erro MIME type do import() dinâmico.
+// Veja: <script src="js/config.local.js"></script> no index.html (síncrono, sem type=module)
+// e <script src="js/config.example.js"></script> como fallback.
+
+// Como config.local.js define window.OPENROUTER_API_KEY_GLOBAL e config.example.js
+// define window.OPENROUTER_API_KEY_PLACEHOLDER, o storage.js pega o que existir.
 
 const KEY_GOALS = 'nutrifoto.goals';
 
@@ -26,7 +17,16 @@ const DEFAULT_GOALS = {
   fat: 70,
 };
 
-// ---------- API key ----------
+function loadApiKey() {
+  if (typeof window === 'undefined') return '';
+  // config.local.js define window.OPENROUTER_API_KEY (chave real)
+  if (typeof window.OPENROUTER_API_KEY === 'string') return window.OPENROUTER_API_KEY;
+  // config.example.js define window.OPENROUTER_API_KEY como placeholder
+  // (já coberto acima)
+  return '';
+}
+
+const OPENROUTER_API_KEY = loadApiKey();
 
 export function getApiKey() {
   return OPENROUTER_API_KEY;
@@ -35,8 +35,6 @@ export function getApiKey() {
 export function isConfigured() {
   return Boolean(OPENROUTER_API_KEY) && !OPENROUTER_API_KEY.includes('SUA_CHAVE');
 }
-
-// ---------- Goals ----------
 
 export function getGoals() {
   try {
