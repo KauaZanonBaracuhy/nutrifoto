@@ -896,7 +896,7 @@ input, textarea, select { font-family: inherit; }
   display: flex;
   justify-content: space-around;
   align-items: center;
-  height: 56px;
+  min-height: 56px;
   padding-bottom: env(safe-area-inset-bottom);
   background:
     radial-gradient(800px 300px at 50% -100%, rgba(22, 27, 38, 0.95), transparent 70%),
@@ -907,6 +907,21 @@ input, textarea, select { font-family: inherit; }
   z-index: 14;
   box-shadow: 0 -4px 28px rgba(0, 0, 0, 0.45);
   will-change: transform;
+  /* Forçar box-sizing no contexto standalone do iOS */
+  box-sizing: border-box;
+}
+.nav::before {
+  /* Camada de background que se estende até o bottom:0 real da tela,
+     incluindo a safe-area, para que a nav pareça preencher a borda inferior */
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: calc(-1 * env(safe-area-inset-bottom));
+  background: inherit;
+  z-index: -1;
+  pointer-events: none;
 }
 .nav-btn {
   display: flex;
