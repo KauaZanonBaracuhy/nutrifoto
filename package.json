@@ -4,6 +4,9 @@
   "description": "Análise nutricional por foto usando a API do Claude",
   "type": "module",
   "scripts": {
+    "generate-config": "node scripts/generate-config.js",
+    "prebuild": "node scripts/generate-config.js",
+    "build": "echo 'Static site — no build step needed'",
     "serve": "npx serve .",
     "sync": "npx cap sync android",
     "cap:open": "npx cap open android",

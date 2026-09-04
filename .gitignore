@@ -12,6 +12,9 @@ local.properties
 # Chave de API pessoal (NÃO COMMITAR)
 www/js/config.local.js
 
+# Arquivo .env (chaves reais, NÃO commitar)
+.env
+
 # Netlify CLI (configuração local, não versionar)
 .netlify/
 

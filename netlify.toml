@@ -1,6 +1,6 @@
 [build]
 publish = "www"
-command = "echo 'Static site — no build step needed'"
+command = "node scripts/generate-config.js"
 
 [build.environment]
 NODE_VERSION = ""
