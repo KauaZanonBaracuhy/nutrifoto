@@ -1,5 +1,5 @@
 // app.js — v2 layout: hero donut, macro bars, mini chart, FAB, timeline, receipt
-import { getGoals, setGoals, isConfigured, getApiKey, setApiKey } from './storage.js';
+import { getGoals, setGoals, isConfigured, getApiKey } from './storage.js';
 import { salvarRefeicao, listarRefeicoesDoDia, listarHistorico, deletarRefeicao, listarTotaisPorDia } from './db.js';
 import { captureFromCamera, pickFromGallery, downscaleImage } from './camera.js';
 import { analyzeImage, recalcularTotal, testConnection } from './visionApi.js';
@@ -406,139 +406,231 @@ async function renderHistory() {
 }
 
 // ============ SETTINGS ============
+const NOTIFY_KEY = 'nutrifoto.notify';
+const APP_VERSION = '0.1.0';
+
+// PLACEHOLDER: secao futura "Comunidade / Social"
+// Quando for implementada, adicionar um novo <div class="settings-card">
+// nesta posicao do array de cards em screen-settings (entre "Tema visual"
+// e "Sobre o app", ou onde fizer mais sentido no produto).
+// Sugestoes de UI para essa secao:
+//   - Feed de refeicoes publicas de outros usuarios
+//   - Compartilhar refeicao com foto + macros
+//   - Seguir amigos / ver streaks deles
+//   - Desafios semanais (ex: 7 dias semanais completos)
+//   - Reacoes/comentarios
+// Por enquanto NAO adicionar nenhum elemento visivel aqui — apenas
+// manter este comentario para marcar o local de insercao futura.
+
+const RESTRICOES_OPTS_SETTINGS = [
+  { value: 'vegetariano', label: 'Vegetariano' },
+  { value: 'vegano', label: 'Vegano' },
+  { value: 'sem_gluten', label: 'Sem gluten' },
+  { value: 'sem_lactose', label: 'Sem lactose' },
+  { value: 'low_carb', label: 'Low carb' },
+  { value: 'nenhuma', label: 'Nenhuma' },
+];
+
+const DEFAULT_NOTIFY = {
+  mealEnabled: false,
+  mealTime: '12:00',
+  streakEnabled: false,
+  streakTime: '20:00',
+};
+
+function readNotify() {
+  try {
+    const raw = localStorage.getItem(NOTIFY_KEY);
+    if (!raw) return { ...DEFAULT_NOTIFY };
+    return { ...DEFAULT_NOTIFY, ...JSON.parse(raw) };
+  } catch {
+    return { ...DEFAULT_NOTIFY };
+  }
+}
+
+function writeNotify(prefs) {
+  localStorage.setItem(NOTIFY_KEY, JSON.stringify(prefs));
+}
+
+function setToggle(btn, on) {
+  btn.dataset.on = on ? '1' : '0';
+  btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+}
+
 function renderSettings() {
+  // Meta calórica
   const g = getGoals();
-  $('#goal-calories').value = g.calories;
-  $('#goal-protein').value = g.protein;
-  $('#goal-carb').value = g.carb;
-  $('#goal-fat').value = g.fat;
-  $('#test-result').style.display = 'none';
+  $('#set-calories').value = g.calories;
+  $('#set-protein').value = g.protein;
+  $('#set-carb').value = g.carb;
+  $('#set-fat').value = g.fat;
 
-  // Pré-preencher campo de API key (mascarado) só se o cliente já salvou a dele
-  // no localStorage manualmente. A chave embutida no código não aparece no campo.
-  const apiKeyInput = $('#api-key-input');
-  if (apiKeyInput) {
-    try {
-      const stored = localStorage.getItem('nutrifoto.apiKey');
-      if (stored && stored.trim().length > 0) {
-        apiKeyInput.value = maskKey(stored.trim());
-        apiKeyInput.dataset.masked = '1';
-      } else {
-        apiKeyInput.value = '';
-        apiKeyInput.dataset.masked = '0';
+  // Perfil pessoal
+  const profile = getUserProfile() || {};
+  $('#set-idade').value = profile.idade || '';
+  $('#set-sexo').value = profile.sexo || 'masculino';
+  $('#set-peso').value = profile.pesoAtual || '';
+  $('#set-altura').value = profile.altura || '';
+  $('#set-atividade').value = profile.nivelAtividade || 'sedentario';
+  $('#set-objetivo').value = profile.objetivo || 'manter_peso';
+
+  // Restrições
+  const chips = document.querySelectorAll('#set-restricoes-chips .diet-chip');
+  const r = new Set(profile.restricoes || []);
+  chips.forEach(c => c.classList.toggle('active', r.has(c.dataset.value)));
+  $('#set-alergias').value = profile.restricoesTexto || '';
+  $('#set-nao-gosta').value = profile.alimentosNaoGosta || '';
+
+  // Notificações
+  const n = readNotify();
+  setToggle($('#set-toggle-meal'), n.mealEnabled);
+  setToggle($('#set-toggle-streak'), n.streakEnabled);
+  $('#set-meal-time').value = n.mealTime;
+  $('#set-streak-time').value = n.streakTime;
+
+  // Tema
+  const currentTheme = getTheme();
+  document.querySelectorAll('#set-theme-chips .diet-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.value === currentTheme);
+  });
+
+  // Sobre
+  $('#about-version').textContent = APP_VERSION;
+
+  bindSettingsChips();
+
+  if (window.lucide) lucide.createIcons();
+}
+
+function bindSettingsChips() {
+  document.querySelectorAll('#set-restricoes-chips .diet-chip').forEach(chip => {
+    chip.onclick = () => {
+      const val = chip.dataset.value;
+      if (val === 'nenhuma') {
+        document.querySelectorAll('#set-restricoes-chips .diet-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        return;
       }
-    } catch {
-      apiKeyInput.value = '';
-      apiKeyInput.dataset.masked = '0';
-    }
-    apiKeyInput.type = 'password';
-    const eyeOn = apiKeyInput.parentElement.querySelector('.icon-eye');
-    const eyeOff = apiKeyInput.parentElement.querySelector('.icon-eye-off');
-    if (eyeOn) eyeOn.style.display = '';
-    if (eyeOff) eyeOff.style.display = 'none';
-    $('#api-key-status').style.display = 'none';
-  }
-}
+      const nenhuma = document.querySelector('#set-restricoes-chips .diet-chip[data-value="nenhuma"]');
+      if (nenhuma) nenhuma.classList.remove('active');
+      chip.classList.toggle('active');
+      const anyActive = document.querySelectorAll('#set-restricoes-chips .diet-chip.active').length > 0;
+      if (!anyActive && nenhuma) nenhuma.classList.add('active');
+    };
+  });
 
-function maskKey(key) {
-  if (!key || key.length < 12) return key;
-  return key.substring(0, 7) + '••••••••••••' + key.substring(key.length - 4);
-}
+  document.querySelectorAll('#set-theme-chips .diet-chip').forEach(chip => {
+    chip.onclick = () => {
+      document.querySelectorAll('#set-theme-chips .diet-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      setTheme(chip.dataset.value);
+    };
+  });
 
-function handleSaveApiKey() {
-  const input = $('#api-key-input');
-  const status = $('#api-key-status');
-  let raw = input.value.trim();
-
-  // Se está mascarado, não salvar
-  if (raw.includes('••')) {
-    status.style.display = 'block';
-    status.className = 'test-result success';
-    status.textContent = '✓ Chave já está salva (mascarada). Edite o campo para alterar.';
-    return;
-  }
-
-  if (!raw) {
-    setApiKey('');
-    status.style.display = 'block';
-    status.className = 'test-result error';
-    status.textContent = 'Chave removida. Análise de imagem ficará desabilitada.';
-    input.dataset.masked = '0';
-    return;
-  }
-
-  if (!raw.startsWith('sk-or-')) {
-    status.style.display = 'block';
-    status.className = 'test-result error';
-    status.textContent = '✗ Formato inválido. Chave deve começar com "sk-or-".';
-    return;
-  }
-
-  const ok = setApiKey(raw);
-  if (ok) {
-    status.style.display = 'block';
-    status.className = 'test-result success';
-    status.textContent = '✓ Chave salva neste dispositivo.';
-    input.value = maskKey(raw);
-    input.dataset.masked = '1';
-  } else {
-    status.style.display = 'block';
-    status.className = 'test-result error';
-    status.textContent = '✗ Não foi possível salvar.';
-  }
-}
-
-function handleToggleApiKey() {
-  const input = $('#api-key-input');
-  const eyeOn = $('#btn-toggle-api-key').querySelector('.icon-eye');
-  const eyeOff = $('#btn-toggle-api-key').querySelector('.icon-eye-off');
-  if (input.type === 'password') {
-    input.type = 'text';
-    eyeOn.style.display = 'none';
-    eyeOff.style.display = '';
-  } else {
-    input.type = 'password';
-    eyeOn.style.display = '';
-    eyeOff.style.display = 'none';
-  }
+  $('#set-toggle-meal').onclick = (e) => {
+    const btn = e.currentTarget;
+    setToggle(btn, btn.dataset.on === '0');
+  };
+  $('#set-toggle-streak').onclick = (e) => {
+    const btn = e.currentTarget;
+    setToggle(btn, btn.dataset.on === '0');
+  };
 }
 
 function handleSaveSettings() {
+  // 1) Metas
   setGoals({
-    calories: Number($('#goal-calories').value) || 0,
-    protein: Number($('#goal-protein').value) || 0,
-    carb: Number($('#goal-carb').value) || 0,
-    fat: Number($('#goal-fat').value) || 0,
+    calories: Number($('#set-calories').value) || 0,
+    protein: Number($('#set-protein').value) || 0,
+    carb: Number($('#set-carb').value) || 0,
+    fat: Number($('#set-fat').value) || 0,
   });
-  toast('Metas salvas');
+
+  // 2) Perfil (reaproveitando o que ja existe em dietPlan.js)
+  const current = getUserProfile() || {};
+  const chips = Array.from(document.querySelectorAll('#set-restricoes-chips .diet-chip.active')).map(c => c.dataset.value);
+  const profile = {
+    ...current,
+    idade: Number($('#set-idade').value) || 0,
+    sexo: $('#set-sexo').value,
+    pesoAtual: Number($('#set-peso').value) || 0,
+    altura: Number($('#set-altura').value) || 0,
+    nivelAtividade: $('#set-atividade').value,
+    objetivo: $('#set-objetivo').value,
+    restricoes: chips.filter(c => c !== 'nenhuma'),
+    restricoesTexto: $('#set-alergias').value.trim(),
+    alimentosNaoGosta: $('#set-nao-gosta').value.trim(),
+    refeicoesPorDia: current.refeicoesPorDia || 5,
+    horarioAcorda: current.horarioAcorda || '07:00',
+    horarioDorme: current.horarioDorme || '23:00',
+    rotinaTexto: current.rotinaTexto || '',
+    condicoesSaude: current.condicoesSaude || '',
+    alimentosFavoritos: current.alimentosFavoritos || '',
+  };
+  saveUserProfile(profile);
+
+  // 3) Notificações
+  writeNotify({
+    mealEnabled: $('#set-toggle-meal').dataset.on === '1',
+    mealTime: $('#set-meal-time').value || DEFAULT_NOTIFY.mealTime,
+    streakEnabled: $('#set-toggle-streak').dataset.on === '1',
+    streakTime: $('#set-streak-time').value || DEFAULT_NOTIFY.streakTime,
+  });
+
+  // Reflete imediatamente no dashboard
+  renderDashboard();
+  toast('Configurações salvas');
 }
 
-async function handleTestConnection() {
-  const btn = $('#btn-test-connection');
-  const result = $('#test-result');
-  btn.disabled = true;
-  btn.innerHTML = '<i data-lucide="loader" style="width:16px;height:16px"></i> Testando...';
-  result.style.display = 'none';
-
-  try {
-    const res = await testConnection();
-    result.style.display = 'block';
-    if (res.ok) {
-      result.className = 'test-result success';
-      result.textContent = '✓ ' + (res.message || 'Conexão OK!');
-    } else {
-      result.className = 'test-result error';
-      result.textContent = '✗ ' + (res.error || 'Erro desconhecido');
+function exportMealsJSON() {
+  listarHistorico().then((groups) => {
+    const flat = [];
+    for (const g of groups) {
+      for (const m of g.meals) {
+        flat.push({
+          date: g.day,
+          createdAt: m.createdAt,
+          total: m.total,
+          alimentos: m.alimentos,
+        });
+      }
     }
-  } catch (e) {
-    result.style.display = 'block';
-    result.className = 'test-result error';
-    result.textContent = '✗ ' + e.message;
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i data-lucide="wifi" style="width:16px;height:16px"></i> Testar conexão';
-    if (window.lucide) lucide.createIcons();
-  }
+    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), meals: flat }, null, 2)], { type: 'application/json' });
+    downloadBlob(blob, `nutrifoto-historico-${new Date().toISOString().slice(0, 10)}.json`);
+  });
+}
+
+function exportMealsCSV() {
+  listarHistorico().then((groups) => {
+    const rows = [['date', 'createdAt', 'alimentos', 'calorias', 'proteina_g', 'carboidrato_g', 'gordura_g']];
+    for (const g of groups) {
+      for (const m of g.meals) {
+        const nomes = (m.alimentos || []).map(a => a.nome).join('; ');
+        rows.push([
+          g.day,
+          m.createdAt,
+          `"${nomes.replace(/"/g, '""')}"`,
+          m.total?.calorias || 0,
+          m.total?.proteina_g || 0,
+          m.total?.carboidrato_g || 0,
+          m.total?.gordura_g || 0,
+        ]);
+      }
+    }
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    downloadBlob(blob, `nutrifoto-historico-${new Date().toISOString().slice(0, 10)}.csv`);
+  });
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
 }
 
 // ============ DIET PLAN (Meu Plano) ============
@@ -905,9 +997,8 @@ function bind() {
   $('#btn-back-analyze').addEventListener('click', () => showScreen('capture'));
   $('#btn-save-meal').addEventListener('click', handleSaveMeal);
   $('#btn-save-settings').addEventListener('click', handleSaveSettings);
-  $('#btn-test-connection').addEventListener('click', handleTestConnection);
-  $('#btn-save-api-key').addEventListener('click', handleSaveApiKey);
-  $('#btn-toggle-api-key').addEventListener('click', handleToggleApiKey);
+  $('#btn-export-json').addEventListener('click', exportMealsJSON);
+  $('#btn-export-csv').addEventListener('click', exportMealsCSV);
   $('#btn-cancel-capture').addEventListener('click', () => showScreen('dashboard'));
   $('#btn-toggle-theme').addEventListener('click', toggleTheme);
   $('#btn-expand-charts').addEventListener('click', toggleCharts);

@@ -152,70 +152,183 @@
         <h2>Configurações</h2>
       </header>
       <main class="main main-settings">
+
         <div class="settings-card">
           <div class="settings-card-header">
-            <i data-lucide="wifi" style="width:20px;height:20px"></i>
-            <h3>Conexão</h3>
+            <i data-lucide="flame" style="width:20px;height:20px"></i>
+            <h3>Meta calórica diária</h3>
           </div>
-          <p class="provider-info">Provedor: <strong>OpenRouter</strong> · Modelo: <strong>openai/gpt-4o-mini</strong></p>
-
-          <div class="api-key-field">
-            <label for="api-key-input">Chave da API OpenRouter</label>
-            <div class="api-key-wrap">
-              <input type="password" id="api-key-input" autocomplete="off" spellcheck="false" placeholder="sk-or-v1-..." />
-              <button type="button" class="icon-btn api-key-toggle" id="btn-toggle-api-key" aria-label="Mostrar ou ocultar chave">
-                <i data-lucide="eye" class="icon-eye"></i>
-                <i data-lucide="eye-off" class="icon-eye-off" style="display:none"></i>
-              </button>
+          <div class="diet-field">
+            <label for="set-calories">Calorias</label>
+            <div class="goal-input-wrap">
+              <input type="number" id="set-calories" min="0" step="50" />
+              <span class="goal-unit">kcal</span>
             </div>
-            <p class="api-key-help">Seus dados ficam salvos apenas neste dispositivo.</p>
-            <button class="btn-secondary" id="btn-save-api-key" style="margin-top:4px">
-              <i data-lucide="save" style="width:16px;height:16px"></i> Salvar chave
-            </button>
-            <div id="api-key-status" class="test-result" style="display:none"></div>
           </div>
-
-          <button class="btn-secondary" id="btn-test-connection">
-            <i data-lucide="wifi" style="width:16px;height:16px"></i> Testar conexão
-          </button>
-          <div id="test-result" class="test-result" style="display:none"></div>
         </div>
 
         <div class="settings-card">
           <div class="settings-card-header">
             <i data-lucide="target" style="width:20px;height:20px"></i>
-            <h3>Metas diárias</h3>
+            <h3>Metas de macronutrientes</h3>
           </div>
           <div class="goals-grid">
             <div class="goal-field">
-              <label>Calorias</label>
-              <div class="goal-input-wrap">
-                <input type="number" id="goal-calories" />
-                <span class="goal-unit">kcal</span>
-              </div>
-            </div>
-            <div class="goal-field">
               <label>Proteína</label>
               <div class="goal-input-wrap">
-                <input type="number" id="goal-protein" />
+                <input type="number" id="set-protein" min="0" />
                 <span class="goal-unit">g</span>
               </div>
             </div>
             <div class="goal-field">
               <label>Carboidrato</label>
               <div class="goal-input-wrap">
-                <input type="number" id="goal-carb" />
+                <input type="number" id="set-carb" min="0" />
                 <span class="goal-unit">g</span>
               </div>
             </div>
             <div class="goal-field">
               <label>Gordura</label>
               <div class="goal-input-wrap">
-                <input type="number" id="goal-fat" />
+                <input type="number" id="set-fat" min="0" />
                 <span class="goal-unit">g</span>
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i data-lucide="user" style="width:20px;height:20px"></i>
+            <h3>Perfil pessoal</h3>
+          </div>
+          <div class="diet-grid-2">
+            <div class="diet-field"><label>Idade</label><input type="number" id="set-idade" min="10" max="120" /></div>
+            <div class="diet-field"><label>Sexo</label>
+              <select id="set-sexo">
+                <option value="masculino">Masculino</option>
+                <option value="feminino">Feminino</option>
+              </select>
+            </div>
+            <div class="diet-field"><label>Peso (kg)</label><input type="number" id="set-peso" min="20" max="300" step="0.1" /></div>
+            <div class="diet-field"><label>Altura (cm)</label><input type="number" id="set-altura" min="100" max="250" /></div>
+          </div>
+          <div class="diet-field">
+            <label>Nivel de atividade</label>
+            <select id="set-atividade">
+              <option value="sedentario">Sedentario (pouco ou nenhum exercicio)</option>
+              <option value="leve">Leve (1-3x por semana)</option>
+              <option value="moderado">Moderado (3-5x por semana)</option>
+              <option value="intenso">Intenso (6-7x por semana)</option>
+              <option value="atleta">Atleta (2x ao dia ou trabalho fisico pesado)</option>
+            </select>
+          </div>
+          <div class="diet-field">
+            <label>Objetivo</label>
+            <select id="set-objetivo">
+              <option value="perder_peso">Perder peso</option>
+              <option value="manter_peso">Manter peso</option>
+              <option value="ganhar_massa">Ganhar massa muscular</option>
+              <option value="melhorar_saude">Melhorar saude geral</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i data-lucide="utensils" style="width:20px;height:20px"></i>
+            <h3>Restrições e preferências</h3>
+          </div>
+          <div class="diet-field">
+            <label>Restrições alimentares</label>
+            <div class="diet-chips" id="set-restricoes-chips">
+              <span class="diet-chip" data-value="vegetariano">Vegetariano</span>
+              <span class="diet-chip" data-value="vegano">Vegano</span>
+              <span class="diet-chip" data-value="sem_gluten">Sem gluten</span>
+              <span class="diet-chip" data-value="sem_lactose">Sem lactose</span>
+              <span class="diet-chip" data-value="low_carb">Low carb</span>
+              <span class="diet-chip" data-value="nenhuma">Nenhuma</span>
+            </div>
+          </div>
+          <div class="diet-field">
+            <label>Alergias alimentares</label>
+            <input type="text" id="set-alergias" placeholder="ex: amendoim, frutos do mar" />
+          </div>
+          <div class="diet-field">
+            <label>Alimentos que nao gosta</label>
+            <textarea id="set-nao-gosta" placeholder="ex: berinjela, figado"></textarea>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i data-lucide="bell" style="width:20px;height:20px"></i>
+            <h3>Notificações</h3>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <span class="toggle-title">Lembrete de refeição</span>
+              <span class="toggle-sub">Avisa nos horários definidos</span>
+            </div>
+            <button class="toggle-switch" id="set-toggle-meal" data-on="0" aria-pressed="false" aria-label="Ativar lembrete de refeição">
+              <span class="toggle-knob"></span>
+            </button>
+          </div>
+          <div class="diet-field" style="margin-top:10px">
+            <label>Horário padrão</label>
+            <input type="time" id="set-meal-time" value="12:00" />
+          </div>
+          <div class="toggle-row" style="margin-top:8px">
+            <div class="toggle-label">
+              <span class="toggle-title">Lembrete de streak</span>
+              <span class="toggle-sub">Avisa para não perder a sequência</span>
+            </div>
+            <button class="toggle-switch" id="set-toggle-streak" data-on="0" aria-pressed="false" aria-label="Ativar lembrete de streak">
+              <span class="toggle-knob"></span>
+            </button>
+          </div>
+          <div class="diet-field" style="margin-top:10px">
+            <label>Horário do lembrete</label>
+            <input type="time" id="set-streak-time" value="20:00" />
+          </div>
+          <p class="api-key-help" style="margin-top:8px">Lembretes serao ativados em uma versao futura do app.</p>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i data-lucide="download" style="width:20px;height:20px"></i>
+            <h3>Exportar dados</h3>
+          </div>
+          <p class="api-key-help">Baixe o historico de refeicoes em JSON ou CSV para usar em outros apps ou fazer backup.</p>
+          <div class="settings-actions-row">
+            <button class="btn-secondary" id="btn-export-json">
+              <i data-lucide="file-json" style="width:16px;height:16px"></i> Exportar JSON
+            </button>
+            <button class="btn-secondary" id="btn-export-csv">
+              <i data-lucide="file-text" style="width:16px;height:16px"></i> Exportar CSV
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i data-lucide="palette" style="width:20px;height:20px"></i>
+            <h3>Tema visual</h3>
+          </div>
+          <div class="diet-chips" id="set-theme-chips">
+            <span class="diet-chip active" data-value="dark">Escuro</span>
+            <span class="diet-chip" data-value="light">Claro</span>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i data-lucide="info" style="width:20px;height:20px"></i>
+            <h3>Sobre o app</h3>
+          </div>
+          <div class="about-row"><span class="about-label">Versao</span><span class="about-value" id="about-version">—</span></div>
+          <div class="about-row"><span class="about-label">Suporte</span><a class="about-link" href="https://nutrifoto.netlify.app" target="_blank" rel="noopener">nutrifoto.netlify.app</a></div>
+          <p class="api-key-help" style="margin-top:10px">NutriFoto analisa suas refeicoes por foto usando IA. As metas e o perfil definidos aqui sao usados para personalizar o dashboard e o plano alimentar.</p>
         </div>
 
         <div class="sticky-save">

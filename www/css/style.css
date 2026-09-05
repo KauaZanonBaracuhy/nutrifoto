@@ -1200,6 +1200,69 @@ input, textarea, select { font-family: inherit; }
   color: var(--jade);
 }
 
+/* Toggle switch (settings) */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+}
+.toggle-label { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.toggle-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.toggle-sub { font-size: 11px; color: var(--text-muted); }
+.toggle-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 42px; height: 24px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--dur-base) var(--ease-smooth), border-color var(--dur-base) var(--ease-smooth);
+}
+.toggle-switch .toggle-knob {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: transform var(--dur-base) var(--ease-bouncy), background var(--dur-base) var(--ease-smooth);
+}
+.toggle-switch[data-on="1"] {
+  background: rgba(0, 214, 143, 0.2);
+  border-color: var(--jade);
+}
+.toggle-switch[data-on="1"] .toggle-knob {
+  transform: translateX(18px);
+  background: var(--jade);
+  box-shadow: var(--shadow-glow-jade);
+}
+
+/* Settings actions row (export buttons) */
+.settings-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* About rows */
+.about-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+.about-row:last-of-type { border-bottom: none; }
+.about-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.about-value { font-size: 13px; font-weight: 600; color: var(--text); }
+.about-link { font-size: 13px; color: var(--jade); text-decoration: none; }
+.about-link:hover { text-decoration: underline; }
+
 /* Disclaimer box */
 .diet-disclaimer {
   display: flex;
