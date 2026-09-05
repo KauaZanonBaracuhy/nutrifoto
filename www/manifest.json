@@ -2,7 +2,7 @@
   "name": "NutriFoto",
   "short_name": "NutriFoto",
   "description": "Analise suas refeições por foto com IA",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0B1E3F",
   "theme_color": "#0B1E3F",
