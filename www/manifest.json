@@ -4,8 +4,8 @@
   "description": "Analise suas refeições por foto com IA",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0C0F14",
-  "theme_color": "#0C0F14",
+  "background_color": "#0B1E3F",
+  "theme_color": "#0B1E3F",
   "orientation": "portrait",
   "icons": [
     {

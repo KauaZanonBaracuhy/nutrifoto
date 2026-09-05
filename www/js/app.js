@@ -16,6 +16,23 @@ import { getAlternatives } from './foodAlternatives.js';
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
+const DEVELOPER_CREDIT = 'ZanonApps';
+
+const DEFAULT_THEME = 'azul';
+
+const THEMES = [
+  { id: 'azul',           label: 'Azul',           swatch: ['#0B1E3F', '#2563EB', '#60A5FA'] },
+  { id: 'vibrante',       label: 'Vibrante',       swatch: ['#00D68F', '#3B82F6', '#FF6B6B'] },
+  { id: 'caveira',        label: 'Caveira',        swatch: ['#0A0A0A', '#8B0000', '#FF1F1F'] },
+  { id: 'vulcao',         label: 'Vulcão',         swatch: ['#1A0F0A', '#F97316', '#DC2626'] },
+  { id: 'gelo',           label: 'Gelo',           swatch: ['#F0F8FF', '#BAE6FD', '#94A3B8'] },
+  { id: 'arcoiris',       label: 'Arco-íris',      swatch: ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#A855F7'] },
+  { id: 'oceano',         label: 'Oceano',         swatch: ['#0C2A47', '#0E7490', '#22D3EE'] },
+  { id: 'porDoSol',       label: 'Pôr do Sol',     swatch: ['#7C2D12', '#F97316', '#EC4899', '#7C3AED'] },
+  { id: 'floresta',       label: 'Floresta',       swatch: ['#1B2A1A', '#166534', '#92400E'] },
+  { id: 'minimalista',    label: 'Minimalista',    swatch: ['#FFFFFF', '#E5E7EB', '#111827'] },
+];
+
 const state = {
   currentImage: null,
   currentAnalysis: null,
@@ -23,12 +40,27 @@ const state = {
 };
 
 // ============ THEME ============
-function getTheme() { return localStorage.getItem('nutrifoto.theme') || 'dark'; }
+function isValidTheme(id) { return THEMES.some(t => t.id === id); }
+function getTheme() {
+  const saved = localStorage.getItem('nutrifoto.theme');
+  return isValidTheme(saved) ? saved : DEFAULT_THEME;
+}
 function setTheme(t) {
+  if (!isValidTheme(t)) t = DEFAULT_THEME;
   document.documentElement.setAttribute('data-theme', t);
   localStorage.setItem('nutrifoto.theme', t);
 }
-function toggleTheme() { setTheme(getTheme() === 'dark' ? 'light' : 'dark'); }
+function toggleTheme() {
+  const i = THEMES.findIndex(t => t.id === getTheme());
+  const next = THEMES[(i + 1) % THEMES.length];
+  const grid = $('#set-theme-grid');
+  if (grid) {
+    applyThemeSelection(next.id, grid);
+  } else {
+    setTheme(next.id);
+    if (typeof renderDashboard === 'function') renderDashboard();
+  }
+}
 
 // ============ NAVIGATION ============
 function showScreen(name) {
@@ -422,15 +454,6 @@ const APP_VERSION = '0.1.0';
 // Por enquanto NAO adicionar nenhum elemento visivel aqui — apenas
 // manter este comentario para marcar o local de insercao futura.
 
-const RESTRICOES_OPTS_SETTINGS = [
-  { value: 'vegetariano', label: 'Vegetariano' },
-  { value: 'vegano', label: 'Vegano' },
-  { value: 'sem_gluten', label: 'Sem gluten' },
-  { value: 'sem_lactose', label: 'Sem lactose' },
-  { value: 'low_carb', label: 'Low carb' },
-  { value: 'nenhuma', label: 'Nenhuma' },
-];
-
 const DEFAULT_NOTIFY = {
   mealEnabled: false,
   mealTime: '12:00',
@@ -457,29 +480,45 @@ function setToggle(btn, on) {
   btn.setAttribute('aria-pressed', on ? 'true' : 'false');
 }
 
+function renderThemeGrid() {
+  const grid = $('#set-theme-grid');
+  if (!grid) return;
+  const current = getTheme();
+  grid.innerHTML = THEMES.map(t => `
+    <button type="button" class="theme-card${t.id === current ? ' active' : ''}" data-theme-id="${t.id}" aria-pressed="${t.id === current}">
+      <span class="theme-card-swatches">
+        ${t.swatch.map(c => `<span class="theme-card-swatch" style="background:${c}"></span>`).join('')}
+      </span>
+      <span class="theme-card-label">${t.label}</span>
+    </button>
+  `).join('');
+  grid.querySelectorAll('.theme-card').forEach(btn => {
+    btn.onclick = () => {
+      applyThemeSelection(btn.dataset.themeId, grid);
+    };
+  });
+}
+
+function applyThemeSelection(id, grid) {
+  setTheme(id);
+  if (grid) {
+    grid.querySelectorAll('.theme-card').forEach(c => {
+      const on = c.dataset.themeId === id;
+      c.classList.toggle('active', on);
+      c.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+  // Re-render dashboard so charts (donut/bar/line) pick up the new palette
+  if (typeof renderDashboard === 'function') renderDashboard();
+}
+
 function renderSettings() {
-  // Meta calórica
+  // Meta calórica + macros
   const g = getGoals();
   $('#set-calories').value = g.calories;
   $('#set-protein').value = g.protein;
   $('#set-carb').value = g.carb;
   $('#set-fat').value = g.fat;
-
-  // Perfil pessoal
-  const profile = getUserProfile() || {};
-  $('#set-idade').value = profile.idade || '';
-  $('#set-sexo').value = profile.sexo || 'masculino';
-  $('#set-peso').value = profile.pesoAtual || '';
-  $('#set-altura').value = profile.altura || '';
-  $('#set-atividade').value = profile.nivelAtividade || 'sedentario';
-  $('#set-objetivo').value = profile.objetivo || 'manter_peso';
-
-  // Restrições
-  const chips = document.querySelectorAll('#set-restricoes-chips .diet-chip');
-  const r = new Set(profile.restricoes || []);
-  chips.forEach(c => c.classList.toggle('active', r.has(c.dataset.value)));
-  $('#set-alergias').value = profile.restricoesTexto || '';
-  $('#set-nao-gosta').value = profile.alimentosNaoGosta || '';
 
   // Notificações
   const n = readNotify();
@@ -488,45 +527,27 @@ function renderSettings() {
   $('#set-meal-time').value = n.mealTime;
   $('#set-streak-time').value = n.streakTime;
 
-  // Tema
-  const currentTheme = getTheme();
-  document.querySelectorAll('#set-theme-chips .diet-chip').forEach(c => {
-    c.classList.toggle('active', c.dataset.value === currentTheme);
-  });
+  // Tema (grade de 10 opções)
+  renderThemeGrid();
 
   // Sobre
   $('#about-version').textContent = APP_VERSION;
+  $('#about-developer').textContent = DEVELOPER_CREDIT;
 
-  bindSettingsChips();
+  bindSettingsToggles();
+
+  // Link "Perfil e plano alimentar" → Meu Plano
+  document.querySelectorAll('[data-screen-link="diet"]').forEach(a => {
+    a.onclick = (e) => {
+      e.preventDefault();
+      showScreen('diet');
+    };
+  });
 
   if (window.lucide) lucide.createIcons();
 }
 
-function bindSettingsChips() {
-  document.querySelectorAll('#set-restricoes-chips .diet-chip').forEach(chip => {
-    chip.onclick = () => {
-      const val = chip.dataset.value;
-      if (val === 'nenhuma') {
-        document.querySelectorAll('#set-restricoes-chips .diet-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        return;
-      }
-      const nenhuma = document.querySelector('#set-restricoes-chips .diet-chip[data-value="nenhuma"]');
-      if (nenhuma) nenhuma.classList.remove('active');
-      chip.classList.toggle('active');
-      const anyActive = document.querySelectorAll('#set-restricoes-chips .diet-chip.active').length > 0;
-      if (!anyActive && nenhuma) nenhuma.classList.add('active');
-    };
-  });
-
-  document.querySelectorAll('#set-theme-chips .diet-chip').forEach(chip => {
-    chip.onclick = () => {
-      document.querySelectorAll('#set-theme-chips .diet-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      setTheme(chip.dataset.value);
-    };
-  });
-
+function bindSettingsToggles() {
   $('#set-toggle-meal').onclick = (e) => {
     const btn = e.currentTarget;
     setToggle(btn, btn.dataset.on === '0');
@@ -538,7 +559,7 @@ function bindSettingsChips() {
 }
 
 function handleSaveSettings() {
-  // 1) Metas
+  // 1) Metas diárias
   setGoals({
     calories: Number($('#set-calories').value) || 0,
     protein: Number($('#set-protein').value) || 0,
@@ -546,30 +567,7 @@ function handleSaveSettings() {
     fat: Number($('#set-fat').value) || 0,
   });
 
-  // 2) Perfil (reaproveitando o que ja existe em dietPlan.js)
-  const current = getUserProfile() || {};
-  const chips = Array.from(document.querySelectorAll('#set-restricoes-chips .diet-chip.active')).map(c => c.dataset.value);
-  const profile = {
-    ...current,
-    idade: Number($('#set-idade').value) || 0,
-    sexo: $('#set-sexo').value,
-    pesoAtual: Number($('#set-peso').value) || 0,
-    altura: Number($('#set-altura').value) || 0,
-    nivelAtividade: $('#set-atividade').value,
-    objetivo: $('#set-objetivo').value,
-    restricoes: chips.filter(c => c !== 'nenhuma'),
-    restricoesTexto: $('#set-alergias').value.trim(),
-    alimentosNaoGosta: $('#set-nao-gosta').value.trim(),
-    refeicoesPorDia: current.refeicoesPorDia || 5,
-    horarioAcorda: current.horarioAcorda || '07:00',
-    horarioDorme: current.horarioDorme || '23:00',
-    rotinaTexto: current.rotinaTexto || '',
-    condicoesSaude: current.condicoesSaude || '',
-    alimentosFavoritos: current.alimentosFavoritos || '',
-  };
-  saveUserProfile(profile);
-
-  // 3) Notificações
+  // 2) Notificações
   writeNotify({
     mealEnabled: $('#set-toggle-meal').dataset.on === '1',
     mealTime: $('#set-meal-time').value || DEFAULT_NOTIFY.mealTime,

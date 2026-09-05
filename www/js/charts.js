@@ -1,7 +1,12 @@
 // charts.js — v2: hero donut, macro bars, mini bar, bar chart, line chart
 
+// Temas com fundo predominantemente claro recebem paleta de grafico "light".
+// Demais temas usam a paleta dark, que ja cobre o caso padrao.
+const LIGHT_THEMES = new Set(['gelo', 'minimalista']);
+
 function isDark() {
-  return document.documentElement.getAttribute('data-theme') === 'dark';
+  const t = document.documentElement.getAttribute('data-theme');
+  return !LIGHT_THEMES.has(t);
 }
 
 function getColors() {
@@ -17,7 +22,7 @@ function getColors() {
     muted: isDark() ? '#7A9A8B' : '#94A3B8',
     surface: isDark() ? '#162019' : '#FFFFFF',
     text: isDark() ? '#E8F5EF' : '#0F172A',
-    metaBar: isDark() ? 'rgba(16,185,129,0.2)' : 'rgba(5,150,105,0.15)',
+    metaBar: isDark() ? 'rgba(16,185,129,0.2)' : '#0F172A',
     border: isDark() ? '#243830' : '#D1E7DF',
     track: isDark() ? '#1E2D25' : '#E4F0EB',
   };

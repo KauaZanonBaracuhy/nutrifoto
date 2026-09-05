@@ -1,6 +1,23 @@
-/* ============ DIREÇÃO B — VIBRANTE & GAMIFICADA ============ */
+/* ============ TEMAS — 10 variantes via [data-theme] ============ */
+/* Cada tema define o mesmo conjunto de variaveis abaixo. O layout do app
+   nao muda: so trocam cores, gradientes e contrastes. */
+
 :root {
-  /* Cores base */
+  /* Tipografia / easings / duracoes sao compartilhados por todos os temas */
+  --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --ease-bouncy: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --dur-fast: 180ms;
+  --dur-base: 280ms;
+  --dur-slow: 480ms;
+}
+
+/* ----- PADRAO (compat): espelha o tema vibrante. O JS sempre define um
+   data-theme explicito no boot, mas o :root evita flash se o atributo for
+   removido em alguma migracao futura. */
+:root,
+[data-theme="vibrante"] {
   --bg: #0C0F14;
   --surface: #161B26;
   --surface-2: #1F2533;
@@ -9,39 +26,377 @@
   --text: #F4F6FB;
   --text-muted: #8B95AB;
   --text-dim: #5A6478;
-
-  /* Acentos vibrantes */
   --jade: #00D68F;
   --blue: #3B82F6;
   --coral: #FF6B6B;
   --orange: #FF9F43;
   --purple: #A78BFA;
   --pink: #F472B6;
-
-  /* Gradientes ousados */
   --grad-jade-blue: linear-gradient(135deg, #00D68F 0%, #3B82F6 100%);
   --grad-rose-orange: linear-gradient(135deg, #FF6B6B 0%, #FF9F43 100%);
   --grad-purple-pink: linear-gradient(135deg, #A78BFA 0%, #F472B6 100%);
   --grad-jade-glow: linear-gradient(135deg, #00D68F 0%, #00B377 100%);
   --grad-energy: linear-gradient(135deg, #FF9F43 0%, #FF6B6B 100%);
-
-  /* Sombras e glows */
   --shadow-glow-jade: 0 0 24px rgba(0, 214, 143, 0.45);
   --shadow-glow-blue: 0 0 24px rgba(59, 130, 246, 0.45);
   --shadow-glow-coral: 0 0 24px rgba(255, 107, 107, 0.45);
   --shadow-glow-orange: 0 0 24px rgba(255, 159, 67, 0.45);
   --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --app-bg-glow-a: rgba(0, 214, 143, 0.08);
+  --app-bg-glow-b: rgba(59, 130, 246, 0.06);
+  --pill-jade-bg: rgba(16, 185, 129, 0.15);
+  --pill-jade-bd: rgba(0, 214, 143, 0.3);
+  --pill-blue-bg: rgba(59, 130, 246, 0.15);
+  --pill-blue-bd: rgba(59, 130, 246, 0.3);
+  --pill-purple-bg: rgba(167, 139, 250, 0.1);
+  --pill-purple-bd: rgba(167, 139, 250, 0.3);
+  --pill-orange-bg: rgba(255, 159, 67, 0.1);
+  --pill-orange-bd: rgba(255, 159, 67, 0.3);
+}
 
-  /* Tipografia */
-  --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+/* ----- TEMA 1: AZUL (PADRAO) — tons de azul, confianca e leveza */
+[data-theme="azul"] {
+  --bg: #0B1E3F;
+  --surface: #122C57;
+  --surface-2: #1A3A6E;
+  --surface-3: #234A87;
+  --border: #2E5BA0;
+  --text: #E8F1FF;
+  --text-muted: #9AB4D9;
+  --text-dim: #6B85AE;
+  --jade: #38BDF8;
+  --blue: #60A5FA;
+  --coral: #F472B6;
+  --orange: #FBBF24;
+  --purple: #818CF8;
+  --pink: #F0ABFC;
+  --grad-jade-blue: linear-gradient(135deg, #38BDF8 0%, #3B82F6 100%);
+  --grad-rose-orange: linear-gradient(135deg, #F472B6 0%, #FBBF24 100%);
+  --grad-purple-pink: linear-gradient(135deg, #818CF8 0%, #F0ABFC 100%);
+  --grad-jade-glow: linear-gradient(135deg, #38BDF8 0%, #0EA5E9 100%);
+  --grad-energy: linear-gradient(135deg, #FBBF24 0%, #F472B6 100%);
+  --shadow-glow-jade: 0 0 24px rgba(56, 189, 248, 0.45);
+  --shadow-glow-blue: 0 0 24px rgba(96, 165, 250, 0.45);
+  --shadow-glow-coral: 0 0 24px rgba(244, 114, 182, 0.45);
+  --shadow-glow-orange: 0 0 24px rgba(251, 191, 36, 0.45);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --app-bg-glow-a: rgba(59, 130, 246, 0.18);
+  --app-bg-glow-b: rgba(56, 189, 248, 0.10);
+  --pill-jade-bg: rgba(56, 189, 248, 0.15);
+  --pill-jade-bd: rgba(56, 189, 248, 0.35);
+  --pill-blue-bg: rgba(96, 165, 250, 0.15);
+  --pill-blue-bd: rgba(96, 165, 250, 0.35);
+  --pill-purple-bg: rgba(129, 140, 248, 0.12);
+  --pill-purple-bd: rgba(129, 140, 248, 0.35);
+  --pill-orange-bg: rgba(251, 191, 36, 0.10);
+  --pill-orange-bd: rgba(251, 191, 36, 0.30);
+}
 
-  /* Easings gamificados */
-  --ease-bouncy: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-out: cubic-bezier(0, 0, 0.2, 1);
-  --dur-fast: 180ms;
-  --dur-base: 280ms;
-  --dur-slow: 480ms;
+/* ----- TEMA 2: VIBRANTE — original do app, jade→azul→coral */
+/* (definido acima junto com :root) */
+
+/* ----- TEMA 3: CAVEIRA — preto profundo, vermelho sangue */
+[data-theme="caveira"] {
+  --bg: #0A0A0A;
+  --surface: #161010;
+  --surface-2: #1F1414;
+  --surface-3: #2A1818;
+  --border: #3D2020;
+  --text: #F5E8E8;
+  --text-muted: #A88B8B;
+  --text-dim: #6E5656;
+  --jade: #FF1F1F;
+  --blue: #8B0000;
+  --coral: #FF4040;
+  --orange: #FF6B35;
+  --purple: #B91C1C;
+  --pink: #FF6B9D;
+  --grad-jade-blue: linear-gradient(135deg, #FF1F1F 0%, #8B0000 100%);
+  --grad-rose-orange: linear-gradient(135deg, #FF4040 0%, #FF6B35 100%);
+  --grad-purple-pink: linear-gradient(135deg, #B91C1C 0%, #FF6B9D 100%);
+  --grad-jade-glow: linear-gradient(135deg, #FF1F1F 0%, #B91C1C 100%);
+  --grad-energy: linear-gradient(135deg, #FF6B35 0%, #FF1F1F 100%);
+  --shadow-glow-jade: 0 0 24px rgba(255, 31, 31, 0.55);
+  --shadow-glow-blue: 0 0 24px rgba(139, 0, 0, 0.45);
+  --shadow-glow-coral: 0 0 24px rgba(255, 64, 64, 0.45);
+  --shadow-glow-orange: 0 0 24px rgba(255, 107, 53, 0.45);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.7);
+  --app-bg-glow-a: rgba(255, 31, 31, 0.10);
+  --app-bg-glow-b: rgba(139, 0, 0, 0.08);
+  --pill-jade-bg: rgba(255, 31, 31, 0.18);
+  --pill-jade-bd: rgba(255, 31, 31, 0.4);
+  --pill-blue-bg: rgba(139, 0, 0, 0.20);
+  --pill-blue-bd: rgba(255, 31, 31, 0.4);
+  --pill-purple-bg: rgba(185, 28, 28, 0.15);
+  --pill-purple-bd: rgba(255, 64, 64, 0.4);
+  --pill-orange-bg: rgba(255, 107, 53, 0.15);
+  --pill-orange-bd: rgba(255, 107, 53, 0.4);
+}
+
+/* ----- TEMA 4: VULCAO — preto/cinza escuro + laranja/vermelho magma */
+[data-theme="vulcao"] {
+  --bg: #14090A;
+  --surface: #1F1110;
+  --surface-2: #2A1814;
+  --surface-3: #3A211B;
+  --border: #4A2A22;
+  --text: #F8E8D8;
+  --text-muted: #B89A82;
+  --text-dim: #7A6050;
+  --jade: #F97316;
+  --blue: #EA580C;
+  --coral: #DC2626;
+  --orange: #FB923C;
+  --purple: #B91C1C;
+  --pink: #EF4444;
+  --grad-jade-blue: linear-gradient(135deg, #F97316 0%, #DC2626 100%);
+  --grad-rose-orange: linear-gradient(135deg, #DC2626 0%, #FB923C 100%);
+  --grad-purple-pink: linear-gradient(135deg, #B91C1C 0%, #EF4444 100%);
+  --grad-jade-glow: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+  --grad-energy: linear-gradient(135deg, #FB923C 0%, #DC2626 100%);
+  --shadow-glow-jade: 0 0 24px rgba(249, 115, 22, 0.55);
+  --shadow-glow-blue: 0 0 24px rgba(234, 88, 12, 0.5);
+  --shadow-glow-coral: 0 0 24px rgba(220, 38, 38, 0.5);
+  --shadow-glow-orange: 0 0 24px rgba(251, 146, 60, 0.5);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.7);
+  --app-bg-glow-a: rgba(249, 115, 22, 0.12);
+  --app-bg-glow-b: rgba(220, 38, 38, 0.08);
+  --pill-jade-bg: rgba(249, 115, 22, 0.18);
+  --pill-jade-bd: rgba(249, 115, 22, 0.4);
+  --pill-blue-bg: rgba(234, 88, 12, 0.18);
+  --pill-blue-bd: rgba(249, 115, 22, 0.4);
+  --pill-purple-bg: rgba(185, 28, 28, 0.18);
+  --pill-purple-bd: rgba(220, 38, 38, 0.4);
+  --pill-orange-bg: rgba(251, 146, 60, 0.18);
+  --pill-orange-bd: rgba(251, 146, 60, 0.4);
+}
+
+/* ----- TEMA 5: GELO — branco gelo, azul clarinho, prata/cinza */
+[data-theme="gelo"] {
+  --bg: #F0F8FF;
+  --surface: #FFFFFF;
+  --surface-2: #E6F0FA;
+  --surface-3: #D6E5F2;
+  --border: #C5D8E8;
+  --text: #0F2A44;
+  --text-muted: #5A7896;
+  --text-dim: #8AA3BA;
+  --jade: #0EA5E9;
+  --blue: #38BDF8;
+  --coral: #EF4444;
+  --orange: #F59E0B;
+  --purple: #818CF8;
+  --pink: #F472B6;
+  --grad-jade-blue: linear-gradient(135deg, #0EA5E9 0%, #38BDF8 100%);
+  --grad-rose-orange: linear-gradient(135deg, #EF4444 0%, #F59E0B 100%);
+  --grad-purple-pink: linear-gradient(135deg, #818CF8 0%, #F472B6 100%);
+  --grad-jade-glow: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+  --grad-energy: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+  --shadow-glow-jade: 0 0 24px rgba(14, 165, 233, 0.35);
+  --shadow-glow-blue: 0 0 24px rgba(56, 189, 248, 0.35);
+  --shadow-glow-coral: 0 0 24px rgba(239, 68, 68, 0.30);
+  --shadow-glow-orange: 0 0 24px rgba(245, 158, 11, 0.30);
+  --shadow-card: 0 6px 20px rgba(15, 42, 68, 0.10);
+  --app-bg-glow-a: rgba(56, 189, 248, 0.18);
+  --app-bg-glow-b: rgba(14, 165, 233, 0.10);
+  --pill-jade-bg: rgba(14, 165, 233, 0.12);
+  --pill-jade-bd: rgba(14, 165, 233, 0.35);
+  --pill-blue-bg: rgba(56, 189, 248, 0.12);
+  --pill-blue-bd: rgba(56, 189, 248, 0.35);
+  --pill-purple-bg: rgba(129, 140, 248, 0.12);
+  --pill-purple-bd: rgba(129, 140, 248, 0.30);
+  --pill-orange-bg: rgba(245, 158, 11, 0.12);
+  --pill-orange-bd: rgba(245, 158, 11, 0.30);
+}
+
+/* ----- TEMA 6: ARCO-IRIS — multicolorido, varios espectros */
+[data-theme="arcoiris"] {
+  --bg: #0F0F1A;
+  --surface: #1A1A2E;
+  --surface-2: #24243E;
+  --surface-3: #2E2E50;
+  --border: #3A3A60;
+  --text: #FFFFFF;
+  --text-muted: #B8B8D0;
+  --text-dim: #7A7AA0;
+  --jade: #10B981;
+  --blue: #3B82F6;
+  --coral: #EF4444;
+  --orange: #F59E0B;
+  --purple: #A855F7;
+  --pink: #EC4899;
+  --grad-jade-blue: linear-gradient(135deg, #EF4444 0%, #F59E0B 25%, #10B981 50%, #3B82F6 75%, #A855F7 100%);
+  --grad-rose-orange: linear-gradient(135deg, #EF4444 0%, #F59E0B 50%, #EC4899 100%);
+  --grad-purple-pink: linear-gradient(135deg, #A855F7 0%, #EC4899 100%);
+  --grad-jade-glow: linear-gradient(135deg, #10B981 0%, #3B82F6 100%);
+  --grad-energy: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+  --shadow-glow-jade: 0 0 24px rgba(16, 185, 129, 0.5);
+  --shadow-glow-blue: 0 0 24px rgba(59, 130, 246, 0.5);
+  --shadow-glow-coral: 0 0 24px rgba(239, 68, 68, 0.5);
+  --shadow-glow-orange: 0 0 24px rgba(245, 158, 11, 0.5);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --app-bg-glow-a: rgba(168, 85, 247, 0.12);
+  --app-bg-glow-b: rgba(236, 72, 153, 0.10);
+  --pill-jade-bg: rgba(16, 185, 129, 0.15);
+  --pill-jade-bd: rgba(16, 185, 129, 0.4);
+  --pill-blue-bg: rgba(59, 130, 246, 0.15);
+  --pill-blue-bd: rgba(59, 130, 246, 0.4);
+  --pill-purple-bg: rgba(168, 85, 247, 0.18);
+  --pill-purple-bd: rgba(168, 85, 247, 0.4);
+  --pill-orange-bg: rgba(245, 158, 11, 0.15);
+  --pill-orange-bd: rgba(245, 158, 11, 0.4);
+}
+
+/* ----- TEMA 7: OCEANO — azul profundo e turquesa */
+[data-theme="oceano"] {
+  --bg: #0C2A47;
+  --surface: #0E3A5C;
+  --surface-2: #134C73;
+  --surface-3: #1A5E8C;
+  --border: #2774A8;
+  --text: #E0F2FE;
+  --text-muted: #93C5DE;
+  --text-dim: #5E94B5;
+  --jade: #22D3EE;
+  --blue: #06B6D4;
+  --coral: #F87171;
+  --orange: #FBBF24;
+  --purple: #A78BFA;
+  --pink: #F472B6;
+  --grad-jade-blue: linear-gradient(135deg, #22D3EE 0%, #0E7490 100%);
+  --grad-rose-orange: linear-gradient(135deg, #F87171 0%, #FBBF24 100%);
+  --grad-purple-pink: linear-gradient(135deg, #A78BFA 0%, #F472B6 100%);
+  --grad-jade-glow: linear-gradient(135deg, #22D3EE 0%, #06B6D4 100%);
+  --grad-energy: linear-gradient(135deg, #FBBF24 0%, #F87171 100%);
+  --shadow-glow-jade: 0 0 24px rgba(34, 211, 238, 0.50);
+  --shadow-glow-blue: 0 0 24px rgba(6, 182, 212, 0.50);
+  --shadow-glow-coral: 0 0 24px rgba(248, 113, 113, 0.40);
+  --shadow-glow-orange: 0 0 24px rgba(251, 191, 36, 0.40);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --app-bg-glow-a: rgba(34, 211, 238, 0.15);
+  --app-bg-glow-b: rgba(6, 182, 212, 0.10);
+  --pill-jade-bg: rgba(34, 211, 238, 0.15);
+  --pill-jade-bd: rgba(34, 211, 238, 0.4);
+  --pill-blue-bg: rgba(6, 182, 212, 0.15);
+  --pill-blue-bd: rgba(6, 182, 212, 0.4);
+  --pill-purple-bg: rgba(167, 139, 250, 0.15);
+  --pill-purple-bd: rgba(167, 139, 250, 0.35);
+  --pill-orange-bg: rgba(251, 191, 36, 0.12);
+  --pill-orange-bd: rgba(251, 191, 36, 0.30);
+}
+
+/* ----- TEMA 8: POR DO SOL — laranja, rosa, roxo */
+[data-theme="porDoSol"] {
+  --bg: #1F0A1A;
+  --surface: #2C0E22;
+  --surface-2: #3D142F;
+  --surface-3: #4F1A3D;
+  --border: #6B2350;
+  --text: #FCE7F0;
+  --text-muted: #D0A0B8;
+  --text-dim: #8A6580;
+  --jade: #F97316;
+  --blue: #7C3AED;
+  --coral: #EC4899;
+  --orange: #FB923C;
+  --purple: #A855F7;
+  --pink: #F472B6;
+  --grad-jade-blue: linear-gradient(135deg, #F97316 0%, #EC4899 50%, #7C3AED 100%);
+  --grad-rose-orange: linear-gradient(135deg, #EC4899 0%, #FB923C 100%);
+  --grad-purple-pink: linear-gradient(135deg, #A855F7 0%, #F472B6 100%);
+  --grad-jade-glow: linear-gradient(135deg, #F97316 0%, #EC4899 100%);
+  --grad-energy: linear-gradient(135deg, #FB923C 0%, #EC4899 100%);
+  --shadow-glow-jade: 0 0 24px rgba(249, 115, 22, 0.50);
+  --shadow-glow-blue: 0 0 24px rgba(124, 58, 237, 0.45);
+  --shadow-glow-coral: 0 0 24px rgba(236, 72, 153, 0.50);
+  --shadow-glow-orange: 0 0 24px rgba(251, 146, 60, 0.45);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --app-bg-glow-a: rgba(236, 72, 153, 0.15);
+  --app-bg-glow-b: rgba(249, 115, 22, 0.12);
+  --pill-jade-bg: rgba(249, 115, 22, 0.18);
+  --pill-jade-bd: rgba(249, 115, 22, 0.4);
+  --pill-blue-bg: rgba(124, 58, 237, 0.18);
+  --pill-blue-bd: rgba(124, 58, 237, 0.4);
+  --pill-purple-bg: rgba(168, 85, 247, 0.15);
+  --pill-purple-bd: rgba(168, 85, 247, 0.4);
+  --pill-orange-bg: rgba(251, 146, 60, 0.15);
+  --pill-orange-bd: rgba(251, 146, 60, 0.35);
+}
+
+/* ----- TEMA 9: FLORESTA — verde escuro e tons terrosos */
+[data-theme="floresta"] {
+  --bg: #1B2A1A;
+  --surface: #243523;
+  --surface-2: #2D4329;
+  --surface-3: #3A5530;
+  --border: #506C40;
+  --text: #ECF5E5;
+  --text-muted: #A8BFA0;
+  --text-dim: #6E8068;
+  --jade: #4ADE80;
+  --blue: #166534;
+  --coral: #DC2626;
+  --orange: #F59E0B;
+  --purple: #92400E;
+  --pink: #B45309;
+  --grad-jade-blue: linear-gradient(135deg, #4ADE80 0%, #166534 100%);
+  --grad-rose-orange: linear-gradient(135deg, #DC2626 0%, #F59E0B 100%);
+  --grad-purple-pink: linear-gradient(135deg, #92400E 0%, #B45309 100%);
+  --grad-jade-glow: linear-gradient(135deg, #4ADE80 0%, #16A34A 100%);
+  --grad-energy: linear-gradient(135deg, #F59E0B 0%, #DC2626 100%);
+  --shadow-glow-jade: 0 0 24px rgba(74, 222, 128, 0.40);
+  --shadow-glow-blue: 0 0 24px rgba(22, 101, 52, 0.45);
+  --shadow-glow-coral: 0 0 24px rgba(220, 38, 38, 0.40);
+  --shadow-glow-orange: 0 0 24px rgba(245, 158, 11, 0.40);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --app-bg-glow-a: rgba(74, 222, 128, 0.12);
+  --app-bg-glow-b: rgba(146, 64, 14, 0.10);
+  --pill-jade-bg: rgba(74, 222, 128, 0.15);
+  --pill-jade-bd: rgba(74, 222, 128, 0.4);
+  --pill-blue-bg: rgba(22, 101, 52, 0.25);
+  --pill-blue-bd: rgba(74, 222, 128, 0.35);
+  --pill-purple-bg: rgba(146, 64, 14, 0.20);
+  --pill-purple-bd: rgba(180, 83, 9, 0.4);
+  --pill-orange-bg: rgba(245, 158, 11, 0.15);
+  --pill-orange-bd: rgba(245, 158, 11, 0.35);
+}
+
+/* ----- TEMA 10: MINIMALISTA — claro, discreto, soobrio */
+[data-theme="minimalista"] {
+  --bg: #FAFAFA;
+  --surface: #FFFFFF;
+  --surface-2: #F4F4F5;
+  --surface-3: #E4E4E7;
+  --border: #D4D4D8;
+  --text: #111111;
+  --text-muted: #555555;
+  --text-dim: #888888;
+  --jade: #111111;
+  --blue: #333333;
+  --coral: #B91C1C;
+  --orange: #92400E;
+  --purple: #4B5563;
+  --pink: #9D174D;
+  --grad-jade-blue: linear-gradient(135deg, #18181B 0%, #27272A 100%);
+  --grad-rose-orange: linear-gradient(135deg, #B91C1C 0%, #92400E 100%);
+  --grad-purple-pink: linear-gradient(135deg, #4B5563 0%, #9D174D 100%);
+  --grad-jade-glow: linear-gradient(135deg, #18181B 0%, #27272A 100%);
+  --grad-energy: linear-gradient(135deg, #27272A 0%, #18181B 100%);
+  --shadow-glow-jade: 0 0 0 1px rgba(17, 17, 17, 0.15);
+  --shadow-glow-blue: 0 0 0 1px rgba(51, 51, 51, 0.15);
+  --shadow-glow-coral: 0 0 0 1px rgba(185, 28, 28, 0.20);
+  --shadow-glow-orange: 0 0 0 1px rgba(146, 64, 14, 0.20);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --app-bg-glow-a: rgba(0, 0, 0, 0.02);
+  --app-bg-glow-b: rgba(0, 0, 0, 0.02);
+  --pill-jade-bg: rgba(17, 17, 17, 0.06);
+  --pill-jade-bd: rgba(17, 17, 17, 0.20);
+  --pill-blue-bg: rgba(51, 51, 51, 0.06);
+  --pill-blue-bd: rgba(51, 51, 51, 0.20);
+  --pill-purple-bg: rgba(75, 85, 99, 0.08);
+  --pill-purple-bd: rgba(75, 85, 99, 0.25);
+  --pill-orange-bg: rgba(146, 64, 14, 0.08);
+  --pill-orange-bd: rgba(146, 64, 14, 0.25);
 }
 
 /* Reset & base */
@@ -67,8 +422,8 @@ input, textarea, select { font-family: inherit; }
   height: 100vh;
   height: 100dvh;
   background:
-    radial-gradient(1200px 600px at 50% -10%, rgba(0, 214, 143, 0.08), transparent 60%),
-    radial-gradient(1000px 500px at 50% 110%, rgba(59, 130, 246, 0.06), transparent 60%),
+    radial-gradient(1200px 600px at 50% -10%, var(--app-bg-glow-a), transparent 60%),
+    radial-gradient(1000px 500px at 50% 110%, var(--app-bg-glow-b), transparent 60%),
     var(--bg);
   overflow: hidden;
 }
@@ -115,9 +470,7 @@ input, textarea, select { font-family: inherit; }
 }
 .icon-btn:hover { background: var(--surface-2); color: var(--text); }
 .icon-btn:active { transform: scale(0.92); }
-.icon-moon { display: none; }
-[data-theme="light"] .icon-sun { display: none; }
-[data-theme="light"] .icon-moon { display: block; }
+/* (sun/moon removidos — o botao do header agora cicla os 10 temas via icone palette) */
 
 /* Main scrollable */
 .main {
@@ -137,8 +490,8 @@ input, textarea, select { font-family: inherit; }
   gap: 4px;
   margin-top: 6px;
   padding: 4px 10px;
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(0, 214, 143, 0.3);
+  background: var(--pill-jade-bg);
+  border: 1px solid var(--pill-jade-bd);
   border-radius: 999px;
   font-size: 11px;
   font-weight: 600;
@@ -1269,8 +1622,8 @@ input, textarea, select { font-family: inherit; }
   gap: 10px;
   align-items: flex-start;
   padding: 12px 14px;
-  background: rgba(255, 159, 67, 0.1);
-  border: 1px solid rgba(255, 159, 67, 0.3);
+  background: var(--pill-orange-bg);
+  border: 1px solid var(--pill-orange-bd);
   border-radius: 12px;
   margin-bottom: 14px;
 }
@@ -1336,8 +1689,8 @@ input, textarea, select { font-family: inherit; }
 .plan-objective {
   margin-top: 12px;
   padding: 8px 12px;
-  background: rgba(167, 139, 250, 0.1);
-  border: 1px solid rgba(167, 139, 250, 0.3);
+  background: var(--pill-purple-bg);
+  border: 1px solid var(--pill-purple-bd);
   border-radius: 10px;
   font-size: 12px;
   color: var(--purple);
@@ -1398,8 +1751,8 @@ input, textarea, select { font-family: inherit; }
   font-size: 11px;
   font-weight: 700;
   padding: 3px 8px;
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: var(--pill-blue-bg);
+  border: 1px solid var(--pill-blue-bd);
   border-radius: 999px;
   color: var(--blue);
 }
@@ -1410,7 +1763,7 @@ input, textarea, select { font-family: inherit; }
   font-size: 11px;
   font-weight: 700;
   color: var(--jade);
-  background: rgba(0, 214, 143, 0.1);
+  background: var(--pill-jade-bg);
   padding: 3px 8px;
   border-radius: 999px;
 }
@@ -1513,24 +1866,77 @@ input, textarea, select { font-family: inherit; }
 .swap-modal-note:focus { outline: none; border-color: var(--jade); }
 .swap-modal-note::placeholder { color: var(--text-muted); opacity: 0.6; }
 
-/* ============ LIGHT THEME ============ */
-[data-theme="light"] {
-  --bg: #F4F7FB;
-  --surface: #FFFFFF;
-  --surface-2: #F1F4F9;
-  --surface-3: #E4E9F2;
-  --border: #D7E0EC;
-  --text: #0F172A;
-  --text-muted: #64748B;
-  --text-dim: #94A3B8;
+/* (light theme removido — os 10 temas novos (gelo, minimalista, etc) cobrem
+   o caso claro via [data-theme="gelo"] / [data-theme="minimalista"] acima) */
+
+/* ============ THEME GRID (settings) ============ */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
-[data-theme="light"] .hero-donut::before { opacity: 0.20; }
-[data-theme="light"] .fab { color: var(--surface); }
-[data-theme="light"] .nav {
-  background:
-    radial-gradient(800px 300px at 50% -100%, rgba(255, 255, 255, 0.92), transparent 70%),
-    var(--surface);
-  box-shadow: 0 -2px 18px rgba(0, 0, 0, 0.08);
+.theme-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 10px;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-smooth);
+  text-align: left;
+  color: var(--text);
+}
+.theme-card:hover {
+  border-color: var(--jade);
+  transform: translateY(-1px);
+}
+.theme-card.active {
+  border-color: var(--jade);
+  background: var(--pill-jade-bg);
+  box-shadow: 0 0 0 2px var(--pill-jade-bd);
+}
+.theme-card-swatches {
+  display: flex;
+  gap: 4px;
+  height: 28px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.theme-card-swatch {
+  flex: 1;
+  display: block;
+}
+.theme-card-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+}
+
+/* ============ SETTINGS LINK CARD (vai para Meu Plano) ============ */
+.settings-card-link { padding: 0; overflow: hidden; }
+.settings-card-link-anchor {
+  display: block;
+  padding: 18px;
+  color: inherit;
+  text-decoration: none;
+}
+.settings-card-link-anchor:hover .settings-card-chevron { transform: translateX(2px); color: var(--jade); }
+.settings-card-chevron {
+  width: 18px; height: 18px;
+  color: var(--text-muted);
+  transition: transform var(--dur-fast) var(--ease-smooth), color var(--dur-fast);
+}
+
+/* ============ THEME-SPECIFIC OVERRIDES ============
+   Botoes primary e FAB usam gradiente vibrante, entao texto branco
+   garante contraste em qualquer tema (claro ou escuro). */
+.btn-primary,
+.fab {
+  color: #FFFFFF;
 }
 
 /* ============ RESPONSIVE ============ */
@@ -1552,8 +1958,8 @@ input, textarea, select { font-family: inherit; }
 @media (min-width: 768px) {
   body {
     background:
-      radial-gradient(1400px 800px at 50% -20%, rgba(0, 214, 143, 0.10), transparent 60%),
-      radial-gradient(1200px 700px at 50% 120%, rgba(59, 130, 246, 0.08), transparent 60%),
+      radial-gradient(1400px 800px at 50% -20%, var(--app-bg-glow-a), transparent 60%),
+      radial-gradient(1200px 700px at 50% 120%, var(--app-bg-glow-b), transparent 60%),
       var(--bg);
   }
   .app {
