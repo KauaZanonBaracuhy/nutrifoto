@@ -11,6 +11,7 @@ import {
   saveCurrentPlan,
   gerarPlanoAlimentar,
 } from './dietPlan.js';
+import { getAlternatives } from './foodAlternatives.js';
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
@@ -734,18 +735,94 @@ function renderDietPlan(plan, profile) {
   updateMacroBars(totals, totals);
 
   const timeline = $('#plan-meals-timeline');
-  timeline.innerHTML = plan.refeicoes.map(r => `
+  timeline.innerHTML = plan.refeicoes.map((r, ri) => `
     <div class="plan-meal-card">
       <div class="plan-meal-header">
         <span class="plan-meal-name">${escapeHtml(r.nome)}</span>
         <span class="plan-meal-time">${escapeHtml(r.horario)}</span>
       </div>
-      <div class="plan-meal-suggestion">${escapeHtml(r.sugestao)}</div>
+      <div class="plan-meal-items">
+        ${(r.itens || []).map((item, ii) => `
+          <div class="plan-meal-item" data-refei="${ri}" data-item="${ii}">
+            <div class="plan-meal-item-info">
+              <span class="plan-meal-item-name">${escapeHtml(item.alimento)}</span>
+              ${item.quantidade ? `<span class="plan-meal-item-qty">${escapeHtml(item.quantidade)}</span>` : ''}
+            </div>
+            <button class="plan-meal-swap-btn" data-refei="${ri}" data-item="${ii}" aria-label="Trocar alimento">
+              <i data-lucide="refresh-cw" style="width:14px;height:14px"></i>
+            </button>
+          </div>
+        `).join('')}
+      </div>
       <span class="plan-meal-kcal">~${r.kcalEstimada} kcal</span>
     </div>
   `).join('');
 
+  timeline.querySelectorAll('.plan-meal-swap-btn').forEach(btn => {
+    btn.onclick = () => {
+      const ri = Number(btn.dataset.refei);
+      const ii = Number(btn.dataset.item);
+      openSwapModal(ri, ii, plan);
+    };
+  });
+
   if (window.lucide) lucide.createIcons();
+}
+
+// ============ SWAP FOOD MODAL ============
+function openSwapModal(refeiIdx, itemIdx, plan) {
+  const item = plan.refeicoes[refeiIdx]?.itens?.[itemIdx];
+  if (!item) return;
+  const alternatives = getAlternatives(item.categoria || 'outro');
+  const overlay = document.createElement('div');
+  overlay.className = 'swap-overlay';
+  overlay.innerHTML = `
+    <div class="swap-modal">
+      <div class="swap-modal-header">
+        <h3>Trocar alimento</h3>
+        <button class="swap-modal-close" id="swap-modal-close"><i data-lucide="x" style="width:18px;height:18px"></i></button>
+      </div>
+      <div class="swap-modal-current">
+        <span class="swap-modal-label">Atual:</span>
+        <span class="swap-modal-current-name">${escapeHtml(item.alimento)}</span>
+        ${item.quantidade ? `<span class="swap-modal-current-qty">${escapeHtml(item.quantidade)}</span>` : ''}
+      </div>
+      <div class="swap-modal-section">
+        <span class="swap-modal-section-title">Alternativas (${escapeHtml(item.categoria || 'outro')})</span>
+        <div class="swap-modal-list">
+          ${alternatives.map(alt => `
+            <button class="swap-modal-option" data-alt="${escapeHtml(alt)}">${escapeHtml(alt)}</button>
+          `).join('')}
+        </div>
+      </div>
+      <div class="swap-modal-section">
+        <span class="swap-modal-section-title">Observacao (opcional)</span>
+        <input type="text" class="swap-modal-note" id="swap-note" placeholder="ex: nao gosto de peixe" />
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  if (window.lucide) lucide.createIcons();
+
+  const closeModal = () => overlay.remove();
+
+  overlay.querySelector('#swap-modal-close').onclick = closeModal;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+  overlay.querySelectorAll('.swap-modal-option').forEach(btn => {
+    btn.onclick = () => {
+      const newAlimento = btn.dataset.alt;
+      const note = overlay.querySelector('#swap-note')?.value?.trim() || '';
+
+      plan.refeicoes[refeiIdx].itens[itemIdx].alimento = newAlimento;
+      if (note) plan.refeicoes[refeiIdx].itens[itemIdx].observacao = note;
+
+      saveCurrentPlan(plan);
+      renderDietPlan(plan, getUserProfile());
+      toast('Alimento substituido');
+      closeModal();
+    };
+  });
 }
 
 function renderDiet() {

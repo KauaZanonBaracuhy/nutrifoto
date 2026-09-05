@@ -49,7 +49,7 @@ function buildPrompt(profile) {
   const alimentosNaoGosta = profile.restricoesTexto || 'nenhum';
   const favoritos = profile.alimentosFavoritos || 'nenhum';
 
-  return `Você é um nutricionista especialista. Com base nos dados do usuário abaixo, gere um plano alimentar diário personalizado.
+  return `Você é um nutricionista especialista. Com base nos dados do usuário abaixo, gere um plano alimentar diário personalizado com alimentos concretos e quantidades específicas.
 
 DADOS DO USUÁRIO:
 - Idade: ${profile.idade} anos
@@ -75,8 +75,10 @@ INSTRUÇÕES:
 2. Multiplique pela taxa de atividade: sedentario=1.2, leve=1.375, moderado=1.55, intenso=1.725, atleta=1.9.
 3. Ajuste as calorias para o objetivo (perder: -500 kcal, manter: = TDEE, ganhar: +500 kcal, melhorar saúde: +100 kcal).
 4. Distribua os macros: proteína 1.6-2.2g/kg (ou mais se ganhando massa), carboidrato 45-55% do total, gordura 20-30%.
-5. Distribua as refeições pelos horários informados, com sugestões de pratos reais e saborosos, respeitando restrições, alergias e preferências.
-6. Estime kcal por refeição.
+5. Distribua as refeições pelos horários informados.
+6. Para CADA refeição, especifique uma LISTA de itens com alimentos concretos e quantidades realistas em gramas. NÃO use descrições genéricas como "proteína magra". Use nomes reais de alimentos: "peito de frango grelhado", "arroz integral cozido", "banana prata madura", etc.
+7. Cada item deve ter uma categoria: proteina, carboidrato, vegetal, fruta, laticinio, gordura, bebida, condimento ou outro.
+8. Estime kcal por refeição.
 
 RESPONDA APENAS com JSON válido neste formato exato (sem markdown, sem texto extra):
 
@@ -92,8 +94,13 @@ RESPONDA APENAS com JSON válido neste formato exato (sem markdown, sem texto ex
     {
       "nome": "Café da manhã",
       "horario": "07:30",
-      "sugestao": "Omelete de 3 claras + 1 ovo com espinafre e aveia",
-      "kcalEstimada": 420
+      "kcalEstimada": 420,
+      "itens": [
+        { "alimento": "Omelete de 3 claras com espinafre", "quantidade": "150g", "categoria": "proteina" },
+        { "alimento": "Aveia em flocos", "quantidade": "40g", "categoria": "carboidrato" },
+        { "alimento": "Banana prata fatiada", "quantidade": "1 unidade", "categoria": "fruta" },
+        { "alimento": "Café sem açúcar", "quantidade": "200ml", "categoria": "bebida" }
+      ]
     }
   ]
 }`;
@@ -170,6 +177,18 @@ export async function gerarPlanoAlimentar(profile) {
   }
   if (!parsed.tdee || !parsed.metaCalorica || !parsed.macros || !Array.isArray(parsed.refeicoes)) {
     throw new Error('Formato de resposta inesperado — campos obrigatórios ausentes.');
+  }
+
+  // Compatibilidade retroativa: se a IA retornou o formato antigo (sugestao),
+  // converte para o formato novo (itens)
+  for (const r of parsed.refeicoes) {
+    if (!Array.isArray(r.itens)) {
+      r.itens = [{
+        alimento: r.sugestao || 'Item não especificado',
+        quantidade: '',
+        categoria: 'outro',
+      }];
+    }
   }
 
   return parsed;
