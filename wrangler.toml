@@ -1,6 +1,0 @@
-name = "nutrifoto"
-pages_build_output_dir = "www"
-
-[assets]
-directory = "www"
-not_found_handling = "404-page"
