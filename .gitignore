@@ -15,6 +15,9 @@ www/js/config.local.js
 # Arquivo .env (chaves reais, NÃO commitar)
 .env
 
+# Build outputs (APKs, etc.)
+builds/
+
 # Netlify CLI (configuração local, não versionar)
 .netlify/
 
