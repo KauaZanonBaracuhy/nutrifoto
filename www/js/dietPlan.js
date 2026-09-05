@@ -6,7 +6,7 @@ const KEY_PLAN = 'nutrifoto.currentPlan';
 
 const OPENROUTER_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
 const MODEL = 'openai/gpt-4o-mini';
-const APP_REFERER = 'http://localhost';
+const APP_REFERER = 'https://nutrifoto.netlify.app';
 const APP_TITLE = 'NutriFoto';
 
 // ---------- Perfil ----------

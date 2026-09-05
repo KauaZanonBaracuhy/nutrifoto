@@ -1,17 +1,16 @@
 {
   "name": "nutrifoto",
   "version": "0.1.0",
-  "description": "Análise nutricional por foto usando a API do Claude",
+  "description": "Analise nutricional por foto usando IA (OpenRouter)",
   "type": "module",
   "scripts": {
-    "generate-config": "node scripts/generate-config.js",
     "build:web": "node scripts/generate-config.js",
-    "build:android": "node scripts/generate-config.js && npx cap copy android",
-    "build:apk": "node scripts/generate-config.js && npx cap copy android && cd android && gradlew.bat assembleDebug",
     "build": "node scripts/generate-config.js",
-    "serve": "npx serve .",
-    "sync": "npx cap sync android",
-    "cap:open": "npx cap open android"
+    "serve": "npx serve www",
+    "build:android": "echo 'Android pausado temporariamente. Para retomar, restaure a pasta _android_pausado/ para android/ e ajuste capacitor.config.json.' && exit 1",
+    "build:apk": "echo 'Android pausado temporariamente. Para retomar, restaure a pasta _android_pausado/ para android/ e ajuste capacitor.config.json.' && exit 1",
+    "sync": "echo 'Android pausado. Use build:web para producao.' && exit 1",
+    "cap:open": "echo 'Android pausado. Use build:web para producao.' && exit 1"
   },
   "dependencies": {
     "@capacitor/android": "^6.0.0",

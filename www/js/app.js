@@ -1,5 +1,5 @@
 // app.js — v2 layout: hero donut, macro bars, mini chart, FAB, timeline, receipt
-import { getGoals, setGoals, isConfigured, getApiKey } from './storage.js';
+import { getGoals, setGoals, isConfigured, getApiKey, setApiKey } from './storage.js';
 import { salvarRefeicao, listarRefeicoesDoDia, listarHistorico, deletarRefeicao, listarTotaisPorDia } from './db.js';
 import { captureFromCamera, pickFromGallery, downscaleImage } from './camera.js';
 import { analyzeImage, recalcularTotal, testConnection } from './visionApi.js';

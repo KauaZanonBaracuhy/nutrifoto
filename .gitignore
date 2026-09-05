@@ -1,16 +1,21 @@
 node_modules/
-android/.gradle/
-android/build/
-android/app/build/
-android/local.properties
-android/captures/
-android/.idea/
+_android_pausado/.gradle/
+_android_pausado/build/
+_android_pausado/app/build/
+_android_pausado/local.properties
+_android_pausado/captures/
+_android_pausado/.idea/
 *.iml
 .gradle/
 local.properties
 
-# Chave de API pessoal (NÃO COMMITAR)
+# www/ é a pasta de produção e ESTÁ versionada (fonte do deploy Netlify).
+# Apenas o config.local.js (gerado a partir do .env) é ignorado.
 www/js/config.local.js
+
+# Diretórios de trabalho local (não usados pelo deploy — ver BUILD.md)
+shared/
+web/
 
 # Arquivo .env (chaves reais, NÃO commitar)
 .env
