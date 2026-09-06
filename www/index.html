@@ -153,50 +153,98 @@
       </header>
       <main class="main main-settings">
 
-        <div class="settings-card">
-          <div class="settings-card-header">
+        <!-- 1. Meta calórica diária -->
+        <div class="settings-section open" data-section="calories">
+          <button class="settings-section-header" type="button">
             <i data-lucide="flame" style="width:20px;height:20px"></i>
-            <h3>Meta calórica diária</h3>
-          </div>
-          <div class="diet-field">
-            <label for="set-calories">Calorias</label>
-            <div class="goal-input-wrap">
-              <input type="number" id="set-calories" min="0" step="50" />
-              <span class="goal-unit">kcal</span>
+            <span>Meta calórica diária</span>
+            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
+          </button>
+          <div class="settings-section-body">
+            <div class="settings-section-body-inner">
+              <div class="diet-field">
+                <label for="set-calories">Calorias</label>
+                <div class="goal-input-wrap">
+                  <input type="number" id="set-calories" min="0" step="50" />
+                  <span class="goal-unit">kcal</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="settings-card">
-          <div class="settings-card-header">
+        <!-- 2. Metas de macronutrientes -->
+        <div class="settings-section open" data-section="macros">
+          <button class="settings-section-header" type="button">
             <i data-lucide="target" style="width:20px;height:20px"></i>
-            <h3>Metas de macronutrientes</h3>
-          </div>
-          <div class="goals-grid">
-            <div class="goal-field">
-              <label>Proteína</label>
-              <div class="goal-input-wrap">
-                <input type="number" id="set-protein" min="0" />
-                <span class="goal-unit">g</span>
-              </div>
-            </div>
-            <div class="goal-field">
-              <label>Carboidrato</label>
-              <div class="goal-input-wrap">
-                <input type="number" id="set-carb" min="0" />
-                <span class="goal-unit">g</span>
-              </div>
-            </div>
-            <div class="goal-field">
-              <label>Gordura</label>
-              <div class="goal-input-wrap">
-                <input type="number" id="set-fat" min="0" />
-                <span class="goal-unit">g</span>
+            <span>Metas de macronutrientes</span>
+            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
+          </button>
+          <div class="settings-section-body">
+            <div class="settings-section-body-inner">
+              <div class="goals-grid">
+                <div class="goal-field">
+                  <label>Proteína</label>
+                  <div class="goal-input-wrap">
+                    <input type="number" id="set-protein" min="0" />
+                    <span class="goal-unit">g</span>
+                  </div>
+                </div>
+                <div class="goal-field">
+                  <label>Carboidrato</label>
+                  <div class="goal-input-wrap">
+                    <input type="number" id="set-carb" min="0" />
+                    <span class="goal-unit">g</span>
+                  </div>
+                </div>
+                <div class="goal-field">
+                  <label>Gordura</label>
+                  <div class="goal-input-wrap">
+                    <input type="number" id="set-fat" min="0" />
+                    <span class="goal-unit">g</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- 3. Chave da API OpenRouter -->
+        <div class="settings-section" data-section="apikey">
+          <button class="settings-section-header" type="button">
+            <i data-lucide="key-round" style="width:20px;height:20px"></i>
+            <span>Chave da API OpenRouter</span>
+            <span class="api-status" id="api-status-badge">—</span>
+            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
+          </button>
+          <div class="settings-section-body">
+            <div class="settings-section-body-inner">
+              <p class="api-key-help">Cole sua chave da OpenRouter para usar a análise de imagem e o gerador de plano alimentar. A chave fica salva apenas no seu navegador (localStorage) e nunca é enviada a nenhum servidor do NutriFoto.</p>
+              <div class="diet-field">
+                <label for="set-apikey">Chave (formato <code>sk-or-v1-...</code>)</label>
+                <div class="api-key-wrap">
+                  <input type="password" id="set-apikey" autocomplete="off" spellcheck="false" placeholder="sk-or-v1-..." />
+                  <button type="button" class="api-key-toggle" id="btn-toggle-apikey" aria-label="Mostrar/ocultar chave">
+                    <i data-lucide="eye"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="settings-actions-row">
+                <button class="btn-secondary" id="btn-save-apikey">
+                  <i data-lucide="save" style="width:16px;height:16px"></i> Salvar chave
+                </button>
+                <button class="btn-secondary" id="btn-clear-apikey">
+                  <i data-lucide="trash-2" style="width:16px;height:16px"></i> Remover
+                </button>
+              </div>
+              <p class="api-key-help api-key-help-link">
+                <a class="about-link" href="https://openrouter.ai/keys" target="_blank" rel="noopener">Como conseguir minha chave da OpenRouter?</a>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Perfil e plano alimentar (card de navegação, sem accordion) -->
         <div class="settings-card settings-card-link">
           <a class="settings-card-link-anchor" href="#screen-diet" data-screen-link="diet">
             <div class="settings-card-header">
@@ -208,102 +256,97 @@
           </a>
         </div>
 
-        <div class="settings-card">
-          <div class="settings-card-header">
+        <!-- 5. Notificações -->
+        <div class="settings-section" data-section="notifications">
+          <button class="settings-section-header" type="button">
             <i data-lucide="bell" style="width:20px;height:20px"></i>
-            <h3>Notificações</h3>
-          </div>
-          <div class="toggle-row">
-            <div class="toggle-label">
-              <span class="toggle-title">Lembrete de refeição</span>
-              <span class="toggle-sub">Avisa nos horários definidos</span>
+            <span>Notificações</span>
+            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
+          </button>
+          <div class="settings-section-body">
+            <div class="settings-section-body-inner">
+              <div class="toggle-row">
+                <div class="toggle-label">
+                  <span class="toggle-title">Lembrete de refeição</span>
+                  <span class="toggle-sub">Avisa nos horários definidos</span>
+                </div>
+                <button class="toggle-switch" id="set-toggle-meal" data-on="0" aria-pressed="false" aria-label="Ativar lembrete de refeição">
+                  <span class="toggle-knob"></span>
+                </button>
+              </div>
+              <div class="diet-field">
+                <label>Horário padrão</label>
+                <input type="time" id="set-meal-time" value="12:00" />
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-label">
+                  <span class="toggle-title">Lembrete de streak</span>
+                  <span class="toggle-sub">Avisa para não perder a sequência</span>
+                </div>
+                <button class="toggle-switch" id="set-toggle-streak" data-on="0" aria-pressed="false" aria-label="Ativar lembrete de streak">
+                  <span class="toggle-knob"></span>
+                </button>
+              </div>
+              <div class="diet-field">
+                <label>Horário do lembrete</label>
+                <input type="time" id="set-streak-time" value="20:00" />
+              </div>
+              <p class="api-key-help">Lembretes serao ativados em uma versao futura do app.</p>
             </div>
-            <button class="toggle-switch" id="set-toggle-meal" data-on="0" aria-pressed="false" aria-label="Ativar lembrete de refeição">
-              <span class="toggle-knob"></span>
-            </button>
           </div>
-          <div class="diet-field" style="margin-top:10px">
-            <label>Horário padrão</label>
-            <input type="time" id="set-meal-time" value="12:00" />
-          </div>
-          <div class="toggle-row" style="margin-top:8px">
-            <div class="toggle-label">
-              <span class="toggle-title">Lembrete de streak</span>
-              <span class="toggle-sub">Avisa para não perder a sequência</span>
-            </div>
-            <button class="toggle-switch" id="set-toggle-streak" data-on="0" aria-pressed="false" aria-label="Ativar lembrete de streak">
-              <span class="toggle-knob"></span>
-            </button>
-          </div>
-          <div class="diet-field" style="margin-top:10px">
-            <label>Horário do lembrete</label>
-            <input type="time" id="set-streak-time" value="20:00" />
-          </div>
-          <p class="api-key-help" style="margin-top:8px">Lembretes serao ativados em uma versao futura do app.</p>
         </div>
 
-        <div class="settings-card">
-          <div class="settings-card-header">
+        <!-- 6. Exportar dados -->
+        <div class="settings-section" data-section="export">
+          <button class="settings-section-header" type="button">
             <i data-lucide="download" style="width:20px;height:20px"></i>
-            <h3>Exportar dados</h3>
-          </div>
-          <p class="api-key-help">Baixe o historico de refeicoes em JSON ou CSV para usar em outros apps ou fazer backup.</p>
-          <div class="settings-actions-row">
-            <button class="btn-secondary" id="btn-export-json">
-              <i data-lucide="file-json" style="width:16px;height:16px"></i> Exportar JSON
-            </button>
-            <button class="btn-secondary" id="btn-export-csv">
-              <i data-lucide="file-text" style="width:16px;height:16px"></i> Exportar CSV
-            </button>
-          </div>
-        </div>
-
-        <div class="settings-card">
-          <div class="settings-card-header">
-            <i data-lucide="palette" style="width:20px;height:20px"></i>
-            <h3>Tema visual</h3>
-          </div>
-          <div class="theme-grid" id="set-theme-grid"></div>
-        </div>
-
-        <div class="settings-card">
-          <div class="settings-card-header">
-            <i data-lucide="key-round" style="width:20px;height:20px"></i>
-            <h3>Chave da API OpenRouter</h3>
-            <span class="api-status" id="api-status-badge">—</span>
-          </div>
-          <p class="api-key-help">Cole sua chave da OpenRouter para usar a análise de imagem e o gerador de plano alimentar. A chave fica salva apenas no seu navegador (localStorage) e nunca é enviada a nenhum servidor do NutriFoto.</p>
-          <div class="diet-field">
-            <label for="set-apikey">Chave (formato <code>sk-or-v1-...</code>)</label>
-            <div class="api-key-wrap">
-              <input type="password" id="set-apikey" autocomplete="off" spellcheck="false" placeholder="sk-or-v1-..." />
-              <button type="button" class="api-key-toggle" id="btn-toggle-apikey" aria-label="Mostrar/ocultar chave">
-                <i data-lucide="eye"></i>
-              </button>
+            <span>Exportar dados</span>
+            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
+          </button>
+          <div class="settings-section-body">
+            <div class="settings-section-body-inner">
+              <p class="api-key-help">Baixe o historico de refeicoes em JSON ou CSV para usar em outros apps ou fazer backup.</p>
+              <div class="settings-actions-row">
+                <button class="btn-secondary" id="btn-export-json">
+                  <i data-lucide="file-json" style="width:16px;height:16px"></i> Exportar JSON
+                </button>
+                <button class="btn-secondary" id="btn-export-csv">
+                  <i data-lucide="file-text" style="width:16px;height:16px"></i> Exportar CSV
+                </button>
+              </div>
             </div>
           </div>
-          <div class="settings-actions-row">
-            <button class="btn-secondary" id="btn-save-apikey">
-              <i data-lucide="save" style="width:16px;height:16px"></i> Salvar chave
-            </button>
-            <button class="btn-secondary" id="btn-clear-apikey">
-              <i data-lucide="trash-2" style="width:16px;height:16px"></i> Remover
-            </button>
-          </div>
-          <p class="api-key-help" style="margin-top:8px">
-            <a class="about-link" href="https://openrouter.ai/keys" target="_blank" rel="noopener">Como conseguir minha chave da OpenRouter?</a>
-          </p>
         </div>
 
-        <div class="settings-card">
-          <div class="settings-card-header">
-            <i data-lucide="info" style="width:20px;height:20px"></i>
-            <h3>Sobre o app</h3>
+        <!-- 7. Tema visual -->
+        <div class="settings-section" data-section="theme">
+          <button class="settings-section-header" type="button">
+            <i data-lucide="palette" style="width:20px;height:20px"></i>
+            <span>Tema visual</span>
+            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
+          </button>
+          <div class="settings-section-body">
+            <div class="settings-section-body-inner">
+              <div class="theme-grid" id="set-theme-grid"></div>
+            </div>
           </div>
-          <div class="about-row"><span class="about-label">Versao</span><span class="about-value" id="about-version">—</span></div>
-          <div class="about-row"><span class="about-label">Desenvolvedor</span><span class="about-value" id="about-developer">—</span></div>
-          <div class="about-row"><span class="about-label">Suporte</span><a class="about-link" href="https://nutrifoto-rose.vercel.app" target="_blank" rel="noopener">nutrifoto-rose.vercel.app</a></div>
-          <p class="api-key-help" style="margin-top:10px">NutriFoto analisa suas refeicoes por foto usando IA. As metas diarias ficam aqui no app; o perfil pessoal (idade, peso, objetivo, restricoes) fica na aba <strong>Meu Plano</strong> e alimenta o plano alimentar gerado por IA.</p>
+        </div>
+
+        <!-- 8. Sobre o app -->
+        <div class="settings-section" data-section="about">
+          <button class="settings-section-header" type="button">
+            <i data-lucide="info" style="width:20px;height:20px"></i>
+            <span>Sobre o app</span>
+            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
+          </button>
+          <div class="settings-section-body">
+            <div class="settings-section-body-inner">
+              <div class="about-row"><span class="about-label">Versao</span><span class="about-value" id="about-version">—</span></div>
+              <div class="about-row"><span class="about-label">Desenvolvedor</span><span class="about-value" id="about-developer">—</span></div>
+              <div class="about-row"><span class="about-label">Suporte</span><a class="about-link" href="https://nutrifoto-rose.vercel.app" target="_blank" rel="noopener">nutrifoto-rose.vercel.app</a></div>
+              <p class="api-key-help api-key-help-about">NutriFoto analisa suas refeicoes por foto usando IA. As metas diarias ficam aqui no app; o perfil pessoal (idade, peso, objetivo, restricoes) fica na aba <strong>Meu Plano</strong> e alimenta o plano alimentar gerado por IA.</p>
+            </div>
+          </div>
         </div>
 
         <div class="sticky-save">

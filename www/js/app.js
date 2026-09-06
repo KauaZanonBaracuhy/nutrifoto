@@ -512,6 +512,14 @@ function applyThemeSelection(id, grid) {
   if (typeof renderDashboard === 'function') renderDashboard();
 }
 
+function bindSettingsAccordions() {
+  document.querySelectorAll('.settings-section-header').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.closest('.settings-section').classList.toggle('open');
+    });
+  });
+}
+
 function renderSettings() {
   // Meta calórica + macros
   const g = getGoals();
@@ -539,6 +547,7 @@ function renderSettings() {
 
   bindSettingsToggles();
   bindApiKeyControls();
+  bindSettingsAccordions();
 
   // Link "Perfil e plano alimentar" → Meu Plano
   document.querySelectorAll('[data-screen-link="diet"]').forEach(a => {
