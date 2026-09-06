@@ -10,21 +10,43 @@ function isDark() {
 }
 
 function getColors() {
+  // Prioridade: ler as variaveis CSS do tema ativo (funciona com os 10 temas).
+  // Fallback para os valores fixos se as variaveis nao estiverem definidas.
+  const root = document.documentElement;
+  const style = getComputedStyle(root);
+  const cssVarHex = (name, fallback) => {
+    const v = style.getPropertyValue(name).trim();
+    return v || fallback;
+  };
+  // Cores de destaque do tema atual (podem ser jade, azul, vermelho, etc.)
+  const themeGreen = cssVarHex('--jade', isDark() ? '#10B981' : '#059669');
+  const themeAmber = cssVarHex('--orange', isDark() ? '#F59E0B' : '#D97706');
+  const themeRed = cssVarHex('--coral', isDark() ? '#EF4444' : '#DC2626');
+  const themePurple = cssVarHex('--purple', isDark() ? '#8B5CF6' : '#7C3AED');
+  const themeMuted = style.getPropertyValue('--text-muted').trim() || (isDark() ? '#7A9A8B' : '#94A3B8');
+  const themeSurface = style.getPropertyValue('--surface').trim() || (isDark() ? '#162019' : '#FFFFFF');
+  const themeText = style.getPropertyValue('--text').trim() || (isDark() ? '#E8F5EF' : '#0F172A');
+  const themeBorder = style.getPropertyValue('--border').trim() || (isDark() ? '#243830' : '#D1E7DF');
+  const themeTrack = style.getPropertyValue('--surface-2').trim() || (isDark() ? '#1E2D25' : '#E4F0EB');
+
+  // Variaveis de "pilula" (bg/bd das areas de destaque)
+  const pillJadeBg = style.getPropertyValue('--pill-jade-bg').trim() || (isDark() ? 'rgba(16,185,129,0.2)' : '#0F172A');
+
   return {
-    green: isDark() ? '#10B981' : '#059669',
-    greenDim: isDark() ? 'rgba(16,185,129,0.15)' : 'rgba(5,150,105,0.1)',
-    amber: isDark() ? '#F59E0B' : '#D97706',
-    amberDim: isDark() ? 'rgba(245,158,11,0.15)' : 'rgba(217,119,6,0.1)',
-    red: isDark() ? '#EF4444' : '#DC2626',
-    redDim: isDark() ? 'rgba(239,68,68,0.15)' : 'rgba(220,38,38,0.08)',
-    purple: isDark() ? '#8B5CF6' : '#7C3AED',
-    purpleDim: isDark() ? 'rgba(139,92,246,0.15)' : 'rgba(124,58,237,0.1)',
-    muted: isDark() ? '#7A9A8B' : '#94A3B8',
-    surface: isDark() ? '#162019' : '#FFFFFF',
-    text: isDark() ? '#E8F5EF' : '#0F172A',
-    metaBar: isDark() ? 'rgba(16,185,129,0.2)' : '#0F172A',
-    border: isDark() ? '#243830' : '#D1E7DF',
-    track: isDark() ? '#1E2D25' : '#E4F0EB',
+    green: themeGreen,
+    greenDim: isDark() ? `${themeGreen}1a` : `${themeGreen}1a`,
+    amber: themeAmber,
+    amberDim: isDark() ? `${themeAmber}29` : `${themeAmber}29`,
+    red: themeRed,
+    redDim: isDark() ? `${themeRed}26` : `${themeRed}1a`,
+    purple: themePurple,
+    purpleDim: isDark() ? `${themePurple}26` : `${themePurple}1a`,
+    muted: themeMuted,
+    surface: themeSurface,
+    text: themeText,
+    metaBar: pillJadeBg,
+    border: themeBorder,
+    track: themeTrack,
   };
 }
 

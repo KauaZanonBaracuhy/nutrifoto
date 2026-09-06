@@ -61,9 +61,10 @@ function isValidKey(key) {
   return key && key.startsWith("sk-or-") && key.length > 20 && !key.includes("SUBSTITUA") && !key.includes("SUA_CHAVE");
 }
 
-// Lê diretamente do arquivo .env (com parser manual)
+// Lê diretamente do arquivo .env (com parser manual) OU da variavel
+// de ambiente do sistema (prioridade: env do sistema > .env local).
 const envVars = parseEnvFile(ENV_PATH);
-const envKey = envVars.OPENROUTER_API_KEY;
+const envKey = process.env.OPENROUTER_API_KEY || envVars.OPENROUTER_API_KEY;
 
 if (isValidKey(envKey)) {
   writeFileSync(
