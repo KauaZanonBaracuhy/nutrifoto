@@ -1,9 +1,0 @@
-[build]
-publish = "www"
-command = "node scripts/generate-config.js"
-
-[build.environment]
-NODE_VERSION = ""
-
-[dev]
-port = 3000

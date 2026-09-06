@@ -14,14 +14,17 @@ npm run serve
 
 Serve a pasta `www/` localmente via `npx serve` na porta 3000.
 
-## Deploy Netlify
+## Deploy Vercel
 
-O deploy automático acontece a partir da pasta `www/` (configurado no `netlify.toml`). Ao fazer push no GitHub, o Netlify roda automaticamente:
+O deploy automático acontece a partir da pasta `www/`. Ao fazer push no GitHub, a Vercel roda automaticamente:
 
-1. `node scripts/generate-config.js` — gera `www/js/config.local.js` a partir do `.env`
-2. Publica `www/`
+1. `npm install` — instala dependências
+2. `npm run build` — gera `www/js/config.local.js` a partir da variável de ambiente `OPENROUTER_API_KEY`
+3. Publica `www/`
 
-URL de produção: https://nutrifoto.netlify.app
+URL de produção: https://nutrifoto-rose.vercel.app
+
+> **Nota:** A variável `OPENROUTER_API_KEY` deve ser configurada como environment variable no painel da Vercel (Settings → Environment Variables). O arquivo `.env` local é usado apenas para desenvolvimento.
 
 ## Build Android (PAUSADO TEMPORARIAMENTE)
 

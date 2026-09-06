@@ -9,7 +9,7 @@ _android_pausado/.idea/
 .gradle/
 local.properties
 
-# www/ é a pasta de produção e ESTÁ versionada (fonte do deploy Netlify).
+# www/ é a pasta de produção e ESTÁ versionada (fonte do deploy Vercel).
 # Apenas o config.local.js (gerado a partir do .env) é ignorado.
 www/js/config.local.js
 
@@ -22,9 +22,6 @@ web/
 
 # Build outputs (APKs, etc.)
 builds/
-
-# Netlify CLI (configuração local, não versionar)
-.netlify/
 
 # Referência local de Git para Claude Code (NÃO COMMITAR)
 GIT_INFO.local.md

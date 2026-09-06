@@ -1994,6 +1994,3 @@ input, textarea, select { font-family: inherit; }
 .status-warn { color: var(--orange); }
 .status-over { color: var(--coral); }
 .status-empty { opacity: 0.4; }
-
-/* ============ NETLIFY BADGE ============ */
-iframe[id="nl-badge-frame"] { pointer-events: none !important; }
