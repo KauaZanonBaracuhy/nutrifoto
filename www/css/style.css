@@ -836,29 +836,11 @@ input, textarea, select { font-family: inherit; }
   gap: 16px;
   padding: 32px 0;
   min-height: 200px;
+  width: 100%;
 }
 .bowl-loader {
   width: 120px;
   height: 140px;
-}
-.bowl-fill {
-  animation: bowlFill 2.5s ease-in-out infinite;
-}
-@keyframes bowlFill {
-  0%   { y: 113; }
-  50%  { y: 50; }
-  75%  { y: 50; }
-  100% { y: 113; }
-}
-.bowl-wave {
-  animation: bowlWave 2.5s ease-in-out infinite;
-}
-@keyframes bowlWave {
-  0%   { d: path("M22,50 Q40,44 60,50 Q80,56 98,50"); }
-  25%  { d: path("M22,48 Q38,54 60,48 Q82,42 98,48"); }
-  50%  { d: path("M22,50 Q40,44 60,50 Q80,56 98,50"); }
-  75%  { d: path("M22,52 Q42,46 60,52 Q78,58 98,52"); }
-  100% { d: path("M22,50 Q40,44 60,50 Q80,56 98,50"); }
 }
 .bowl-steam {
   animation: bowlSteam 2s ease-in-out infinite;

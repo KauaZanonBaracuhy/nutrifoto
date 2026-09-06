@@ -116,8 +116,13 @@
             <path class="bowl-steam bowl-steam-2" d="M56,28 Q61,18 66,28 Q71,38 76,28" stroke="var(--text-muted)" fill="none" stroke-width="2.5" stroke-linecap="round"/>
             <path d="M20,50 Q20,110 60,115 Q100,110 100,50" stroke="var(--border)" fill="none" stroke-width="3" stroke-linecap="round"/>
             <line x1="15" y1="50" x2="105" y2="50" stroke="var(--border)" stroke-width="3" stroke-linecap="round"/>
-            <rect class="bowl-fill" x="22" y="113" width="76" height="65" fill="var(--jade)" clip-path="url(#bowl-clip-photo)"/>
-            <path class="bowl-wave" d="M22,50 Q40,44 60,50 Q80,56 98,50" fill="var(--jade)" opacity="0.85" clip-path="url(#bowl-clip-photo)"/>
+            <rect x="22" y="113" width="76" height="65" fill="var(--jade)" clip-path="url(#bowl-clip-photo)">
+              <animate attributeName="y" values="113;50;50;113" keyTimes="0;0.45;0.75;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1"/>
+              <animate attributeName="height" values="65;65;65;65" dur="3s" repeatCount="indefinite"/>
+            </rect>
+            <path fill="var(--jade)" opacity="0.85" clip-path="url(#bowl-clip-photo)">
+              <animate attributeName="d" values="M22,50 Q40,44 60,50 Q80,56 98,50;M22,48 Q38,54 60,48 Q82,42 98,48;M22,50 Q40,44 60,50 Q80,56 98,50;M22,52 Q42,46 60,52 Q78,58 98,52;M22,50 Q40,44 60,50 Q80,56 98,50" dur="3s" repeatCount="indefinite"/>
+            </path>
           </svg>
           <p class="bowl-loader-text" id="bowl-text-photo">Analisando sua refeicao...</p>
         </div>
@@ -374,8 +379,13 @@
             <path class="bowl-steam bowl-steam-2" d="M56,28 Q61,18 66,28 Q71,38 76,28" stroke="var(--text-muted)" fill="none" stroke-width="2.5" stroke-linecap="round"/>
             <path d="M20,50 Q20,110 60,115 Q100,110 100,50" stroke="var(--border)" fill="none" stroke-width="3" stroke-linecap="round"/>
             <line x1="15" y1="50" x2="105" y2="50" stroke="var(--border)" stroke-width="3" stroke-linecap="round"/>
-            <rect class="bowl-fill" x="22" y="113" width="76" height="65" fill="var(--jade)" clip-path="url(#bowl-clip-diet)"/>
-            <path class="bowl-wave" d="M22,50 Q40,44 60,50 Q80,56 98,50" fill="var(--jade)" opacity="0.85" clip-path="url(#bowl-clip-diet)"/>
+            <rect x="22" y="113" width="76" height="65" fill="var(--jade)" clip-path="url(#bowl-clip-diet)">
+              <animate attributeName="y" values="113;50;50;113" keyTimes="0;0.45;0.75;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1"/>
+              <animate attributeName="height" values="65;65;65;65" dur="3s" repeatCount="indefinite"/>
+            </rect>
+            <path fill="var(--jade)" opacity="0.85" clip-path="url(#bowl-clip-diet)">
+              <animate attributeName="d" values="M22,50 Q40,44 60,50 Q80,56 98,50;M22,48 Q38,54 60,48 Q82,42 98,48;M22,50 Q40,44 60,50 Q80,56 98,50;M22,52 Q42,46 60,52 Q78,58 98,52;M22,50 Q40,44 60,50 Q80,56 98,50" dur="3s" repeatCount="indefinite"/>
+            </path>
           </svg>
           <p class="bowl-loader-text" id="bowl-text-diet">Gerando seu plano...</p>
         </div>
