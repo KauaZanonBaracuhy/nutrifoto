@@ -802,6 +802,14 @@ input, textarea, select { font-family: inherit; }
   background: rgba(0, 214, 143, 0.05);
 }
 .preview-icon { width: 36px; height: 36px; opacity: 0.6; }
+.capture-tip {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 8px auto 0;
+  text-align: center;
+  max-width: 320px;
+}
 
 /* Skeleton loading — shimmer em gradiente animado */
 .skeleton-container { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
