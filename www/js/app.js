@@ -848,6 +848,13 @@ const RESTRICOES_OPTS = [
   { value: 'nenhuma', label: 'Nenhuma' },
 ];
 
+const TIPO_DIETA_OPTS = [
+  { value: 'equilibrado', label: 'Equilibrado', desc: 'Balanceia sabor, praticidade e nutricao' },
+  { value: 'sabor', label: 'Sabor & Prazer', desc: 'Mais variedade e prato gostoso' },
+  { value: 'performance', label: 'Performance', desc: 'Timing de nutrientes e alimentos funcionais' },
+  { value: 'praticidade', label: 'Praticidade', desc: 'Preparo rapido, poucos ingredientes' },
+];
+
 const OBJETIVO_LABEL = {
   perder_peso: 'Perda de peso',
   manter_peso: 'Manter peso',
@@ -858,6 +865,7 @@ const OBJETIVO_LABEL = {
 function getFormValues() {
   const v = (q) => document.querySelector(q);
   const chips = Array.from(document.querySelectorAll('.diet-chip.active')).map(c => c.dataset.value);
+  const tipoDietaChip = document.querySelector('.diet-chip-tipo.active');
   return {
     idade: Number(v('#dp-idade')?.value) || 0,
     sexo: v('#dp-sexo')?.value || 'masculino',
@@ -867,6 +875,7 @@ function getFormValues() {
     objetivo: v('#dp-objetivo')?.value || 'manter_peso',
     pesoDesejado: v('#dp-peso-desejado')?.value || '',
     prazo: v('#dp-prazo')?.value || '',
+    tipoDieta: tipoDietaChip?.dataset?.value || 'equilibrado',
     restricoes: chips.filter(c => c !== 'nenhuma'),
     restricoesTexto: v('#dp-alergias')?.value?.trim() || '',
     alimentosNaoGosta: v('#dp-nao-gosta')?.value?.trim() || '',
@@ -900,6 +909,8 @@ function setFormValues(profile) {
   const chips = document.querySelectorAll('.diet-chip');
   const r = new Set(profile?.restricoes || []);
   chips.forEach(c => c.classList.toggle('active', r.has(c.dataset.value)));
+  const tipoChips = document.querySelectorAll('.diet-chip-tipo');
+  tipoChips.forEach(c => c.classList.toggle('active', c.dataset.value === (profile?.tipoDieta || 'equilibrado')));
 }
 
 function renderDietForm(profile) {
@@ -944,6 +955,17 @@ function renderDietForm(profile) {
       <div class="diet-grid-2">
         <div class="diet-field"><label>Peso desejado (kg)</label><input type="number" id="dp-peso-desejado" min="20" max="300" step="0.1" placeholder="opcional" /></div>
         <div class="diet-field"><label>Prazo</label><input type="text" id="dp-prazo" placeholder="ex: 3 meses" /></div>
+      </div>
+    </div>
+
+    <div class="diet-section">
+      <div class="diet-section-title"><i data-lucide="chef-hat"></i> Tipo de Dieta</div>
+      <div class="diet-field">
+        <label>Perfil alimentar</label>
+        <div class="diet-chips" id="dp-chips-tipo">
+          ${TIPO_DIETA_OPTS.map(o => `<span class="diet-chip diet-chip-tipo" data-value="${o.value}"><strong>${o.label}</strong><span class="tipo-desc">${o.desc}</span></span>`).join('')}
+        </div>
+        <div class="diet-section-hint">Influencia quais alimentos sao sugeridos no plano.</div>
       </div>
     </div>
 
@@ -1013,6 +1035,13 @@ function renderDietForm(profile) {
     };
   });
 
+  container.querySelectorAll('.diet-chip-tipo').forEach(chip => {
+    chip.onclick = () => {
+      container.querySelectorAll('.diet-chip-tipo').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    };
+  });
+
   $('#btn-generate-plan').onclick = handleGeneratePlan;
 
   if (profile) setFormValues(profile);
@@ -1070,7 +1099,8 @@ function renderDietPlan(plan, profile) {
 function openSwapModal(refeiIdx, itemIdx, plan) {
   const item = plan.refeicoes[refeiIdx]?.itens?.[itemIdx];
   if (!item) return;
-  const alternatives = getAlternatives(item.categoria || 'outro');
+  const userProfile = getUserProfile() || {};
+  const alternatives = getAlternatives(item.categoria || 'outro', userProfile);
   const overlay = document.createElement('div');
   overlay.className = 'swap-overlay';
   overlay.innerHTML = `

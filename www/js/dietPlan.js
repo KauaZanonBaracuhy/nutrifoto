@@ -45,6 +45,31 @@ export function clearCurrentPlan() {
 
 // ---------- Prompt ----------
 
+const DIET_TYPE_PROMPTS = {
+  sabor: `ESTILO DE DIETA: SABOR & PRAZER
+- Priorize alimentos com mais sabor e textura. Use temperos, molhos leves e tecnicas de preparo que realcam o sabor (grelhado, assado com especiarias, refogado com alho e cebola).
+- Varie os grupos entre as refeicoes. Evite repetir o mesmo preparo no mesmo dia.
+- Aceite flexibilizacoes moderadas: pure de batata em vez de arroz se tornar o prato mais gostoso, frango com molho de mostarda em vez de frango cru, etc.
+- Inclua pelo menos 1 item por refeicao que seja genuinamente gostoso (nao apenas funcional).
+- Nao fuja do saudavel, mas priorize o prato que o usuario vai querer comer.`,
+  performance: `ESTILO DE DIETA: PERFORMANCE / ATLETA
+- Distribua carboidrato concentrado nos horarios pre e pos-treino (1-2h antes e apos a atividade fisica).
+- Priorize proteinas de alta biodisponibilidade: whey protein, ovos, peixe grelhado, peito de frango.
+- Inclua suplementacao pratica: creatina (5g/dia), omega-3 (capsula ou peixe oleoso), vegetais ricos em micronutrientes (brocolis, espinafre).
+- Timing de nutrientes: menos gordura nas refeicoes proximas ao treino para melhor absorcao.
+- Carboidratos complexos (arroz integral, batata-doce, aveia) como base energetica.
+- Evite alimentos processados e acucar refinado.
+- Agua: minimo 2.5L/dia.`,
+  praticidade: `ESTILO DE DIETA: PRATICIDADE
+- Use ingredientes que podem ser preparados em lote (arroz, frango desfiado, legumes assados).
+- Maximo 4 ingredientes por refeicao.
+- Priorize preparos de menos de 20 minutos.
+- Repita componentes entre refeicoes do mesmo dia (ex: mesmo frango grelhado no almoco e jantar).
+- Evite ingredientes dificeis de encontrar ou caros.
+- Prefira itens prontos ou rapidos: ovos cozidos, frango desfiado, banana, aveia, atum enlatado.
+- Evite preparos que exigem technique dificil (molhos complexos, temperos artesanais).`,
+};
+
 function buildPrompt(profile) {
   const alimentosNaoGosta = profile.restricoesTexto || 'nenhum';
   const favoritos = profile.alimentosFavoritos || 'nenhum';
@@ -79,6 +104,8 @@ INSTRUÇÕES:
 6. Para CADA refeição, especifique uma LISTA de itens com alimentos concretos e quantidades realistas em gramas. NÃO use descrições genéricas como "proteína magra". Use nomes reais de alimentos: "peito de frango grelhado", "arroz integral cozido", "banana prata madura", etc.
 7. Cada item deve ter uma categoria: proteina, carboidrato, vegetal, fruta, laticinio, gordura, bebida, condimento ou outro.
 8. Estime kcal por refeição.
+
+${DIET_TYPE_PROMPTS[profile.tipoDieta] || ''}
 
 RESPONDA APENAS com JSON válido neste formato exato (sem markdown, sem texto extra):
 
