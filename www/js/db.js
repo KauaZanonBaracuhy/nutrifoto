@@ -66,6 +66,11 @@ export async function listarHistorico() {
     .map(day => ({ day, meals: byDay[day].sort((a, b) => a.createdAt.localeCompare(b.createdAt)) }));
 }
 
+export async function atualizarRefeicao(id, meal) {
+  const store = await tx('readwrite');
+  return reqToPromise(store.put({ ...meal, id }));
+}
+
 export async function deletarRefeicao(id) {
   const store = await tx('readwrite');
   await reqToPromise(store.delete(id));

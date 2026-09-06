@@ -2037,6 +2037,144 @@ input, textarea, select { font-family: inherit; }
 .swap-modal-note:focus { outline: none; border-color: var(--jade); }
 .swap-modal-note::placeholder { color: var(--text-muted); opacity: 0.6; }
 
+/* ============ EDIT MEAL MODAL ============ */
+.edit-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 12px 12px;
+  animation: fadeIn var(--dur-fast) var(--ease-smooth);
+}
+.edit-modal {
+  width: 100%;
+  max-width: 440px;
+  max-height: 88vh;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px 20px 16px 16px;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
+  animation: slideUp var(--dur-base) var(--ease-bouncy);
+}
+.edit-meal-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+.edit-meal-info-time { color: var(--text-muted); font-weight: 500; }
+.edit-meal-info-total { color: var(--text); font-weight: 700; }
+.edit-foods-list {
+  max-height: 50vh;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+.edit-add-food-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--jade);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  transition: all var(--dur-base) var(--ease-smooth);
+}
+.edit-add-food-btn:hover { border-color: var(--jade); background: rgba(0, 214, 143, 0.06); }
+.edit-add-food-form {
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+.edit-add-search,
+.edit-add-name,
+.edit-add-grams {
+  width: 100%;
+  padding: 9px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  box-sizing: border-box;
+  margin-bottom: 8px;
+}
+.edit-add-search:focus,
+.edit-add-name:focus,
+.edit-add-grams:focus { outline: none; border-color: var(--jade); }
+.edit-add-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.edit-sug-btn {
+  text-align: left;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--dur-base) var(--ease-smooth);
+}
+.edit-sug-btn:hover { border-color: var(--jade); color: var(--jade); }
+.edit-add-manual {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.edit-add-manual .edit-add-name { flex: 2; margin-bottom: 0; }
+.edit-add-manual .edit-add-grams { flex: 1; margin-bottom: 0; }
+.edit-add-macros-row {
+  display: flex;
+  gap: 6px;
+}
+.edit-add-macro {
+  flex: 1;
+  padding: 7px 6px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12px;
+  font-family: inherit;
+  text-align: center;
+}
+.edit-add-macro:focus { outline: none; border-color: var(--jade); }
+.edit-modal-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+.edit-modal-totals {
+  display: flex;
+  justify-content: space-around;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
 /* (light theme removido — os 10 temas novos (gelo, minimalista, etc) cobrem
    o caso claro via [data-theme="gelo"] / [data-theme="minimalista"] acima) */
 

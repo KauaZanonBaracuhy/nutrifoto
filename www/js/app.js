@@ -1,6 +1,6 @@
 // app.js — v2 layout: hero donut, macro bars, mini chart, FAB, timeline, receipt
 import { getGoals, setGoals, isConfigured, getApiKey, setApiKey, getApiKeySource } from './storage.js';
-import { salvarRefeicao, listarRefeicoesDoDia, listarHistorico, deletarRefeicao, listarTotaisPorDia } from './db.js';
+import { salvarRefeicao, atualizarRefeicao, listarRefeicoesDoDia, listarHistorico, deletarRefeicao, listarTotaisPorDia } from './db.js';
 import { captureFromCamera, pickFromGallery, downscaleImage } from './camera.js';
 import { analyzeImage, recalcularTotal, testConnection } from './visionApi.js';
 import { updateHeroDonut, updateMacroBars, renderMiniBar, renderBarChart, renderLineChart } from './charts.js';
@@ -11,7 +11,7 @@ import {
   saveCurrentPlan,
   gerarPlanoAlimentar,
 } from './dietPlan.js';
-import { getAlternatives } from './foodAlternatives.js';
+import { getAlternatives, getAllCategories } from './foodAlternatives.js';
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
@@ -200,6 +200,14 @@ async function renderDashboard() {
       </div>
     `).join('');
   }
+
+  list.querySelectorAll('.meal-item').forEach(card => {
+    card.style.cursor = 'pointer';
+    card.onclick = (e) => {
+      if (e.target.closest('[data-del]')) return;
+      openEditMealModal(Number(card.dataset.id));
+    };
+  });
 
   list.querySelectorAll('[data-del]').forEach(btn => {
     btn.onclick = async (e) => {
@@ -460,7 +468,7 @@ async function renderHistory() {
         <div class="timeline-day-content">
           <div class="timeline-meals">
             ${g.meals.map(m => `
-              <div class="timeline-meal">
+              <div class="timeline-meal" data-meal-id="${m.id}">
                 <span class="timeline-meal-time">${formatTime(m.createdAt)}</span>
                 <span class="timeline-meal-name">${m.alimentos.length > 0 ? m.alimentos.map(a => a.nome).join(', ') : 'Sem alimentos'}</span>
                 <span class="timeline-meal-kcal">${m.total?.calorias || 0}</span>
@@ -474,6 +482,11 @@ async function renderHistory() {
 
   list.querySelectorAll('.timeline-day-header').forEach(h => {
     h.onclick = () => h.parentElement.classList.toggle('open');
+  });
+
+  list.querySelectorAll('.timeline-meal').forEach(el => {
+    el.style.cursor = 'pointer';
+    el.onclick = () => openEditMealModal(Number(el.dataset.mealId));
   });
 }
 
@@ -876,6 +889,246 @@ function downloadBlob(blob, filename) {
   document.body.appendChild(a);
   a.click();
   setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+}
+
+// ============ EDIT MEAL MODAL ============
+async function openEditMealModal(mealId) {
+  const all = await reqToPromiseIndexedDB();
+  const meal = all.find(m => m.id === mealId);
+  if (!meal) { toast('Refeição não encontrada', true); return; }
+
+  const alimentos = JSON.parse(JSON.stringify(meal.alimentos));
+  alimentos.forEach(a => ensureOriginals(a));
+
+  const overlay = document.createElement('div');
+  overlay.className = 'edit-overlay';
+  overlay.innerHTML = `
+    <div class="edit-modal">
+      <div class="swap-modal-header">
+        <h3>Editar Refeição</h3>
+        <button class="swap-modal-close" id="edit-modal-close"><i data-lucide="x" style="width:18px;height:18px"></i></button>
+      </div>
+      <div class="edit-meal-info">
+        <span class="edit-meal-info-time">🕐 ${formatTime(meal.createdAt)}</span>
+        <span class="edit-meal-info-total" id="edit-total-header">— kcal</span>
+      </div>
+      <div class="edit-foods-list" id="edit-foods-list"></div>
+      <button class="edit-add-food-btn" id="edit-add-food-btn">
+        <i data-lucide="plus" style="width:14px;height:14px"></i> Adicionar alimento
+      </button>
+      <div class="edit-add-food-form" id="edit-add-food-form" style="display:none">
+        <input type="text" class="edit-add-search" id="edit-add-search" placeholder="Buscar alimento..." />
+        <div class="edit-add-suggestions" id="edit-add-suggestions"></div>
+        <div class="edit-add-manual">
+          <input type="text" class="edit-add-name" id="edit-add-name" placeholder="Nome do alimento" />
+          <input type="number" class="edit-add-grams" id="edit-add-grams" placeholder="g" min="0" inputmode="numeric" />
+        </div>
+        <div class="edit-add-macros-row">
+          <input type="number" class="edit-add-macro" id="edit-add-cal" placeholder="kcal" min="0" inputmode="numeric" />
+          <input type="number" class="edit-add-macro" id="edit-add-prot" placeholder="P(g)" min="0" inputmode="numeric" />
+          <input type="number" class="edit-add-macro" id="edit-add-carb" placeholder="C(g)" min="0" inputmode="numeric" />
+          <input type="number" class="edit-add-macro" id="edit-add-gord" placeholder="G(g)" min="0" inputmode="numeric" />
+        </div>
+        <button class="btn-primary" id="edit-confirm-add" style="width:100%;margin-top:8px">
+          <i data-lucide="plus" style="width:16px;height:16px"></i> Adicionar
+        </button>
+      </div>
+      <div class="edit-modal-footer">
+        <div class="edit-modal-totals" id="edit-modal-totals"></div>
+        <button class="btn-primary" id="edit-save-btn">
+          <i data-lucide="check" style="width:16px;height:16px"></i> Salvar alterações
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  if (window.lucide) lucide.createIcons();
+
+  const closeModal = () => overlay.remove();
+
+  overlay.querySelector('#edit-modal-close').onclick = closeModal;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+  function renderEditFoods() {
+    const list = overlay.querySelector('#edit-foods-list');
+    if (alimentos.length === 0) {
+      list.innerHTML = '<p class="empty" style="padding:16px 0">Nenhum alimento. Adicione abaixo.</p>';
+    } else {
+      list.innerHTML = alimentos.map((f, idx) => `
+        <div class="food-receipt" data-idx="${idx}">
+          <div class="food-receipt-header">
+            <input class="food-receipt-name" value="${escapeHtml(f.nome)}" data-field="nome" />
+            <button class="food-receipt-remove" data-remove="${idx}">✕</button>
+          </div>
+          <div class="food-receipt-edit">
+            <input class="food-receipt-grams" type="number" min="0" value="${f.porcao_estimada_g}" data-field="porcao_estimada_g" inputmode="numeric" />
+            <span class="food-receipt-grams-label">gramas</span>
+          </div>
+          <div class="food-receipt-macros">
+            <span><strong>${f.calorias}</strong> kcal</span>
+            <span>P: <strong>${f.proteina_g}</strong>g</span>
+            <span>C: <strong>${f.carboidrato_g}</strong>g</span>
+            <span>G: <strong>${f.gordura_g}</strong>g</span>
+          </div>
+        </div>
+      `).join('');
+
+      list.querySelectorAll('.food-receipt').forEach(row => {
+        const idx = Number(row.dataset.idx);
+        const f = alimentos[idx];
+
+        row.querySelector('[data-field="nome"]').oninput = (e) => { f.nome = e.target.value; };
+
+        row.querySelector('[data-field="porcao_estimada_g"]').oninput = (e) => {
+          const v = Number(e.target.value) || 0;
+          f.porcao_estimada_g = v;
+          const orig = f.porcao_original_g || f.porcao_estimada_g;
+          if (orig > 0) {
+            const ratio = v / orig;
+            f.calorias = Math.round(f.calorias_original * ratio);
+            f.proteina_g = Math.round(f.proteina_original * ratio);
+            f.carboidrato_g = Math.round(f.carbo_original * ratio);
+            f.gordura_g = Math.round(f.gordura_original * ratio);
+            const macros = row.querySelector('.food-receipt-macros');
+            macros.innerHTML = `
+              <span><strong>${f.calorias}</strong> kcal</span>
+              <span>P: <strong>${f.proteina_g}</strong>g</span>
+              <span>C: <strong>${f.carboidrato_g}</strong>g</span>
+              <span>G: <strong>${f.gordura_g}</strong>g</span>
+            `;
+          }
+          updateEditTotals();
+        };
+
+        row.querySelector('[data-remove]').onclick = () => {
+          alimentos.splice(idx, 1);
+          renderEditFoods();
+        };
+      });
+    }
+    updateEditTotals();
+  }
+
+  function updateEditTotals() {
+    const total = recalcularTotal(alimentos);
+    const hdr = overlay.querySelector('#edit-total-header');
+    const foot = overlay.querySelector('#edit-modal-totals');
+    hdr.textContent = `${total.calorias} kcal`;
+    foot.innerHTML = `
+      <span>${total.calorias} kcal</span>
+      <span>P: ${total.proteina_g}g</span>
+      <span>C: ${total.carboidrato_g}g</span>
+      <span>G: ${total.gordura_g}g</span>
+    `;
+  }
+
+  renderEditFoods();
+
+  // ---- Add food toggle ----
+  overlay.querySelector('#edit-add-food-btn').onclick = () => {
+    const form = overlay.querySelector('#edit-add-food-form');
+    const show = form.style.display === 'none';
+    form.style.display = show ? 'block' : 'none';
+    if (show) overlay.querySelector('#edit-add-search').focus();
+  };
+
+  // ---- Search suggestions ----
+  const allCats = getAllCategories();
+  const userProfile = getUserProfile() || {};
+  const allFoods = [];
+  for (const cat of allCats) {
+    for (const name of getAlternatives(cat, userProfile)) {
+      if (!allFoods.find(f => f.name === name)) allFoods.push({ name, category: cat });
+    }
+  }
+  // also add from lista completa
+  const searchInput = overlay.querySelector('#edit-add-search');
+  const sugBox = overlay.querySelector('#edit-add-suggestions');
+
+  searchInput.oninput = () => {
+    const q = searchInput.value.trim().toLowerCase();
+    if (q.length < 2) { sugBox.innerHTML = ''; return; }
+    const matches = allFoods.filter(f => f.name.toLowerCase().includes(q)).slice(0, 8);
+    sugBox.innerHTML = matches.map(m => `
+      <button class="edit-sug-btn" data-name="${escapeHtml(m.name)}" data-cat="${escapeHtml(m.category)}">${escapeHtml(m.name)}</button>
+    `).join('');
+    sugBox.querySelectorAll('.edit-sug-btn').forEach(btn => {
+      btn.onclick = () => {
+        overlay.querySelector('#edit-add-name').value = btn.dataset.name;
+        searchInput.value = '';
+        sugBox.innerHTML = '';
+      };
+    });
+  };
+
+  // ---- Confirm add ----
+  overlay.querySelector('#edit-confirm-add').onclick = () => {
+    const name = overlay.querySelector('#edit-add-name').value.trim();
+    const grams = Number(overlay.querySelector('#edit-add-grams').value) || 0;
+    if (!name || grams <= 0) { toast('Preencha nome e gramas', true); return; }
+    const cal = Number(overlay.querySelector('#edit-add-cal').value) || 0;
+    const prot = Number(overlay.querySelector('#edit-add-prot').value) || 0;
+    const carb = Number(overlay.querySelector('#edit-add-carb').value) || 0;
+    const gord = Number(overlay.querySelector('#edit-add-gord').value) || 0;
+    const newFood = {
+      nome: name,
+      porcao_estimada_g: grams,
+      porcao_original_g: grams,
+      calorias: cal, calorias_original: cal,
+      proteina_g: prot, proteina_original: prot,
+      carboidrato_g: carb, carbo_original: carb,
+      gordura_g: gord, gordura_original: gord,
+    };
+    alimentos.push(newFood);
+    renderEditFoods();
+    // reset form
+    overlay.querySelector('#edit-add-name').value = '';
+    overlay.querySelector('#edit-add-grams').value = '';
+    overlay.querySelector('#edit-add-cal').value = '';
+    overlay.querySelector('#edit-add-prot').value = '';
+    overlay.querySelector('#edit-add-carb').value = '';
+    overlay.querySelector('#edit-add-gord').value = '';
+    overlay.querySelector('#edit-add-food-form').style.display = 'none';
+    toast('Alimento adicionado');
+  };
+
+  // ---- Save ----
+  overlay.querySelector('#edit-save-btn').onclick = async () => {
+    if (alimentos.length === 0) {
+      if (!confirm('Remover todos os alimentos? A refeição será excluída.')) return;
+      await deletarRefeicao(mealId);
+      closeModal();
+      renderDashboard();
+      toast('Refeição excluída');
+      return;
+    }
+    const total = recalcularTotal(alimentos);
+    const updated = { ...meal, alimentos, total };
+    await atualizarRefeicao(mealId, updated);
+    closeModal();
+    renderDashboard();
+    toast('Refeição atualizada');
+  };
+}
+
+// helper: read all meals from IDB (for edit modal lookup)
+function reqToPromiseIndexedDB() {
+  return openIDB().then(db => {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('meals', 'readonly');
+      const req = tx.objectStore('meals').getAll();
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  });
+}
+
+function openIDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('nutrifoto', 1);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
 }
 
 // ============ DIET PLAN (Meu Plano) ============
