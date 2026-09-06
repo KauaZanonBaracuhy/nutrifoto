@@ -75,6 +75,9 @@ if (isValidKey(envKey)) {
     "utf8"
   );
   console.log(`  config.local.js gerado com sucesso a partir do .env`);
+  // DEBUG TEMPORARIO: prefixo + comprimento da chave detectada (sem expor a chave).
+  // Remover apos diagnosticar o problema do Vercel.
+  console.log(`  [debug] Chave detectada: ${envKey.substring(0, 8)}... (${envKey.length} caracteres)`);
 } else {
   writeFileSync(
     CONFIG_PATH,
