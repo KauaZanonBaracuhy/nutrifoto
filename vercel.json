@@ -9,8 +9,5 @@
       "use": "@vercel/static-build",
       "config": { "distDir": "www" }
     }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
