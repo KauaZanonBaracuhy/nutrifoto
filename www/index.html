@@ -105,13 +105,21 @@
           <i data-lucide="scan" style="width:18px;height:18px"></i> Analisar
         </button>
 
-        <div class="skeleton-container" id="skeleton-loading" style="display:none">
-          <div class="skeleton skeleton-title"></div>
-          <div class="skeleton skeleton-row"></div>
-          <div class="skeleton skeleton-row short"></div>
-          <div class="skeleton skeleton-row"></div>
-          <div class="skeleton skeleton-row short"></div>
-          <div class="skeleton skeleton-row"></div>
+        <div class="bowl-loader-container" id="skeleton-loading" style="display:none">
+          <svg viewBox="0 0 120 140" class="bowl-loader">
+            <defs>
+              <clipPath id="bowl-clip-photo">
+                <path d="M22,50 Q22,108 60,113 Q98,108 98,50 Z"/>
+              </clipPath>
+            </defs>
+            <path class="bowl-steam bowl-steam-1" d="M42,32 Q47,22 52,32 Q57,42 62,32" stroke="var(--text-muted)" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+            <path class="bowl-steam bowl-steam-2" d="M56,28 Q61,18 66,28 Q71,38 76,28" stroke="var(--text-muted)" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M20,50 Q20,110 60,115 Q100,110 100,50" stroke="var(--border)" fill="none" stroke-width="3" stroke-linecap="round"/>
+            <line x1="15" y1="50" x2="105" y2="50" stroke="var(--border)" stroke-width="3" stroke-linecap="round"/>
+            <rect class="bowl-fill" x="22" y="113" width="76" height="65" fill="var(--jade)" clip-path="url(#bowl-clip-photo)"/>
+            <path class="bowl-wave" d="M22,50 Q40,44 60,50 Q80,56 98,50" fill="var(--jade)" opacity="0.85" clip-path="url(#bowl-clip-photo)"/>
+          </svg>
+          <p class="bowl-loader-text" id="bowl-text-photo">Analisando sua refeicao...</p>
         </div>
       </main>
     </section>
@@ -355,13 +363,21 @@
         </div>
 
         <!-- Loading state -->
-        <div class="skeleton-container" id="diet-skeleton" style="display:none">
-          <div class="skeleton skeleton-title"></div>
-          <div class="skeleton skeleton-row"></div>
-          <div class="skeleton skeleton-row short"></div>
-          <div class="skeleton skeleton-row"></div>
-          <div class="skeleton skeleton-row short"></div>
-          <div class="skeleton skeleton-row"></div>
+        <div class="bowl-loader-container" id="diet-skeleton" style="display:none">
+          <svg viewBox="0 0 120 140" class="bowl-loader">
+            <defs>
+              <clipPath id="bowl-clip-diet">
+                <path d="M22,50 Q22,108 60,113 Q98,108 98,50 Z"/>
+              </clipPath>
+            </defs>
+            <path class="bowl-steam bowl-steam-1" d="M42,32 Q47,22 52,32 Q57,42 62,32" stroke="var(--text-muted)" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+            <path class="bowl-steam bowl-steam-2" d="M56,28 Q61,18 66,28 Q71,38 76,28" stroke="var(--text-muted)" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M20,50 Q20,110 60,115 Q100,110 100,50" stroke="var(--border)" fill="none" stroke-width="3" stroke-linecap="round"/>
+            <line x1="15" y1="50" x2="105" y2="50" stroke="var(--border)" stroke-width="3" stroke-linecap="round"/>
+            <rect class="bowl-fill" x="22" y="113" width="76" height="65" fill="var(--jade)" clip-path="url(#bowl-clip-diet)"/>
+            <path class="bowl-wave" d="M22,50 Q40,44 60,50 Q80,56 98,50" fill="var(--jade)" opacity="0.85" clip-path="url(#bowl-clip-diet)"/>
+          </svg>
+          <p class="bowl-loader-text" id="bowl-text-diet">Gerando seu plano...</p>
         </div>
 
         <!-- Plan view -->

@@ -99,7 +99,11 @@ INSTRUÇÕES:
 1. Calcule a TMB (taxa metabólica basal) usando a fórmula de Mifflin-St Jeor.
 2. Multiplique pela taxa de atividade: sedentario=1.2, leve=1.375, moderado=1.55, intenso=1.725, atleta=1.9.
 3. Ajuste as calorias para o objetivo (perder: -500 kcal, manter: = TDEE, ganhar: +500 kcal, melhorar saúde: +100 kcal).
-4. Distribua os macros: proteína 1.6-2.2g/kg (ou mais se ganhando massa), carboidrato 45-55% do total, gordura 20-30%.
+4. Distribua os macros conforme o objetivo:
+   - SE perder peso: proteina 2.0-2.4g/kg (preservar massa magra no deficit), gordura 20-25% do total, carboidrato o restante das calorias.
+   - SE manter peso: proteina 1.6-2.0g/kg, carboidrato 45-55% do total, gordura 25-30%.
+   - SE ganhar massa: proteina 1.6-2.0g/kg, carboidrato 50-60% do total (mais espaco para carbs com calorias extras), gordura 20-25%.
+   - SE melhorar saude: proteina 1.6-2.0g/kg, carboidrato 45-55%, gordura 25-30% (equilibrado).
 5. Distribua as refeições pelos horários informados.
 6. Para CADA refeição, especifique uma LISTA de itens com alimentos concretos e quantidades realistas em gramas. NÃO use descrições genéricas como "proteína magra". Use nomes reais de alimentos: "peito de frango grelhado", "arroz integral cozido", "banana prata madura", etc.
 7. Cada item deve ter uma categoria: proteina, carboidrato, vegetal, fruta, laticinio, gordura, bebida, condimento ou outro.

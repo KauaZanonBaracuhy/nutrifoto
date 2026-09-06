@@ -39,6 +39,44 @@ const state = {
   chartsExpanded: false,
 };
 
+// ============ BOWL LOADER TEXT ROTATION ============
+const BOWL_MESSAGES = [
+  'Analisando sua refeicao...',
+  'Identificando os alimentos...',
+  'Calculando os macros...',
+  'Quase pronto...',
+];
+const BOWL_MESSAGES_DIET = [
+  'Gerando seu plano...',
+  'Calculando suas calorias...',
+  'Montando as refeicoes...',
+  'Quase pronto...',
+];
+const _bowlTimers = [];
+
+function startBowlText(textElId, messages) {
+  stopBowlText();
+  const el = $(textElId);
+  if (!el) return;
+  let idx = 0;
+  el.textContent = messages[0];
+  el.classList.remove('fade');
+  const tid = setInterval(() => {
+    el.classList.add('fade');
+    setTimeout(() => {
+      idx = (idx + 1) % messages.length;
+      el.textContent = messages[idx];
+      el.classList.remove('fade');
+    }, 300);
+  }, 1500);
+  _bowlTimers.push(tid);
+}
+
+function stopBowlText() {
+  _bowlTimers.forEach(id => clearInterval(id));
+  _bowlTimers.length = 0;
+}
+
 // ============ THEME ============
 function isValidTheme(id) { return THEMES.some(t => t.id === id); }
 function getTheme() {
@@ -225,6 +263,7 @@ async function handleAnalyze() {
   btn.disabled = true;
   const skeleton = $('#skeleton-loading');
   skeleton.style.display = 'block';
+  startBowlText('#bowl-text-photo', BOWL_MESSAGES);
   try {
     const result = await analyzeImage(state.currentImage);
     state.currentAnalysis = result;
@@ -235,6 +274,7 @@ async function handleAnalyze() {
   } finally {
     btn.disabled = false;
     skeleton.style.display = 'none';
+    stopBowlText();
   }
 }
 
@@ -1182,16 +1222,19 @@ async function handleGeneratePlan() {
   $('#diet-form-container').style.display = 'none';
   $('#diet-plan-view').style.display = 'none';
   $('#diet-skeleton').style.display = 'block';
+  startBowlText('#bowl-text-diet', BOWL_MESSAGES_DIET);
 
   try {
     const plan = await gerarPlanoAlimentar(profile);
     saveCurrentPlan(plan);
     renderDietPlan(plan, profile);
     $('#diet-skeleton').style.display = 'none';
+    stopBowlText();
     $('#diet-plan-view').style.display = 'block';
     toast('Plano gerado!');
   } catch (e) {
     $('#diet-skeleton').style.display = 'none';
+    stopBowlText();
     $('#diet-form-container').style.display = 'block';
     toast(e.message || 'Erro ao gerar plano', true);
   }
