@@ -1294,15 +1294,9 @@ input, textarea, select { font-family: inherit; }
   letter-spacing: 0.04em;
   color: var(--text-muted);
 }
-.goal-input-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-.goal-input-wrap input {
-  flex: 1 1 0;
-  min-width: 0;
-  padding: 10px 8px 10px 12px;
+.goal-field input {
+  width: 100%;
+  padding: 10px 12px;
   font-size: 15px;
   font-weight: 600;
   text-align: right;
@@ -1311,19 +1305,10 @@ input, textarea, select { font-family: inherit; }
   border-radius: 12px;
   color: var(--text);
 }
-.goal-input-wrap input:focus {
+.goal-field input:focus {
   outline: none;
   border-color: var(--jade);
   box-shadow: 0 0 0 3px rgba(0, 214, 143, 0.15);
-}
-.goal-unit {
-  flex-shrink: 0;
-  margin-left: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-muted);
-  pointer-events: none;
-  white-space: nowrap;
 }
 .test-result {
   margin-top: 12px;
@@ -2087,7 +2072,7 @@ input, textarea, select { font-family: inherit; }
   .hero-donut { width: 180px; height: 180px; }
   .meals-list { gap: 8px; }
   .meal-item { padding: 12px; }
-  .goal-input-wrap input { font-size: 14px; padding: 8px 6px 8px 10px; }
+  .goal-field input { font-size: 14px; padding: 8px 10px; }
   .diet-field input, .diet-field select, .diet-field textarea { padding: 8px 10px; font-size: 13px; }
   .diet-field textarea { min-height: 52px; }
   .goals-grid { gap: 10px; }
@@ -2105,7 +2090,7 @@ input, textarea, select { font-family: inherit; }
 
 /* Celulares (381px–767px) — breakpoint principal para mobile */
 @media (min-width: 381px) and (max-width: 767px) {
-  .goal-input-wrap input { padding: 9px 7px 9px 11px; font-size: 14px; }
+  .goal-field input { padding: 9px 11px; font-size: 14px; }
   .diet-field input, .diet-field select, .diet-field textarea { padding: 9px 11px; font-size: 13px; }
   .goals-grid { gap: 12px; }
   .diet-grid-3 { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
