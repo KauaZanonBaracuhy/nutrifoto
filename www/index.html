@@ -205,6 +205,7 @@
                   </div>
                 </div>
               </div>
+              <p class="api-key-help" id="macro-calc-hint">Alterar macros recalcula calorias e vice-versa automaticamente.</p>
             </div>
           </div>
         </div>
@@ -265,18 +266,8 @@
           </button>
           <div class="settings-section-body">
             <div class="settings-section-body-inner">
-              <div class="toggle-row">
-                <div class="toggle-label">
-                  <span class="toggle-title">Lembrete de refeição</span>
-                  <span class="toggle-sub">Avisa nos horários definidos</span>
-                </div>
-                <button class="toggle-switch" id="set-toggle-meal" data-on="0" aria-pressed="false" aria-label="Ativar lembrete de refeição">
-                  <span class="toggle-knob"></span>
-                </button>
-              </div>
-              <div class="diet-field">
-                <label>Horário padrão</label>
-                <input type="time" id="set-meal-time" value="12:00" />
+              <div id="meal-notifications-container">
+                <!-- renderizado dinamicamente por JS a partir do plano alimentar -->
               </div>
               <div class="toggle-row">
                 <div class="toggle-label">
@@ -291,7 +282,7 @@
                 <label>Horário do lembrete</label>
                 <input type="time" id="set-streak-time" value="20:00" />
               </div>
-              <p class="api-key-help">Lembretes serao ativados em uma versao futura do app.</p>
+              <p class="api-key-help" id="notif-hint">Gere um plano alimentar na aba Meu Plano para configurar lembretes por refeição.</p>
             </div>
           </div>
         </div>

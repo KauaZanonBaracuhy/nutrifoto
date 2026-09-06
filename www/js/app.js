@@ -455,8 +455,7 @@ const APP_VERSION = '0.1.0';
 // manter este comentario para marcar o local de insercao futura.
 
 const DEFAULT_NOTIFY = {
-  mealEnabled: false,
-  mealTime: '12:00',
+  meals: [],
   streakEnabled: false,
   streakTime: '20:00',
 };
@@ -528,11 +527,12 @@ function renderSettings() {
   $('#set-carb').value = g.carb;
   $('#set-fat').value = g.fat;
 
-  // Notificações
+  // Notificações — lembretes por refeição
+  renderMealNotifications();
+
+  // Streak toggle
   const n = readNotify();
-  setToggle($('#set-toggle-meal'), n.mealEnabled);
   setToggle($('#set-toggle-streak'), n.streakEnabled);
-  $('#set-meal-time').value = n.mealTime;
   $('#set-streak-time').value = n.streakTime;
 
   // Tema (grade de 10 opções)
@@ -546,6 +546,7 @@ function renderSettings() {
   $('#about-developer').textContent = DEVELOPER_CREDIT;
 
   bindSettingsToggles();
+  bindMacroCalculation();
   bindApiKeyControls();
   bindSettingsAccordions();
 
@@ -561,14 +562,125 @@ function renderSettings() {
 }
 
 function bindSettingsToggles() {
-  $('#set-toggle-meal').onclick = (e) => {
-    const btn = e.currentTarget;
-    setToggle(btn, btn.dataset.on === '0');
-  };
   $('#set-toggle-streak').onclick = (e) => {
     const btn = e.currentTarget;
     setToggle(btn, btn.dataset.on === '0');
   };
+}
+
+// ============ PER-MEAL NOTIFICATIONS ============
+function renderMealNotifications() {
+  const container = $('#meal-notifications-container');
+  const hint = $('#notif-hint');
+  if (!container) return;
+  const plan = getCurrentPlan();
+  const saved = readNotify();
+  if (!plan || !Array.isArray(plan.refeicoes) || plan.refeicoes.length === 0) {
+    container.innerHTML = '';
+    if (hint) hint.style.display = '';
+    return;
+  }
+  if (hint) hint.style.display = 'none';
+
+  const savedMeals = saved.meals || [];
+  const mealDefaults = {
+    'Café da manhã': '07:30', 'Cafe da manha': '07:30',
+    'Lanche da manhã': '10:00', 'Lanche da manha': '10:00',
+    'Almoço': '12:30', 'Almoco': '12:30',
+    'Lanche da tarde': '15:30',
+    'Jantar': '19:30', 'Ceia': '22:00',
+  };
+
+  container.innerHTML = '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);margin-bottom:10px;">Lembretes por refeição</p>';
+
+  plan.refeicoes.forEach((r, i) => {
+    const existing = savedMeals.find(m => m.name === r.nome);
+    const time = existing ? existing.time : (mealDefaults[r.nome] || r.horario || '12:00');
+    const enabled = existing ? existing.enabled : false;
+
+    const row = document.createElement('div');
+    row.innerHTML = `
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <span class="toggle-title">${escapeHtml(r.nome)}</span>
+          <span class="toggle-sub">~${r.kcalEstimada || 0} kcal</span>
+        </div>
+        <button class="toggle-switch" data-meal-toggle="${i}" data-on="${enabled ? '1' : '0'}" aria-pressed="${enabled ? 'true' : 'false'}" aria-label="Ativar lembrete ${escapeHtml(r.nome)}">
+          <span class="toggle-knob"></span>
+        </button>
+      </div>
+      <div class="diet-field" style="margin-bottom:12px;">
+        <label>${escapeHtml(r.nome)}</label>
+        <input type="time" id="set-meal-time-${i}" value="${time}" />
+      </div>
+    `;
+    container.appendChild(row);
+
+    const toggleBtn = row.querySelector(`[data-meal-toggle="${i}"]`);
+    toggleBtn.onclick = () => {
+      setToggle(toggleBtn, toggleBtn.dataset.on === '0');
+    };
+  });
+}
+
+// ============ MACRO ↔ CALORIE BIDIRECTIONAL CALCULATION ============
+const MACRO_ENERGIES = { protein: 4, carb: 4, fat: 9 };
+
+function calcCaloriesFromMacros() {
+  const p = Number($('#set-protein').value) || 0;
+  const c = Number($('#set-carb').value) || 0;
+  const f = Number($('#set-fat').value) || 0;
+  return Math.round(p * MACRO_ENERGIES.protein + c * MACRO_ENERGIES.carb + f * MACRO_ENERGIES.fat);
+}
+
+function calcMacrosFromCalories(totalCal) {
+  const p = Number($('#set-protein').value) || 0;
+  const c = Number($('#set-carb').value) || 0;
+  const f = Number($('#set-fat').value) || 0;
+  const macroCalSum = p * MACRO_ENERGIES.protein + c * MACRO_ENERGIES.carb + f * MACRO_ENERGIES.fat;
+  let rp, rc, rf;
+  if (macroCalSum > 0) {
+    rp = (p * MACRO_ENERGIES.protein) / macroCalSum;
+    rc = (c * MACRO_ENERGIES.carb) / macroCalSum;
+    rf = (f * MACRO_ENERGIES.fat) / macroCalSum;
+  } else {
+    rp = 0.30; rc = 0.40; rf = 0.30;
+  }
+  return {
+    protein: Math.round((totalCal * rp) / MACRO_ENERGIES.protein),
+    carb: Math.round((totalCal * rc) / MACRO_ENERGIES.carb),
+    fat: Math.round((totalCal * rf) / MACRO_ENERGIES.fat),
+  };
+}
+
+function bindMacroCalculation() {
+  const calInput = $('#set-calories');
+  const pInput = $('#set-protein');
+  const cInput = $('#set-carb');
+  const fInput = $('#set-fat');
+  if (!calInput || !pInput || !cInput || !fInput) return;
+
+  let lock = false;
+
+  [pInput, cInput, fInput].forEach(inp => {
+    inp.addEventListener('input', () => {
+      if (lock) return;
+      lock = true;
+      calInput.value = calcCaloriesFromMacros();
+      lock = false;
+    });
+  });
+
+  calInput.addEventListener('input', () => {
+    if (lock) return;
+    lock = true;
+    const total = Number(calInput.value) || 0;
+    const m = calcMacrosFromCalories(total);
+    pInput.value = m.protein;
+    cInput.value = m.carb;
+    fInput.value = m.fat;
+    lock = false;
+  });
 }
 
 // ============ API KEY (OpenRouter) ============
@@ -646,13 +758,29 @@ function handleSaveSettings() {
     fat: Number($('#set-fat').value) || 0,
   });
 
-  // 2) Notificações
+  // 2) Notificações — per-meal
+  const plan = getCurrentPlan();
+  const mealNotifications = [];
+  if (plan && Array.isArray(plan.refeicoes)) {
+    plan.refeicoes.forEach((r, i) => {
+      const toggle = document.querySelector(`[data-meal-toggle="${i}"]`);
+      const timeInput = $(`#set-meal-time-${i}`);
+      mealNotifications.push({
+        name: r.nome,
+        time: timeInput ? timeInput.value : '12:00',
+        enabled: toggle ? toggle.dataset.on === '1' : false,
+      });
+    });
+  }
+
   writeNotify({
-    mealEnabled: $('#set-toggle-meal').dataset.on === '1',
-    mealTime: $('#set-meal-time').value || DEFAULT_NOTIFY.mealTime,
+    meals: mealNotifications,
     streakEnabled: $('#set-toggle-streak').dataset.on === '1',
     streakTime: $('#set-streak-time').value || DEFAULT_NOTIFY.streakTime,
   });
+
+  // 3) Agendar notificações
+  scheduleAllNotifications();
 
   // Reflete imediatamente no dashboard
   renderDashboard();
@@ -1062,6 +1190,57 @@ function handleRegenPlan() {
   handleGeneratePlan();
 }
 
+// ============ NOTIFICATION SCHEDULING ============
+const _notifTimers = [];
+
+function scheduleAllNotifications() {
+  _notifTimers.forEach(id => clearTimeout(id));
+  _notifTimers.length = 0;
+  if (!('Notification' in window)) return;
+
+  if (Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  const prefs = readNotify();
+  const now = new Date();
+
+  (prefs.meals || []).forEach(m => {
+    if (!m.enabled) return;
+    const [h, min] = (m.time || '12:00').split(':').map(Number);
+    const target = new Date(now);
+    target.setHours(h, min, 0, 0);
+    let delay = target.getTime() - now.getTime();
+    if (delay < 0) delay += 24 * 60 * 60 * 1000;
+    const tid = setTimeout(() => {
+      if (Notification.permission === 'granted') {
+        new Notification('NutriFoto — Hora do(a) ' + m.name + '!', {
+          body: 'Não esqueça de registrar sua refeição.',
+          icon: 'icons/icon-192.png',
+        });
+      }
+    }, delay);
+    _notifTimers.push(tid);
+  });
+
+  if (prefs.streakEnabled) {
+    const [h, min] = (prefs.streakTime || '20:00').split(':').map(Number);
+    const target = new Date(now);
+    target.setHours(h, min, 0, 0);
+    let delay = target.getTime() - now.getTime();
+    if (delay < 0) delay += 24 * 60 * 60 * 1000;
+    const tid = setTimeout(() => {
+      if (Notification.permission === 'granted') {
+        new Notification('NutriFoto — Cuidado com a streak!', {
+          body: 'Registre sua última refeição do dia para manter a sequência.',
+          icon: 'icons/icon-192.png',
+        });
+      }
+    }, delay);
+    _notifTimers.push(tid);
+  }
+}
+
 // ============ INIT ============
 function bind() {
   $$('.nav-btn').forEach(b => {
@@ -1090,5 +1269,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setTheme(getTheme());
   bind();
   renderDashboard();
+  scheduleAllNotifications();
   if (window.lucide) lucide.createIcons();
 });

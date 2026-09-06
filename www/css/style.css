@@ -1225,6 +1225,8 @@ input, textarea, select { font-family: inherit; }
 .settings-section-body-inner .diet-field + .toggle-row { margin-top: 0; }
 .settings-section-body-inner .settings-actions-row { margin-top: 12px; }
 .settings-section-body-inner .settings-actions-row .btn-secondary { flex: 1 1 calc(50% - 4px); min-width: 140px; margin-top: 0; }
+#meal-notifications-container .toggle-row + .diet-field { margin-top: 6px; }
+#meal-notifications-container .diet-field + .toggle-row { margin-top: 12px; }
 
 /* Settings link card (navegacao para Meu Plano) — mantido sem accordion */
 .settings-card {
@@ -1284,6 +1286,7 @@ input, textarea, select { font-family: inherit; }
   font-weight: 600;
 }
 .goals-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.goal-field { min-width: 0; }
 .goal-field label {
   font-size: 11px;
   font-weight: 600;
@@ -1297,7 +1300,8 @@ input, textarea, select { font-family: inherit; }
   align-items: center;
 }
 .goal-input-wrap input {
-  width: 100%;
+  flex: 1 1 0;
+  min-width: 0;
   padding: 10px 8px 10px 12px;
   font-size: 15px;
   font-weight: 600;
@@ -1313,11 +1317,13 @@ input, textarea, select { font-family: inherit; }
   box-shadow: 0 0 0 3px rgba(0, 214, 143, 0.15);
 }
 .goal-unit {
-  position: absolute;
-  right: 8px;
+  flex-shrink: 0;
+  margin-left: 6px;
   font-size: 12px;
   font-weight: 500;
   color: var(--text-muted);
+  pointer-events: none;
+  white-space: nowrap;
 }
 .test-result {
   margin-top: 12px;
