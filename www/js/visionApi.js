@@ -8,17 +8,27 @@ const APP_TITLE = 'NutriFoto';
 
 const ANALYSIS_PROMPT = `Analise esta foto de uma refeição.
 
-Para cada alimento visível, estime:
+PREMISSA: Tudo que está visível na foto é o que a pessoa vai comer.
+Calcule os macros considerando a QUANTIDADE TOTAL de cada alimento
+visível — NÃO estime uma "porção recomendada" ou "porção saudável".
+
+Para cada alimento visível na imagem:
 - nome (em português, simples)
-- porcao_estimada_g (peso estimado em gramas)
+- porcao_estimada_g (peso total estimado em gramas de TODO o alimento visível)
 - calorias (kcal)
 - proteina_g, carboidrato_g, gordura_g
 
-Use valores por 100g como base e ajuste pela porção estimada.
+Como estimar o peso:
+- Use referências visuais comuns: prato fundo (22–26cm diâmetro),
+  talheres, mãos, copos, etc.
+- Considere todo o alimento que aparece na foto.
+- Baseie-se em valores nutricionais por 100g e ajuste pelo peso total.
+- Seja generoso para não subestimar.
+
 Arredonde para inteiros.
 Se não for comida, retorne "alimentos": [].
 
-Responda EXCLUSIVAMENTE com JSON válido neste formato, sem markdown, sem texto antes ou depois:
+Responda EXCLUSIVAMENTE com JSON válido neste formato, sem markdown:
 
 {
   "alimentos": [
