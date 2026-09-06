@@ -2087,10 +2087,31 @@ input, textarea, select { font-family: inherit; }
   .hero-donut { width: 180px; height: 180px; }
   .meals-list { gap: 8px; }
   .meal-item { padding: 12px; }
-  .goal-input-wrap input { font-size: 14px; }
+  .goal-input-wrap input { font-size: 14px; padding: 8px 6px 8px 10px; }
+  .diet-field input, .diet-field select, .diet-field textarea { padding: 8px 10px; font-size: 13px; }
+  .diet-field textarea { min-height: 52px; }
+  .goals-grid { gap: 10px; }
+  .diet-grid-2 { gap: 8px; }
+  .diet-grid-3 { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .diet-field { margin-bottom: 8px; gap: 3px; }
+  .food-receipt-name { padding: 6px 8px; font-size: 13px; }
+  .food-receipt-grams { width: 76px; padding: 5px 6px; font-size: 13px; }
+  .api-key-wrap input { padding: 8px 10px; font-size: 12px; }
+  .swap-modal-note { padding: 8px 10px; font-size: 12px; }
   .nav { font-size: 9px; }
   .nav-btn i { width: 20px; height: 20px; }
   .nav-btn span { font-size: 9px; }
+}
+
+/* Celulares (381px–767px) — breakpoint principal para mobile */
+@media (min-width: 381px) and (max-width: 767px) {
+  .goal-input-wrap input { padding: 9px 7px 9px 11px; font-size: 14px; }
+  .diet-field input, .diet-field select, .diet-field textarea { padding: 9px 11px; font-size: 13px; }
+  .goals-grid { gap: 12px; }
+  .diet-grid-3 { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .food-receipt-grams { width: 80px; padding: 5px 6px; }
+  .api-key-wrap input { padding: 9px 11px; }
+  .swap-modal-note { padding: 9px 11px; }
 }
 
 /* Tablets em modo retrato e telas grandes (768px+) */
