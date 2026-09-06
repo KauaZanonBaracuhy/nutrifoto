@@ -319,6 +319,7 @@ function renderResults() {
       <div class="food-receipt" data-idx="${idx}">
         <div class="food-receipt-header">
           <input class="food-receipt-name" value="${escapeHtml(f.nome)}" data-field="nome" />
+          ${f.marca_identificada ? `<span class="food-receipt-brand" title="Produto identificado por embalagem">${escapeHtml(f.marca_identificada)}</span>` : ''}
           <button class="food-receipt-remove" data-remove="${idx}">✕</button>
         </div>
         <div class="food-receipt-edit">
@@ -956,10 +957,11 @@ async function openEditMealModal(mealId) {
     } else {
       list.innerHTML = alimentos.map((f, idx) => `
         <div class="food-receipt" data-idx="${idx}">
-          <div class="food-receipt-header">
-            <input class="food-receipt-name" value="${escapeHtml(f.nome)}" data-field="nome" />
-            <button class="food-receipt-remove" data-remove="${idx}">✕</button>
-          </div>
+         <div class="food-receipt-header">
+             <input class="food-receipt-name" value="${escapeHtml(f.nome)}" data-field="nome" />
+             ${f.marca_identificada ? `<span class="food-receipt-brand" title="Produto identificado por embalagem">${escapeHtml(f.marca_identificada)}</span>` : ''}
+             <button class="food-receipt-remove" data-remove="${idx}">✕</button>
+           </div>
           <div class="food-receipt-edit">
             <input class="food-receipt-grams" type="number" min="0" value="${f.porcao_estimada_g}" data-field="porcao_estimada_g" inputmode="numeric" />
             <span class="food-receipt-grams-label">gramas</span>

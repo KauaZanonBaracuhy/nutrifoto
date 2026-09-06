@@ -10,17 +10,42 @@ const ANALYSIS_PROMPT = `Analise esta foto de uma refeição.
 
 PREMISSA: Tudo que está visível na foto é o que a pessoa vai comer.
 Calcule os macros considerando a QUANTIDADE TOTAL de cada alimento
-visível — NÃO estime uma "porção recomendada" ou "porção saudável".
+visível — NÃÃO estime uma "porção recomendada" ou "porção saudável".
+
+ETAPA 1 — LEIA TEXTOS VISÍVEIS:
+Escute atentamente qualquer texto visível na foto: embalagens, caixas,
+rótulos, copos, sacolas, placas, cups, cartãos, etc. Isso inclui marcas,
+nomes de produtos, logos e frases (ex: "Big Mac", "McChicken", "Whopper",
+"Caixa Pizza Pizza Hut", rótulos de produtos industrializados, etc.).
+
+ETAPA 2 — IDENTIFIQUE PRODUTO DE MARCA:
+SE um alimento for claramente um produto de marca/rede conhecida pelo
+texto ou embalagem visível (ex: hambúrguer da caixa do McDonald's,
+McChicken, Big Mac, pizza de rede específica, refrigerante em lata de
+marca, etc.): Use o conhecimento nutricional público divulgado pela
+própria marca ou amplamente conhecido sobre AQUELE PRODUTO ESPECÍFICO
+como base para calorias e macros. Ainda assim, ajuste proporcionalmente
+pela quantidade real visível na foto (ex: se só metade do hambúrguer
+está na foto, divida os valores pela metade).
+
+ETAPA 3 — ESTIMATIVA VISUAL (fallback):
+SE NÃO for possível identificar um produto de marca específica (comida
+caseira, sem embalagem visível, sem texto legível, etc.): estime os
+macros pela aparência visual usando referências de prato/talheres/mãos
+e valores nutricionais por 100g.
 
 Para cada alimento visível na imagem:
 - nome (em português, simples)
 - porcao_estimada_g (peso total estimado em gramas de TODO o alimento visível)
 - calorias (kcal)
 - proteina_g, carboidrato_g, gordura_g
+- marca_identificada: nome da marca/rede e produto identificado (ex:
+  "McDonald's - Big Mac") OU null se for comida caseira ou sem marca
+  identificável
 
 Como estimar o peso:
 - Use referências visuais comuns: prato fundo (22–26cm diâmetro),
-  talheres, mãos, copos, etc.
+  talheres, mãos, copos, embalagens conhecidas, etc.
 - Considere todo o alimento que aparece na foto.
 - Baseie-se em valores nutricionais por 100g e ajuste pelo peso total.
 - Seja generoso para não subestimar.
@@ -38,7 +63,8 @@ Responda EXCLUSIVAMENTE com JSON válido neste formato, sem markdown:
       "calorias": number,
       "proteina_g": number,
       "carboidrato_g": number,
-      "gordura_g": number
+      "gordura_g": number,
+      "marca_identificada": "string ou null"
     }
   ],
   "total": {
@@ -163,6 +189,7 @@ export async function analyzeImage({ base64, mediaType }) {
     proteina_g: Math.round(Number(a.proteina_g) || 0),
     carboidrato_g: Math.round(Number(a.carboidrato_g) || 0),
     gordura_g: Math.round(Number(a.gordura_g) || 0),
+    marca_identificada: a.marca_identificada ? String(a.marca_identificada).trim() : null,
   }));
 
   const total = parsed.total && typeof parsed.total === 'object'

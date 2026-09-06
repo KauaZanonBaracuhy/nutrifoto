@@ -1000,6 +1000,19 @@ input, textarea, select { font-family: inherit; }
   transition: border-color var(--dur-fast) var(--ease-smooth);
 }
 .food-receipt-name:focus { outline: none; border-color: var(--jade); }
+.food-receipt-brand {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--jade);
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 8px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
 .food-receipt-remove {
   color: var(--coral);
   opacity: 0.5;
