@@ -75,7 +75,7 @@ export function recalcularTotal(alimentos) {
 export async function analyzeImage({ base64, mediaType }) {
   const apiKey = getApiKey();
   if (!apiKey) {
-    throw new Error('Chave da API não configurada. Vá em Configurações para adicionar.');
+    throw new Error('Chave da API não configurada. Abra Configurações → Chave da API OpenRouter e cole sua chave.');
   }
 
   const headers = {
@@ -169,7 +169,7 @@ export async function analyzeImage({ base64, mediaType }) {
 
 export async function testConnection() {
   const apiKey = getApiKey();
-  if (!apiKey) return { ok: false, error: 'Chave da API não configurada.' };
+  if (!apiKey) return { ok: false, error: 'Chave da API não configurada. Vá em Configurações → Chave da API OpenRouter.' };
 
   const headers = {
     'Authorization': `Bearer ${apiKey}`,

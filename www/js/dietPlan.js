@@ -121,7 +121,7 @@ function extractJson(text) {
 export async function gerarPlanoAlimentar(profile) {
   const apiKey = getApiKey();
   if (!apiKey) {
-    throw new Error('Chave da API não configurada.');
+    throw new Error('Chave da API não configurada. Abra Configurações → Chave da API OpenRouter e cole sua chave.');
   }
 
   const headers = {

@@ -1300,6 +1300,19 @@ input, textarea, select { font-family: inherit; }
   margin: 0;
   line-height: 1.4;
 }
+.api-status {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.api-status[data-state="ok"]   { background: rgba(0, 214, 143, 0.15); color: var(--jade); }
+.api-status[data-state="env"]  { background: rgba(59, 130, 246, 0.15); color: #60A5FA; }
+.api-status[data-state="none"] { background: rgba(239, 68, 68, 0.15);  color: var(--coral); }
 
 /* ============ BOTTOM NAV ============ */
 .nav {

@@ -267,6 +267,35 @@
 
         <div class="settings-card">
           <div class="settings-card-header">
+            <i data-lucide="key-round" style="width:20px;height:20px"></i>
+            <h3>Chave da API OpenRouter</h3>
+            <span class="api-status" id="api-status-badge">—</span>
+          </div>
+          <p class="api-key-help">Cole sua chave da OpenRouter para usar a análise de imagem e o gerador de plano alimentar. A chave fica salva apenas no seu navegador (localStorage) e nunca é enviada a nenhum servidor do NutriFoto.</p>
+          <div class="diet-field">
+            <label for="set-apikey">Chave (formato <code>sk-or-v1-...</code>)</label>
+            <div class="api-key-wrap">
+              <input type="password" id="set-apikey" autocomplete="off" spellcheck="false" placeholder="sk-or-v1-..." />
+              <button type="button" class="api-key-toggle" id="btn-toggle-apikey" aria-label="Mostrar/ocultar chave">
+                <i data-lucide="eye"></i>
+              </button>
+            </div>
+          </div>
+          <div class="settings-actions-row">
+            <button class="btn-secondary" id="btn-save-apikey">
+              <i data-lucide="save" style="width:16px;height:16px"></i> Salvar chave
+            </button>
+            <button class="btn-secondary" id="btn-clear-apikey">
+              <i data-lucide="trash-2" style="width:16px;height:16px"></i> Remover
+            </button>
+          </div>
+          <p class="api-key-help" style="margin-top:8px">
+            <a class="about-link" href="https://openrouter.ai/keys" target="_blank" rel="noopener">Como conseguir minha chave da OpenRouter?</a>
+          </p>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
             <i data-lucide="info" style="width:20px;height:20px"></i>
             <h3>Sobre o app</h3>
           </div>

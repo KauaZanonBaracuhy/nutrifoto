@@ -1,5 +1,5 @@
 // app.js — v2 layout: hero donut, macro bars, mini chart, FAB, timeline, receipt
-import { getGoals, setGoals, isConfigured, getApiKey } from './storage.js';
+import { getGoals, setGoals, isConfigured, getApiKey, setApiKey, getApiKeySource } from './storage.js';
 import { salvarRefeicao, listarRefeicoesDoDia, listarHistorico, deletarRefeicao, listarTotaisPorDia } from './db.js';
 import { captureFromCamera, pickFromGallery, downscaleImage } from './camera.js';
 import { analyzeImage, recalcularTotal, testConnection } from './visionApi.js';
@@ -217,7 +217,7 @@ async function handleImage(captureFn) {
 async function handleAnalyze() {
   if (!state.currentImage) return;
   if (!isConfigured()) {
-    toast('Configure sua chave da OpenRouter em Configurações', true);
+    toast('Chave da API não configurada. Vá em Configurações → Chave da API OpenRouter.', true);
     showScreen('settings');
     return;
   }
@@ -530,11 +530,15 @@ function renderSettings() {
   // Tema (grade de 10 opções)
   renderThemeGrid();
 
+  // Chave da API
+  renderApiKeyField();
+
   // Sobre
   $('#about-version').textContent = APP_VERSION;
   $('#about-developer').textContent = DEVELOPER_CREDIT;
 
   bindSettingsToggles();
+  bindApiKeyControls();
 
   // Link "Perfil e plano alimentar" → Meu Plano
   document.querySelectorAll('[data-screen-link="diet"]').forEach(a => {
@@ -555,6 +559,72 @@ function bindSettingsToggles() {
   $('#set-toggle-streak').onclick = (e) => {
     const btn = e.currentTarget;
     setToggle(btn, btn.dataset.on === '0');
+  };
+}
+
+// ============ API KEY (OpenRouter) ============
+function renderApiKeyField() {
+  const input = $('#set-apikey');
+  const badge = $('#api-status-badge');
+  if (!input || !badge) return;
+  // Não preenche o input com a chave real por segurança — apenas indica a origem.
+  input.value = '';
+  const source = getApiKeySource();
+  if (source === 'localStorage') {
+    badge.textContent = 'configurada';
+    badge.dataset.state = 'ok';
+  } else if (source === 'config') {
+    badge.textContent = 'embutida (env)';
+    badge.dataset.state = 'env';
+  } else {
+    badge.textContent = 'não configurada';
+    badge.dataset.state = 'none';
+  }
+}
+
+function bindApiKeyControls() {
+  const input = $('#set-apikey');
+  const toggle = $('#btn-toggle-apikey');
+  const save = $('#btn-save-apikey');
+  const clear = $('#btn-clear-apikey');
+  if (!input || !toggle || !save || !clear) return;
+
+  toggle.onclick = () => {
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    toggle.setAttribute('aria-label', isPassword ? 'Ocultar chave' : 'Mostrar chave');
+    toggle.innerHTML = `<i data-lucide="${isPassword ? 'eye-off' : 'eye'}"></i>`;
+    if (window.lucide) lucide.createIcons();
+  };
+
+  save.onclick = () => {
+    const value = (input.value || '').trim();
+    if (value && value.length < 20) {
+      toast('Chave muito curta. Verifique se copiou inteira.', true);
+      return;
+    }
+    const ok = setApiKey(value);
+    if (!ok) {
+      toast('Não foi possível salvar a chave.', true);
+      return;
+    }
+    input.value = '';
+    input.type = 'password';
+    toggle.innerHTML = '<i data-lucide="eye"></i>';
+    if (window.lucide) lucide.createIcons();
+    renderApiKeyField();
+    toast(value ? 'Chave salva no navegador' : 'Chave embutida do app será usada');
+  };
+
+  clear.onclick = () => {
+    if (!confirm('Remover a chave salva neste navegador?')) return;
+    setApiKey('');
+    input.value = '';
+    input.type = 'password';
+    toggle.innerHTML = '<i data-lucide="eye"></i>';
+    if (window.lucide) lucide.createIcons();
+    renderApiKeyField();
+    toast('Chave removida deste navegador');
   };
 }
 
