@@ -88,19 +88,43 @@
         </div>
       </header>
       <main class="main">
-        <div class="image-preview" id="image-preview">
-          <i data-lucide="image-plus" class="preview-icon"></i>
-          <span>Tire uma foto ou escolha da galeria</span>
-        </div>
-        <p class="capture-tip">📸 Dica: fotografe TODO o alimento que você vai comer, de cima, com boa iluminação. Se possível, inclua o prato inteiro no enquadramento — isso ajuda a IA a calcular os macros com mais precisão.</p>
-        <div class="capture-actions">
-          <button class="chip-btn" id="btn-camera">
-            <i data-lucide="camera" style="width:16px;height:16px"></i> Câmera
+        <div class="capture-tabs">
+          <button class="capture-tab active" data-mode="photo">
+            <i data-lucide="camera" style="width:14px;height:14px"></i> Foto
           </button>
-          <button class="chip-btn" id="btn-gallery">
-            <i data-lucide="image" style="width:16px;height:16px"></i> Galeria
+          <button class="capture-tab" data-mode="text">
+            <i data-lucide="pencil" style="width:14px;height:14px"></i> Texto
           </button>
         </div>
+
+        <div id="capture-photo-area">
+          <div class="image-preview" id="image-preview">
+            <i data-lucide="image-plus" class="preview-icon"></i>
+            <span>Tire uma foto ou escolha da galeria</span>
+          </div>
+          <p class="capture-tip">📸 Dica: fotografe TODO o alimento que você vai comer, de cima, com boa iluminação. Se possível, inclua o prato inteiro no enquadramento — isso ajuda a IA a calcular os macros com mais precisão.</p>
+          <div class="capture-actions">
+            <button class="chip-btn" id="btn-camera">
+              <i data-lucide="camera" style="width:16px;height:16px"></i> Câmera
+            </button>
+            <button class="chip-btn" id="btn-gallery">
+              <i data-lucide="image" style="width:16px;height:16px"></i> Galeria
+            </button>
+          </div>
+        </div>
+
+        <div id="capture-text-area" style="display:none">
+          <div class="text-input-group">
+            <label class="text-input-label" for="text-food-name">Nome do alimento <span class="required">*</span></label>
+            <input class="text-input-field" type="text" id="text-food-name" placeholder="ex: banana, arroz com feijão, whey..." autocomplete="off" />
+          </div>
+          <div class="text-input-group">
+            <label class="text-input-label" for="text-food-grams">Quantidade (gramas) <span class="optional">(opcional)</span></label>
+            <input class="text-input-field" type="number" id="text-food-grams" min="0" placeholder="ex: 150" inputmode="numeric" />
+            <span class="text-input-hint">Se não informar, o app calcula uma porção padrão.</span>
+          </div>
+        </div>
+
         <button class="btn-primary" id="btn-analyze" disabled>
           <i data-lucide="scan" style="width:18px;height:18px"></i> Analisar
         </button>

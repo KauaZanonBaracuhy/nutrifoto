@@ -204,6 +204,137 @@ export async function analyzeImage({ base64, mediaType }) {
   return { alimentos, total };
 }
 
+const TEXT_ANALYSIS_PROMPT = `Você é um assistente nutricional. O usuário informou o nome de um alimento e opcionalmente a quantidade em gramas.
+
+Alimento informado: "{nome}"
+Quantidade informada: "{quantidade_info}"
+
+Responda com os valores nutricionais estimados para a QUANTIDADE EXATA informada.
+Se o usuário não informou gramas, estime uma quantidade padrão razoável para o alimento
+(descrito como "1 unidade média" ou "porção típica") e deixe isso claro no campo
+porcao_estimada_g.
+
+IMPORTANTE:
+- Use valores nutricionais por 100g como referência e ajuste pela quantidade.
+- Seja realista e generoso — NÃO subestime calorias.
+- Se o alimento for vago demais (ex: "comida", "lanche", "almoço"), responda com erro:
+  {"error": "Alimento muito genérico. Seja mais específico (ex: 'arroz branco', 'banana')."}
+
+Para cada alimento retorne:
+- nome (em português, simples)
+- porcao_estimada_g (peso total em gramas)
+- calorias (kcal)
+- proteina_g, carboidrato_g, gordura_g
+- marca_identificada: null (não aplicável para entrada por texto)
+
+Arredonde para inteiros.
+
+Responda EXCLUSIVAMENTE com JSON válido neste formato, sem markdown:
+
+{
+  "alimentos": [
+    {
+      "nome": "string",
+      "porcao_estimada_g": number,
+      "calorias": number,
+      "proteina_g": number,
+      "carboidrato_g": number,
+      "gordura_g": number,
+      "marca_identificada": null
+    }
+  ],
+  "total": {
+    "calorias": number,
+    "proteina_g": number,
+    "carboidrato_g": number,
+    "gordura_g": number
+  }
+}`;
+
+export async function analyzeText({ nome, gramas }) {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error('Chave da API não configurada. Abra Configurações → Chave da API OpenRouter e cole sua chave.');
+  }
+
+  const quantidadeInfo = gramas ? `${gramas}g` : 'não informada (estime uma porção padrão)';
+  const prompt = TEXT_ANALYSIS_PROMPT
+    .replace('{nome}', nome)
+    .replace('{quantidade_info}', quantidadeInfo);
+
+  const headers = {
+    'Authorization': `Bearer ${apiKey}`,
+    'Content-Type': 'application/json',
+    'HTTP-Referer': APP_REFERER,
+    'X-Title': APP_TITLE,
+  };
+
+  const body = {
+    model: MODEL,
+    messages: [{ role: 'user', content: prompt }],
+  };
+
+  let res;
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    try {
+      res = await fetch(OPENROUTER_ENDPOINT, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+  } catch (e) {
+    if (e && e.name === 'AbortError') throw new Error('Tempo esgotado (15s). Verifique sua conexão.');
+    throw new Error('Sem internet ou API inacessível.');
+  }
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    if (res.status === 401) throw new Error('Chave da API inválida (401).');
+    if (res.status === 402) throw new Error('Sem créditos na OpenRouter (402).');
+    if (res.status === 429) throw new Error('Limite de requisições excedido. Tente em alguns segundos.');
+    throw new Error(`Erro ${res.status}: ${errText.slice(0, 300)}`);
+  }
+
+  const data = await res.json();
+  if (data.error) throw new Error(`OpenRouter: ${data.error.message || 'erro desconhecido'}`);
+
+  const rawText = data?.choices?.[0]?.message?.content;
+  if (rawText === undefined || rawText === null) throw new Error('Resposta vazia da OpenRouter.');
+
+  const parsed = extractJson(typeof rawText === 'string' ? rawText : JSON.stringify(rawText));
+  if (!parsed) throw new Error('Resposta não contém JSON válido.');
+  if (parsed.error) throw new Error(parsed.error);
+  if (!Array.isArray(parsed.alimentos)) throw new Error('Formato de resposta inesperado.');
+
+  const alimentos = parsed.alimentos.map(a => ({
+    nome: String(a.nome || '').trim() || nome,
+    porcao_estimada_g: Math.round(Number(a.porcao_estimada_g) || 0),
+    porcao_original_g: Math.round(Number(a.porcao_estimada_g) || 0),
+    calorias: Math.round(Number(a.calorias) || 0),
+    proteina_g: Math.round(Number(a.proteina_g) || 0),
+    carboidrato_g: Math.round(Number(a.carboidrato_g) || 0),
+    gordura_g: Math.round(Number(a.gordura_g) || 0),
+    marca_identificada: null,
+  }));
+
+  const total = parsed.total && typeof parsed.total === 'object'
+    ? {
+        calorias: Math.round(Number(parsed.total.calorias) || 0),
+        proteina_g: Math.round(Number(parsed.total.proteina_g) || 0),
+        carboidrato_g: Math.round(Number(parsed.total.carboidrato_g) || 0),
+        gordura_g: Math.round(Number(parsed.total.gordura_g) || 0),
+      }
+    : recalculateTotal(alimentos);
+
+  return { alimentos, total };
+}
+
 export async function testConnection() {
   const apiKey = getApiKey();
   if (!apiKey) return { ok: false, error: 'Chave da API não configurada. Vá em Configurações → Chave da API OpenRouter.' };

@@ -2,7 +2,7 @@
 import { getGoals, setGoals, isConfigured, getApiKey, setApiKey, getApiKeySource } from './storage.js';
 import { salvarRefeicao, atualizarRefeicao, listarRefeicoesDoDia, listarHistorico, deletarRefeicao, listarTotaisPorDia } from './db.js';
 import { captureFromCamera, pickFromGallery, downscaleImage } from './camera.js';
-import { analyzeImage, recalcularTotal, testConnection } from './visionApi.js';
+import { analyzeImage, analyzeText, recalcularTotal, testConnection } from './visionApi.js';
 import { updateHeroDonut, updateMacroBars, renderMiniBar, renderBarChart, renderLineChart } from './charts.js';
 import {
   getUserProfile,
@@ -38,6 +38,7 @@ const state = {
   currentImage: null,
   currentAnalysis: null,
   chartsExpanded: false,
+  captureMode: 'photo', // 'photo' | 'text'
 };
 
 // ============ BOWL LOADER TEXT ROTATION ============
@@ -237,15 +238,35 @@ function toggleCharts() {
 }
 
 // ============ CAPTURE ============
+function setCaptureMode(mode) {
+  state.captureMode = mode;
+  const tabs = $$('.capture-tab');
+  const photoArea = $('#capture-photo-area');
+  const textArea = $('#capture-text-area');
+  const btn = $('#btn-analyze');
+
+  tabs.forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+
+  if (mode === 'photo') {
+    photoArea.style.display = '';
+    textArea.style.display = 'none';
+    btn.disabled = !state.currentImage;
+  } else {
+    photoArea.style.display = 'none';
+    textArea.style.display = '';
+    btn.disabled = !$('#text-food-name').value.trim();
+  }
+}
+
 function setCaptureImage(img) {
   state.currentImage = img;
   const preview = $('#image-preview');
   if (img) {
     preview.innerHTML = `<img src="${img.dataUrl}" alt="prato" />`;
-    $('#btn-analyze').disabled = false;
+    if (state.captureMode === 'photo') $('#btn-analyze').disabled = false;
   } else {
     preview.innerHTML = '<i data-lucide="image-plus" class="preview-icon"></i><span>Tire uma foto ou escolha da galeria</span>';
-    $('#btn-analyze').disabled = true;
+    if (state.captureMode === 'photo') $('#btn-analyze').disabled = true;
     if (window.lucide) lucide.createIcons();
   }
 }
@@ -262,6 +283,11 @@ async function handleImage(captureFn) {
 }
 
 async function handleAnalyze() {
+  if (state.captureMode === 'text') {
+    await handleTextAnalyze();
+    return;
+  }
+
   if (!state.currentImage) return;
   if (!isConfigured()) {
     toast('Chave da API não configurada. Vá em Configurações → Chave da API OpenRouter.', true);
@@ -275,8 +301,6 @@ async function handleAnalyze() {
   startBowlText('#bowl-text-photo', BOWL_MESSAGES);
   try {
     const result = await analyzeImage(state.currentImage);
-    // Validação TACO: para cada alimento sem marca_identificada (comida caseira/in natura),
-    // busca dados reais na base TACO e substitui os valores da IA se encontrar.
     await validarComTaco(result.alimentos);
     state.currentAnalysis = result;
     renderResults();
@@ -287,6 +311,91 @@ async function handleAnalyze() {
     btn.disabled = false;
     skeleton.style.display = 'none';
     stopBowlText();
+  }
+}
+
+const BOWL_MESSAGES_TEXT = [
+  'Consultando base nutricional...',
+  'Buscando na TACO...',
+  'Calculando macros...',
+  'Quase pronto...',
+];
+
+async function handleTextAnalyze() {
+  const nomeInput = $('#text-food-name');
+  const gramsInput = $('#text-food-grams');
+  const nome = nomeInput.value.trim();
+  const gramas = gramsInput.value ? Number(gramsInput.value) : null;
+
+  if (!nome) {
+    toast('Digite o nome do alimento.', true);
+    return;
+  }
+
+  if (!isConfigured()) {
+    toast('Chave da API não configurada. Vá em Configurações → Chave da API OpenRouter.', true);
+    showScreen('settings');
+    return;
+  }
+
+  const btn = $('#btn-analyze');
+  btn.disabled = true;
+  const skeleton = $('#skeleton-loading');
+  skeleton.style.display = 'block';
+  startBowlText('#bowl-text-photo', BOWL_MESSAGES_TEXT);
+
+  try {
+    let result;
+
+    // 1) Busca primeiro na TACO local (offline, instantâneo)
+    const tacoMatch = await buscarValidacaoTaco(nome);
+    if (tacoMatch) {
+      const peso = gramas || 100; // default: 100g se não informado
+      const fator = peso / 100;
+      const alimento = {
+        nome: tacoMatch.nome,
+        porcao_estimada_g: peso,
+        porcao_original_g: peso,
+        calorias: Math.round(tacoMatch.calorias * fator),
+        proteina_g: Math.round(tacoMatch.proteina_g * fator * 10) / 10,
+        carboidrato_g: Math.round(tacoMatch.carboidrato_g * fator * 10) / 10,
+        gordura_g: Math.round(tacoMatch.gordura_g * fator * 10) / 10,
+        marca_identificada: null,
+        validado: true,
+        base_origem: 'taco',
+        nome_base: tacoMatch.nome,
+      };
+      alimento.calorias_original = alimento.calorias;
+      alimento.proteina_original = alimento.proteina_g;
+      alimento.carbo_original = alimento.carboidrato_g;
+      alimento.gordura_original = alimento.gordura_g;
+
+      result = {
+        alimentos: [alimento],
+        total: {
+          calorias: alimento.calorias,
+          proteina_g: alimento.proteina_g,
+          carboidrato_g: alimento.carboidrato_g,
+          gordura_g: alimento.gordura_g,
+        },
+      };
+    } else {
+      // 2) Fallback: chama a IA com prompt de texto
+      result = await analyzeText({ nome, gramas });
+      await validarComTaco(result.alimentos);
+    }
+
+    state.currentAnalysis = result;
+    renderResults();
+    showScreen('results');
+  } catch (e) {
+    toast(e.message || 'Erro na análise', true);
+  } finally {
+    btn.disabled = false;
+    skeleton.style.display = 'none';
+    stopBowlText();
+    nomeInput.value = '';
+    gramsInput.value = '';
   }
 }
 
@@ -1628,7 +1737,13 @@ function bind() {
   $$('.nav-btn').forEach(b => {
     b.addEventListener('click', () => showScreen(b.dataset.screen));
   });
-  $('#btn-add-meal').addEventListener('click', () => { setCaptureImage(null); showScreen('capture'); });
+  $('#btn-add-meal').addEventListener('click', () => { setCaptureMode('photo'); setCaptureImage(null); showScreen('capture'); });
+  $$('.capture-tab').forEach(tab => {
+    tab.addEventListener('click', () => setCaptureMode(tab.dataset.mode));
+  });
+  $('#text-food-name').addEventListener('input', () => {
+    if (state.captureMode === 'text') $('#btn-analyze').disabled = !$('#text-food-name').value.trim();
+  });
   $('#btn-camera').addEventListener('click', () => handleImage(captureFromCamera));
   $('#btn-gallery').addEventListener('click', () => handleImage(pickFromGallery));
   $('#btn-analyze').addEventListener('click', handleAnalyze);
