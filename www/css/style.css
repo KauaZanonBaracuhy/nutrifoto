@@ -1021,6 +1021,31 @@ input, textarea, select { font-family: inherit; }
   transition: opacity var(--dur-fast);
 }
 .food-receipt-remove:hover { opacity: 1; }
+
+/* Badges de validação: "validado com TACO" vs "estimativa da IA" */
+.food-receipt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 3px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.food-receipt-badge .badge-icon { width: 12px; height: 12px; }
+.food-receipt-badge-valid {
+  color: var(--jade);
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.food-receipt-badge-ia {
+  color: var(--orange);
+  background: rgba(255, 159, 67, 0.1);
+  border: 1px solid rgba(255, 159, 67, 0.25);
+}
 .food-receipt-edit {
   display: flex;
   align-items: center;

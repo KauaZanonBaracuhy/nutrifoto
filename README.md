@@ -147,4 +147,19 @@ A arquitetura atual (100% client-side, chave no localStorage) foi uma **decisão
 - **Mais provedores:** Google Gemini, modelos locais (Ollama). Atualmente o app usa apenas OpenRouter.
 - **Modo offline:** cache de modelos nutricionais para estimativas sem internet.
 - **iOS:** `npx cap sync ios` + Xcode (mesmo código, novo target).
+
+## Validação com dados nutricionais reais (TACO)
+
+Para alimentos caseiros/in natura (sem marca identificada), o app busca valores nutricionais **REAIS** na Tabela Brasileira de Composição de Alimentos (**TACO, 4ª edição, NEPA/UNICAMP**), 100% offline, sem chamada de API externa.
+
+**Fonte dos dados:** [`github.com/brolesi/taco`](https://github.com/brolesi/taco) (licença MIT) — deriva diretamente da planilha oficial da TACO, cobrindo 597 alimentos com composição centesimal completa.
+
+**Como funciona:**
+1. A IA identifica o alimento e estima o peso em gramas.
+2. Se o alimento não tem marca identificada (comida caseira), o app busca no JSON local `www/data/taco.json`.
+3. Se encontrar: usa os valores REAIS por 100g da TACO, multiplicados pelo peso estimado pela IA.
+4. Se não encontrar: mantém a estimativa da própria IA (fallback).
+
+**Arquivo:** `www/data/taco.json` (~122 KB, carregado lazy no primeiro uso).
+**Módulo de busca:** `www/js/tacoSearch.js` — normalização de nomes, busca por tokens, regra de desempate documentada.
 "# nutrifoto"  

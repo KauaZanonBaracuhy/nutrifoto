@@ -12,6 +12,7 @@ import {
   gerarPlanoAlimentar,
 } from './dietPlan.js';
 import { getAlternatives, getAllCategories } from './foodAlternatives.js';
+import { buscarValidacaoTaco } from './tacoSearch.js';
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
@@ -274,6 +275,9 @@ async function handleAnalyze() {
   startBowlText('#bowl-text-photo', BOWL_MESSAGES);
   try {
     const result = await analyzeImage(state.currentImage);
+    // Validação TACO: para cada alimento sem marca_identificada (comida caseira/in natura),
+    // busca dados reais na base TACO e substitui os valores da IA se encontrar.
+    await validarComTaco(result.alimentos);
     state.currentAnalysis = result;
     renderResults();
     showScreen('results');
@@ -284,6 +288,53 @@ async function handleAnalyze() {
     skeleton.style.display = 'none';
     stopBowlText();
   }
+}
+
+/**
+ * Para cada alimento SEM marca_identificada, busca na base TACO (local, offline).
+ * Se encontrar: substitui calorias/proteina_g/carboidrato_g/gordura_g pelos valores
+ * REAIS da TACO (valor por 100g × porcao_estimada_g / 100).
+ * Mantém porcao_estimada_g exatamente como a IA estimou.
+ * Adiciona campos validado, base_origem e nome_base para auditoria.
+ */
+async function validarComTaco(alimentos) {
+  const promises = alimentos.map(async (alimento) => {
+    // Só valida alimentos sem marca identificada (comida caseira/in natura)
+    if (alimento.marca_identificada) {
+      alimento.validado = false;
+      alimento.base_origem = 'ia';
+      alimento.nome_base = null;
+      return;
+    }
+
+    const taco = await buscarValidacaoTaco(alimento.nome);
+    if (!taco) {
+      alimento.validado = false;
+      alimento.base_origem = 'ia';
+      alimento.nome_base = null;
+      return;
+    }
+
+    // Encontrou na TACO: usa valores REAIS por 100g, escalados pelo peso da IA
+    const fator = alimento.porcao_estimada_g / 100;
+    alimento.calorias = Math.round(taco.calorias * fator);
+    alimento.proteina_g = Math.round(taco.proteina_g * fator * 10) / 10; // 1 decimal
+    alimento.carboidrato_g = Math.round(taco.carboidrato_g * fator * 10) / 10;
+    alimento.gordura_g = Math.round(taco.gordura_g * fator * 10) / 10;
+
+    // Salva os valores originais da IA para permitir Edição/Recálculo proporcional
+    alimento.calorias_original = alimento.calorias;
+    alimento.proteina_original = alimento.proteina_g;
+    alimento.carbo_original = alimento.carboidrato_g;
+    alimento.gordura_original = alimento.gordura_g;
+    alimento.porcao_original_g = alimento.porcao_estimada_g;
+
+    alimento.validado = true;
+    alimento.base_origem = 'taco';
+    alimento.nome_base = taco.nome; // nome exato encontrado na TACO, para auditoria
+  });
+
+  await Promise.all(promises);
 }
 
 // ============ RESULTS — Receipt Style ============
@@ -320,6 +371,7 @@ function renderResults() {
         <div class="food-receipt-header">
           <input class="food-receipt-name" value="${escapeHtml(f.nome)}" data-field="nome" />
           ${f.marca_identificada ? `<span class="food-receipt-brand" title="Produto identificado por embalagem">${escapeHtml(f.marca_identificada)}</span>` : ''}
+          ${f.validado ? `<span class="food-receipt-badge food-receipt-badge-valid" title="Valor validado com dados da TACO (NEPA/UNICAMP)"><i data-lucide="check-circle" class="badge-icon"></i> TACO</span>` : `<span class="food-receipt-badge food-receipt-badge-ia" title="Estimativa da IA (não validado com base de dados externa)"><i data-lucide="sparkles" class="badge-icon"></i> IA</span>`}
           <button class="food-receipt-remove" data-remove="${idx}">✕</button>
         </div>
         <div class="food-receipt-edit">
@@ -376,6 +428,8 @@ function renderResults() {
     });
   }
   updateTotals();
+  // Renderiza ícones Lucide nos badges de validação
+  if (window.lucide) lucide.createIcons();
 }
 
 function ensureOriginals(f) {
