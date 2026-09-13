@@ -331,4 +331,86 @@ function renderLineChart(dailyData, goal) {
   });
 }
 
-export { updateHeroDonut, updateMacroBars, renderMiniBar, renderBarChart, renderLineChart };
+// ============================================================
+// WEIGHT CHART — line chart for body weight over time
+// ============================================================
+
+let weightChart = null;
+
+function renderWeightChart(pesos) {
+  const canvas = document.getElementById('chart-weight');
+  if (!canvas) return;
+  const c = getColors();
+  const labels = pesos.map(p => {
+    const dt = new Date(p.date + 'T12:00:00');
+    return dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  });
+  const values = pesos.map(p => p.peso_kg);
+
+  if (weightChart) {
+    weightChart.data.labels = labels;
+    weightChart.data.datasets[0].data = values;
+    weightChart.update();
+    return;
+  }
+
+  weightChart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Peso (kg)',
+          data: values,
+          borderColor: c.green,
+          backgroundColor: c.greenDim,
+          fill: true,
+          tension: 0.35,
+          pointRadius: 4,
+          pointBackgroundColor: c.green,
+          pointBorderColor: c.surface,
+          pointBorderWidth: 2,
+          borderWidth: 2.5,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: { color: c.muted, font: { size: 11, family: "'Plus Jakarta Sans'" } },
+        },
+        y: {
+          grid: { color: c.border, lineWidth: 0.5 },
+          border: { display: false },
+          ticks: { color: c.muted, font: { size: 11, family: "'Plus Jakarta Sans'" } },
+          beginAtZero: false,
+        },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: c.surface,
+          titleColor: c.text,
+          bodyColor: c.text,
+          borderColor: c.border,
+          borderWidth: 1,
+          cornerRadius: 10,
+          padding: 12,
+          titleFont: { weight: '700', family: "'Plus Jakarta Sans'" },
+          bodyFont: { family: "'Plus Jakarta Sans'" },
+          displayColors: false,
+          callbacks: {
+            label: (ctx) => `${ctx.parsed.y.toFixed(1)} kg`,
+          },
+        },
+      },
+      animation: { duration: 900, easing: 'easeOutQuart' },
+    },
+  });
+}
+
+export { updateHeroDonut, updateMacroBars, renderMiniBar, renderBarChart, renderLineChart, renderWeightChart };

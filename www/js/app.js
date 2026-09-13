@@ -1,9 +1,9 @@
 // app.js — v2 layout: hero donut, macro bars, mini chart, FAB, timeline, receipt
 import { getGoals, setGoals, isConfigured, getApiKey, setApiKey, getApiKeySource } from './storage.js';
-import { salvarRefeicao, atualizarRefeicao, listarRefeicoesDoDia, listarHistorico, deletarRefeicao, listarTotaisPorDia } from './db.js';
+import { salvarRefeicao, atualizarRefeicao, listarRefeicoesDoDia, listarHistorico, deletarRefeicao, listarTotaisPorDia, salvarPeso, listarPesos, obterPesoMaisRecente, obterPesoAnterior } from './db.js';
 import { captureFromCamera, pickFromGallery, downscaleImage } from './camera.js';
 import { analyzeImage, analyzeText, recalcularTotal, testConnection } from './visionApi.js';
-import { updateHeroDonut, updateMacroBars, renderMiniBar, renderBarChart, renderLineChart } from './charts.js';
+import { updateHeroDonut, updateMacroBars, renderMiniBar, renderBarChart, renderLineChart, renderWeightChart } from './charts.js';
 import {
   getUserProfile,
   saveUserProfile,
@@ -180,6 +180,10 @@ async function renderDashboard() {
   renderBarChart(dailyData, goals.calories);
   renderLineChart(dailyData, goals.protein);
 
+  // Weight card + chart
+  renderWeightCard();
+  renderWeightChartFromState();
+
   // Meals list
   const list = $('#meals-list');
   if (meals.length === 0) {
@@ -223,7 +227,63 @@ async function renderDashboard() {
   });
 }
 
-// ============ CHARTS TOGGLE ============
+// ============ WEIGHT CARD ============
+let _weightFilterDays = 7;
+
+async function renderWeightCard() {
+  const recent = await obterPesoMaisRecente();
+  const previous = await obterPesoAnterior();
+  const valueEl = $('#weight-current');
+  const deltaEl = $('#weight-delta');
+  if (!valueEl) return;
+
+  if (recent) {
+    valueEl.textContent = `${recent.peso_kg.toFixed(1)} kg`;
+    if (previous) {
+      const diff = recent.peso_kg - previous.peso_kg;
+      const sign = diff > 0 ? '+' : '';
+      deltaEl.textContent = `${sign}${diff.toFixed(1)} kg desde a última`;
+      deltaEl.className = 'weight-card-delta ' + (diff < 0 ? 'down' : diff > 0 ? 'up' : 'flat');
+    } else {
+      deltaEl.textContent = 'Primeiro registro';
+      deltaEl.className = 'weight-card-delta flat';
+    }
+  } else {
+    valueEl.textContent = '—';
+    deltaEl.textContent = 'Toque + para registrar';
+    deltaEl.className = 'weight-card-delta flat';
+  }
+
+  if (window.lucide) lucide.createIcons();
+}
+
+async function renderWeightChartFromState() {
+  const dias = _weightFilterDays || 0;
+  const pesos = await listarPesos(dias || 0);
+  renderWeightChart(pesos);
+}
+
+async function handleSaveWeight() {
+  const input = $('#weight-input');
+  const val = parseFloat(input.value);
+  if (isNaN(val) || val < 20 || val > 400) {
+    toast('Digite um peso válido (20-400 kg)', true);
+    return;
+  }
+  await salvarPeso(val);
+  // Update profile pesoAtual
+  const profile = getUserProfile();
+  if (profile) {
+    profile.pesoAtual = val;
+    saveUserProfile(profile);
+  }
+  input.value = '';
+  $('#weight-card-input').style.display = 'none';
+  $('#weight-card-display').style.display = 'flex';
+  renderWeightCard();
+  renderWeightChartFromState();
+  toast('Peso registrado');
+}
 function toggleCharts() {
   state.chartsExpanded = !state.chartsExpanded;
   const el = $('#charts-expanded');
@@ -1852,6 +1912,47 @@ function bind() {
   });
   $$('.onboarding-skip-btn').forEach(btn => {
     btn.addEventListener('click', completeOnboarding);
+  });
+
+  // Weight card
+  const weightDisplay = $('#weight-card-display');
+  if (weightDisplay) {
+    weightDisplay.addEventListener('click', () => {
+      const inputSection = $('#weight-card-input');
+      const displaySection = $('#weight-card-display');
+      const input = $('#weight-input');
+      displaySection.style.display = 'none';
+      inputSection.style.display = 'flex';
+      obterPesoMaisRecente().then(recent => {
+        input.value = recent ? recent.peso_kg : '';
+        input.focus();
+      });
+    });
+  }
+  const weightConfirm = $('#weight-confirm');
+  if (weightConfirm) weightConfirm.addEventListener('click', handleSaveWeight);
+  const weightCancel = $('#weight-cancel');
+  if (weightCancel) {
+    weightCancel.addEventListener('click', () => {
+      $('#weight-card-input').style.display = 'none';
+      $('#weight-card-display').style.display = 'flex';
+    });
+  }
+  // Weight input enter key
+  const weightInput = $('#weight-input');
+  if (weightInput) {
+    weightInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleSaveWeight();
+    });
+  }
+  // Weight chart filters
+  $$('.weight-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('.weight-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      _weightFilterDays = Number(btn.dataset.days);
+      renderWeightChartFromState();
+    });
   });
 }
 

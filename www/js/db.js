@@ -1,7 +1,8 @@
-// db.js — IndexedDB wrapper for meal history
+// db.js — IndexedDB wrapper for meal history + weight history
 const DB_NAME = 'nutrifoto';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_MEALS = 'meals';
+const STORE_WEIGHTS = 'weights';
 
 let _dbPromise = null;
 
@@ -15,6 +16,10 @@ function openDB() {
         const store = db.createObjectStore(STORE_MEALS, { keyPath: 'id', autoIncrement: true });
         store.createIndex('createdAt', 'createdAt', { unique: false });
       }
+      if (!db.objectStoreNames.contains(STORE_WEIGHTS)) {
+        const store = db.createObjectStore(STORE_WEIGHTS, { keyPath: 'date' });
+        store.createIndex('date', 'date', { unique: true });
+      }
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
@@ -22,8 +27,8 @@ function openDB() {
   return _dbPromise;
 }
 
-function tx(mode) {
-  return openDB().then(db => db.transaction(STORE_MEALS, mode).objectStore(STORE_MEALS));
+function tx(store, mode) {
+  return openDB().then(db => db.transaction(store, mode).objectStore(store));
 }
 
 function reqToPromise(req) {
@@ -34,7 +39,7 @@ function reqToPromise(req) {
 }
 
 export async function salvarRefeicao(meal) {
-  const store = await tx('readwrite');
+  const store = await tx(STORE_MEALS, 'readwrite');
   const record = {
     ...meal,
     createdAt: meal.createdAt || new Date().toISOString(),
@@ -45,7 +50,7 @@ export async function salvarRefeicao(meal) {
 
 export async function listarRefeicoesDoDia(dateISO) {
   const day = (dateISO || new Date().toISOString()).slice(0, 10);
-  const store = await tx('readonly');
+  const store = await tx(STORE_MEALS, 'readonly');
   const all = await reqToPromise(store.getAll());
   return all
     .filter(m => m.createdAt.slice(0, 10) === day)
@@ -53,7 +58,7 @@ export async function listarRefeicoesDoDia(dateISO) {
 }
 
 export async function listarHistorico() {
-  const store = await tx('readonly');
+  const store = await tx(STORE_MEALS, 'readonly');
   const all = await reqToPromise(store.getAll());
   const byDay = {};
   for (const m of all) {
@@ -67,17 +72,17 @@ export async function listarHistorico() {
 }
 
 export async function atualizarRefeicao(id, meal) {
-  const store = await tx('readwrite');
+  const store = await tx(STORE_MEALS, 'readwrite');
   return reqToPromise(store.put({ ...meal, id }));
 }
 
 export async function deletarRefeicao(id) {
-  const store = await tx('readwrite');
+  const store = await tx(STORE_MEALS, 'readwrite');
   await reqToPromise(store.delete(id));
 }
 
 export async function listarTotaisPorDia(dias = 7) {
-  const store = await tx('readonly');
+  const store = await tx(STORE_MEALS, 'readonly');
   const all = await reqToPromise(store.getAll());
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - dias);
@@ -106,4 +111,35 @@ export async function listarTotaisPorDia(dias = 7) {
     d.setDate(d.getDate() + 1);
   }
   return result;
+}
+
+// ============ WEIGHT HISTORY ============
+
+export async function salvarPeso(peso_kg, dateStr) {
+  const date = dateStr || new Date().toISOString().slice(0, 10);
+  const store = await tx(STORE_WEIGHTS, 'readwrite');
+  const record = { date, peso_kg, createdAt: new Date().toISOString() };
+  await reqToPromise(store.put(record));
+  return record;
+}
+
+export async function listarPesos(dias) {
+  const store = await tx(STORE_WEIGHTS, 'readonly');
+  const all = await reqToPromise(store.getAll());
+  const sorted = all.sort((a, b) => a.date.localeCompare(b.date));
+  if (!dias) return sorted;
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - dias);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  return sorted.filter(r => r.date >= cutoffStr);
+}
+
+export async function obterPesoMaisRecente() {
+  const all = await listarPesos(0);
+  return all.length > 0 ? all[all.length - 1] : null;
+}
+
+export async function obterPesoAnterior() {
+  const all = await listarPesos(0);
+  return all.length > 1 ? all[all.length - 2] : null;
 }
