@@ -13,6 +13,7 @@ const DEFAULT_GOALS = {
   protein: 150,
   carb: 250,
   fat: 70,
+  waterGoal: 2000,
 };
 
 function readApiKey() {

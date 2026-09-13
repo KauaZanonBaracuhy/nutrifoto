@@ -1,8 +1,9 @@
-// db.js — IndexedDB wrapper for meal history + weight history
+// db.js — IndexedDB wrapper for meal history + weight history + water tracking
 const DB_NAME = 'nutrifoto';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const STORE_MEALS = 'meals';
 const STORE_WEIGHTS = 'weights';
+const STORE_WATER = 'water';
 
 let _dbPromise = null;
 
@@ -18,6 +19,10 @@ function openDB() {
       }
       if (!db.objectStoreNames.contains(STORE_WEIGHTS)) {
         const store = db.createObjectStore(STORE_WEIGHTS, { keyPath: 'date' });
+        store.createIndex('date', 'date', { unique: true });
+      }
+      if (!db.objectStoreNames.contains(STORE_WATER)) {
+        const store = db.createObjectStore(STORE_WATER, { keyPath: 'date' });
         store.createIndex('date', 'date', { unique: true });
       }
     };
@@ -142,4 +147,55 @@ export async function obterPesoMaisRecente() {
 export async function obterPesoAnterior() {
   const all = await listarPesos(0);
   return all.length > 1 ? all[all.length - 2] : null;
+}
+
+// ============ WATER TRACKING ============
+
+export async function obterAguaHoje() {
+  const today = new Date().toISOString().slice(0, 10);
+  const store = await tx(STORE_WATER, 'readonly');
+  const record = await reqToPromise(store.get(today));
+  return record || { date: today, ml_consumidos: 0, ml_por_copo: 250, meta_ml: 2000 };
+}
+
+export async function adicionarCopo(mlPorCopo = 250) {
+  const today = new Date().toISOString().slice(0, 10);
+  const store = await tx(STORE_WATER, 'readwrite');
+  const existing = await reqToPromise(store.get(today));
+  const record = {
+    date: today,
+    ml_consumidos: (existing?.ml_consumidos || 0) + mlPorCopo,
+    ml_por_copo: mlPorCopo,
+    meta_ml: existing?.meta_ml || 2000,
+  };
+  await reqToPromise(store.put(record));
+  return record;
+}
+
+export async function removerCopo(mlPorCopo = 250) {
+  const today = new Date().toISOString().slice(0, 10);
+  const store = await tx(STORE_WATER, 'readwrite');
+  const existing = await reqToPromise(store.get(today));
+  const record = {
+    date: today,
+    ml_consumidos: Math.max(0, (existing?.ml_consumidos || 0) - mlPorCopo),
+    ml_por_copo: mlPorCopo,
+    meta_ml: existing?.meta_ml || 2000,
+  };
+  await reqToPromise(store.put(record));
+  return record;
+}
+
+export async function atualizarMetaAgua(metaMl) {
+  const today = new Date().toISOString().slice(0, 10);
+  const store = await tx(STORE_WATER, 'readwrite');
+  const existing = await reqToPromise(store.get(today));
+  const record = {
+    date: today,
+    ml_consumidos: existing?.ml_consumidos || 0,
+    ml_por_copo: existing?.ml_por_copo || 250,
+    meta_ml: metaMl,
+  };
+  await reqToPromise(store.put(record));
+  return record;
 }

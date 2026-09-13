@@ -102,6 +102,27 @@
           </div>
         </div>
 
+        <div class="water-card" id="water-card">
+          <div class="water-card-header">
+            <div class="water-card-label-row">
+              <span class="water-card-label">Água</span>
+              <span class="water-card-value" id="water-value">0/8 copos</span>
+            </div>
+            <div class="water-card-ml" id="water-ml-display">0 / 2000 ml</div>
+          </div>
+          <div class="water-progress">
+            <div class="water-progress-bar" id="water-progress-bar"></div>
+          </div>
+          <div class="water-card-actions">
+            <button class="water-btn water-btn-minus" id="btn-water-minus" aria-label="Remover copo">
+              <i data-lucide="minus" style="width:16px;height:16px"></i>
+            </button>
+            <button class="water-btn water-btn-plus" id="btn-water-plus" aria-label="Adicionar copo">
+              <i data-lucide="plus" style="width:18px;height:18px"></i> +1 copo
+            </button>
+          </div>
+        </div>
+
         <div class="section-separator">Hoje</div>
         <div class="meals-list" id="meals-list"></div>
       </main>
@@ -265,6 +286,10 @@
                 </div>
               </div>
               <p class="api-key-help" id="macro-calc-hint">Alterar macros recalcula calorias e vice-versa automaticamente.</p>
+              <div class="diet-field">
+                <label for="set-water-goal">Meta de água (ml/dia)</label>
+                <input type="number" id="set-water-goal" min="0" step="250" placeholder="2000" />
+              </div>
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 // app.js — v2 layout: hero donut, macro bars, mini chart, FAB, timeline, receipt
 import { getGoals, setGoals, isConfigured, getApiKey, setApiKey, getApiKeySource } from './storage.js';
-import { salvarRefeicao, atualizarRefeicao, listarRefeicoesDoDia, listarHistorico, deletarRefeicao, listarTotaisPorDia, salvarPeso, listarPesos, obterPesoMaisRecente, obterPesoAnterior } from './db.js';
+import { salvarRefeicao, atualizarRefeicao, listarRefeicoesDoDia, listarHistorico, deletarRefeicao, listarTotaisPorDia, salvarPeso, listarPesos, obterPesoMaisRecente, obterPesoAnterior, obterAguaHoje, adicionarCopo, removerCopo, atualizarMetaAgua } from './db.js';
 import { captureFromCamera, pickFromGallery, downscaleImage } from './camera.js';
 import { analyzeImage, analyzeText, recalcularTotal, testConnection } from './visionApi.js';
 import { updateHeroDonut, updateMacroBars, renderMiniBar, renderBarChart, renderLineChart, renderWeightChart } from './charts.js';
@@ -184,6 +184,9 @@ async function renderDashboard() {
   renderWeightCard();
   renderWeightChartFromState();
 
+  // Water card
+  renderWaterCard();
+
   // Meals list
   const list = $('#meals-list');
   if (meals.length === 0) {
@@ -225,6 +228,49 @@ async function renderDashboard() {
       }
     };
   });
+}
+
+// ============ WATER CARD ============
+async function renderWaterCard() {
+  const data = await obterAguaHoje();
+  const goals = getGoals();
+  const metaMl = goals.waterGoal || 2000;
+  const mlPorCopo = data.ml_por_copo || 250;
+  const ml = data.ml_consumidos || 0;
+  const copos = Math.round(ml / mlPorCopo);
+  const totalCopos = Math.round(metaMl / mlPorCopo);
+  const pct = metaMl > 0 ? Math.min((ml / metaMl) * 100, 100) : 0;
+
+  const valueEl = $('#water-value');
+  const mlEl = $('#water-ml-display');
+  const barEl = $('#water-progress-bar');
+  if (!valueEl) return;
+
+  valueEl.textContent = `${copos}/${totalCopos} copos`;
+  mlEl.textContent = `${ml} / ${metaMl} ml`;
+  barEl.style.width = `${pct}%`;
+
+  if (pct >= 100) {
+    barEl.style.background = 'var(--jade)';
+  } else if (pct >= 60) {
+    barEl.style.background = 'var(--jade)';
+  } else {
+    barEl.style.background = 'var(--jade)';
+  }
+}
+
+async function handleWaterPlus() {
+  const data = await obterAguaHoje();
+  const mlPorCopo = data.ml_por_copo || 250;
+  await adicionarCopo(mlPorCopo);
+  renderWaterCard();
+}
+
+async function handleWaterMinus() {
+  const data = await obterAguaHoje();
+  const mlPorCopo = data.ml_por_copo || 250;
+  await removerCopo(mlPorCopo);
+  renderWaterCard();
 }
 
 // ============ WEIGHT CARD ============
@@ -803,6 +849,7 @@ function renderSettings() {
   $('#set-protein').value = g.protein;
   $('#set-carb').value = g.carb;
   $('#set-fat').value = g.fat;
+  $('#set-water-goal').value = g.waterGoal || 2000;
 
   // Notificações — lembretes por refeição
   renderMealNotifications();
@@ -1028,12 +1075,15 @@ function bindApiKeyControls() {
 
 function handleSaveSettings() {
   // 1) Metas diárias
+  const waterGoal = Number($('#set-water-goal').value) || 2000;
   setGoals({
     calories: Number($('#set-calories').value) || 0,
     protein: Number($('#set-protein').value) || 0,
     carb: Number($('#set-carb').value) || 0,
     fat: Number($('#set-fat').value) || 0,
+    waterGoal,
   });
+  atualizarMetaAgua(waterGoal);
 
   // 2) Notificações — per-meal
   const plan = getCurrentPlan();
@@ -1891,6 +1941,10 @@ function bind() {
   $('#btn-edit-form').addEventListener('click', handleShowForm);
   $('#btn-apply-goals').addEventListener('click', handleApplyGoals);
   $('#btn-regen-plan').addEventListener('click', handleRegenPlan);
+
+  // Water buttons
+  $('#btn-water-plus').addEventListener('click', handleWaterPlus);
+  $('#btn-water-minus').addEventListener('click', handleWaterMinus);
 
   // Onboarding navigation
   $$('.onboarding-close').forEach(btn => {
