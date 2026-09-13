@@ -485,19 +485,127 @@
             <div class="onboarding-dot" data-step="3"></div>
           </div>
           <div class="onboarding-step active" id="onboarding-step-1">
-            <div class="onboarding-icon"><i data-lucide="camera"></i></div>
+            <div class="onboarding-icon">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                <!-- Prato oval -->
+                <ellipse cx="32" cy="44" rx="26" ry="10" stroke="var(--text-muted)" stroke-width="2" fill="none"/>
+                <ellipse cx="32" cy="44" rx="20" ry="7" stroke="var(--border)" stroke-width="1" fill="none" stroke-dasharray="3 2"/>
+
+                <!-- Moldura da câmera (tracejada, pulsante) -->
+                <rect x="16" y="12" width="32" height="26" rx="3" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="4 3" fill="none" opacity="0.7">
+                  <animate attributeName="opacity" values="0.7;0.3;0.7" dur="2s" repeatCount="indefinite"/>
+                </rect>
+                <!-- Cantos em L -->
+                <path d="M16 18 L16 12 L22 12" stroke="var(--jade)" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path d="M42 12 L48 12 L48 18" stroke="var(--jade)" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path d="M16 32 L16 38 L22 38" stroke="var(--jade)" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path d="M42 38 L48 38 L48 32" stroke="var(--jade)" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+                <!-- Alimentos aparecendo no prato em sequência -->
+                <!-- Alimento 1: círculo -->
+                <circle cx="26" cy="42" r="4" fill="var(--text)" opacity="0">
+                  <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.45;0.6" dur="3.6s" repeatCount="indefinite"/>
+                </circle>
+                <!-- Alimento 2: retângulo arredondado -->
+                <rect x="34" y="39" width="10" height="6" rx="2" fill="var(--jade)" opacity="0">
+                  <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.35;0.65;0.8" dur="3.6s" repeatCount="indefinite"/>
+                </rect>
+                <!-- Alimento 3: círculo menor -->
+                <circle cx="22" cy="46" r="3" fill="var(--blue)" opacity="0">
+                  <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.55;0.85;1" dur="3.6s" repeatCount="indefinite"/>
+                </circle>
+
+                <!-- Brilho/estrela ao final do ciclo -->
+                <g opacity="0">
+                  <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.82;0.9;1" dur="3.6s" repeatCount="indefinite"/>
+                  <line x1="48" y1="14" x2="54" y2="8" stroke="var(--jade)" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="54" y1="14" x2="48" y2="8" stroke="var(--jade)" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="51" y1="7" x2="51" y2="15" stroke="var(--jade)" stroke-width="1" stroke-linecap="round"/>
+                  <line x1="47" y1="11" x2="55" y2="11" stroke="var(--jade)" stroke-width="1" stroke-linecap="round"/>
+                </g>
+              </svg>
+            </div>
             <h2>Bem-vindo ao NutriFoto!</h2>
             <p>Tire uma foto (ou digite o nome) do que você vai comer, e a IA calcula os macros pra você automaticamente.</p>
             <button class="onboarding-next-btn">Próximo</button>
           </div>
           <div class="onboarding-step" id="onboarding-step-2">
-            <div class="onboarding-icon"><i data-lucide="settings"></i></div>
+            <div class="onboarding-icon">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                <!-- Engrenagem maior (horário) -->
+                <g style="transform-origin: 24px 32px;">
+                  <animateTransform attributeName="transform" type="rotate" from="0 24 32" to="360 24 32" dur="4s" repeatCount="indefinite"/>
+                  <circle cx="24" cy="32" r="8" stroke="var(--jade)" stroke-width="2.5" fill="none"/>
+                  <circle cx="24" cy="32" r="3" fill="var(--jade)"/>
+                  <!-- Dentes da engrenagem -->
+                  <rect x="21" y="21" width="6" height="4" rx="1" fill="var(--jade)"/>
+                  <rect x="21" y="39" width="6" height="4" rx="1" fill="var(--jade)"/>
+                  <rect x="13" y="29" width="4" height="6" rx="1" fill="var(--jade)"/>
+                  <rect x="31" y="29" width="4" height="6" rx="1" fill="var(--jade)"/>
+                  <rect x="14.5" y="22.5" width="5" height="3.5" rx="1" fill="var(--jade)" transform="rotate(-45 17 24.25)"/>
+                  <rect x="28.5" y="38" width="5" height="3.5" rx="1" fill="var(--jade)" transform="rotate(-45 31 39.75)"/>
+                  <rect x="28.5" y="22.5" width="5" height="3.5" rx="1" fill="var(--jade)" transform="rotate(45 31 24.25)"/>
+                  <rect x="14.5" y="38" width="5" height="3.5" rx="1" fill="var(--jade)" transform="rotate(45 17 39.75)"/>
+                </g>
+                <!-- Engrenagem menor (anti-horário) -->
+                <g style="transform-origin: 44px 28px;">
+                  <animateTransform attributeName="transform" type="rotate" from="0 44 28" to="-360 44 28" dur="2.8s" repeatCount="indefinite"/>
+                  <circle cx="44" cy="28" r="6" stroke="var(--blue)" stroke-width="2" fill="none"/>
+                  <circle cx="44" cy="28" r="2.5" fill="var(--blue)"/>
+                  <!-- Dentes da engrenagem menor -->
+                  <rect x="42" y="20" width="4" height="3" rx="1" fill="var(--blue)"/>
+                  <rect x="42" y="33" width="4" height="3" rx="1" fill="var(--blue)"/>
+                  <rect x="36" y="26.5" width="3" height="4" rx="1" fill="var(--blue)"/>
+                  <rect x="49" y="26.5" width="3" height="4" rx="1" fill="var(--blue)"/>
+                  <rect x="38" y="21" width="3.5" height="2.5" rx="1" fill="var(--blue)" transform="rotate(-45 39.75 22.25)"/>
+                  <rect x="46" y="32.5" width="3.5" height="2.5" rx="1" fill="var(--blue)" transform="rotate(-45 47.75 33.75)"/>
+                  <rect x="46" y="21" width="3.5" height="2.5" rx="1" fill="var(--blue)" transform="rotate(45 47.75 22.25)"/>
+                  <rect x="38" y="32.5" width="3.5" height="2.5" rx="1" fill="var(--blue)" transform="rotate(45 39.75 33.75)"/>
+                </g>
+              </svg>
+            </div>
             <h2>Personalize seu plano</h2>
             <p>Configure sua meta de calorias e macros em Configurações, ou gere um plano alimentar completo baseado no seu perfil em 'Meu Plano'.</p>
             <button class="onboarding-next-btn">Próximo</button>
           </div>
           <div class="onboarding-step" id="onboarding-step-3">
-            <div class="onboarding-icon"><i data-lucide="rocket"></i></div>
+            <div class="onboarding-icon">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                <!-- Estrelas estáticas ao fundo -->
+                <circle cx="10" cy="12" r="1.5" fill="var(--text-muted)" opacity="0.3"/>
+                <circle cx="54" cy="8" r="1" fill="var(--text-muted)" opacity="0.5"/>
+                <circle cx="8" cy="50" r="1" fill="var(--text-muted)" opacity="0.4"/>
+                <circle cx="56" cy="44" r="1.5" fill="var(--text-muted)" opacity="0.25"/>
+
+                <!-- Foguete com flutuação vertical -->
+                <g>
+                  <animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur="2s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1"/>
+
+                  <!-- Corpo do foguete -->
+                  <path d="M32 10 C32 10 26 20 26 34 L38 34 C38 20 32 10 32 10Z" fill="var(--jade)"/>
+
+                  <!-- Bico (ponta) -->
+                  <path d="M32 6 L29 12 L35 12 Z" fill="var(--jade)"/>
+
+                  <!-- Janela circular -->
+                  <circle cx="32" cy="22" r="3" fill="var(--bg)" stroke="var(--surface-2)" stroke-width="1"/>
+                  <circle cx="32" cy="22" r="1.5" fill="var(--surface-2)"/>
+
+                  <!-- Aleta esquerda -->
+                  <path d="M26 30 L20 36 L26 34 Z" fill="var(--blue)"/>
+
+                  <!-- Aleta direita -->
+                  <path d="M38 30 L44 36 L38 34 Z" fill="var(--blue)"/>
+
+                  <!-- Chama pulsante -->
+                  <g opacity="1">
+                    <animate attributeName="opacity" values="1;0.4;1;0.5;1" dur="0.4s" repeatCount="indefinite"/>
+                    <path d="M29 34 L32 42 L35 34 Z" fill="var(--coral)"/>
+                    <path d="M30 34 L32 39 L34 34 Z" fill="var(--orange)" opacity="0.8"/>
+                  </g>
+                </g>
+              </svg>
+            </div>
             <h2>Tudo pronto!</h2>
             <p>Toque em '+' para registrar sua primeira refeição.</p>
             <button class="onboarding-start-btn">Começar</button>
