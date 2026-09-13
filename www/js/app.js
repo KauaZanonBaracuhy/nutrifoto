@@ -1732,6 +1732,78 @@ function scheduleAllNotifications() {
   }
 }
 
+// ============ ONBOARDING ============
+const ONBOARDING_KEY = 'nutrifoto.onboardingCompleto';
+
+function isOnboardingComplete() {
+  return localStorage.getItem(ONBOARDING_KEY) === '1';
+}
+
+function completeOnboarding() {
+  localStorage.setItem(ONBOARDING_KEY, '1');
+  hideOnboarding();
+}
+
+function showOnboarding() {
+  const overlay = $('#screen-onboarding');
+  if (!overlay) return;
+  overlay.style.display = 'flex';
+  setOnboardingStep(1);
+  if (window.lucide) lucide.createIcons();
+}
+
+function hideOnboarding() {
+  const overlay = $('#screen-onboarding');
+  if (!overlay) return;
+  overlay.style.display = 'none';
+  completeOnboarding();
+}
+
+function setOnboardingStep(step) {
+  $$('.onboarding-step').forEach(el => el.classList.remove('active'));
+  $$('.onboarding-dot').forEach(el => el.classList.remove('active'));
+  const stepEl = $(`#onboarding-step-${step}`);
+  const dotEl = $(`.onboarding-dot[data-step="${step}"]`);
+  if (stepEl) stepEl.classList.add('active');
+  if (dotEl) dotEl.classList.add('active');
+}
+
+function nextOnboardingStep() {
+  const current = document.querySelector('.onboarding-step.active');
+  if (!current) return;
+  const step = Number(current.id.split('-').pop());
+  if (step < 3) setOnboardingStep(step + 1);
+}
+
+function prevOnboardingStep() {
+  const current = document.querySelector('.onboarding-step.active');
+  if (!current) return;
+  const step = Number(current.id.split('-').pop());
+  if (step > 1) setOnboardingStep(step - 1);
+}
+
+function showOnboardingFromSettings() {
+  showOnboarding();
+}
+
+// Touch/swipe support for onboarding
+let onboardingTouchStartX = 0;
+function initOnboardingSwipe() {
+  const content = $('#onboarding-content');
+  if (!content) return;
+  content.addEventListener('touchstart', e => {
+    onboardingTouchStartX = e.touches[0].clientX;
+  }, { passive: true });
+  content.addEventListener('touchend', e => {
+    const endX = e.changedTouches[0].clientX;
+    const diff = endX - onboardingTouchStartX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) prevOnboardingStep();
+      else nextOnboardingStep();
+    }
+  }, { passive: true });
+}
+
 // ============ INIT ============
 function bind() {
   $$('.nav-btn').forEach(b => {
@@ -1760,6 +1832,20 @@ function bind() {
   $('#btn-edit-form').addEventListener('click', handleShowForm);
   $('#btn-apply-goals').addEventListener('click', handleApplyGoals);
   $('#btn-regen-plan').addEventListener('click', handleRegenPlan);
+
+  // Onboarding navigation
+  $$('.onboarding-close').forEach(btn => {
+    btn.addEventListener('click', hideOnboarding);
+  });
+  $$('.onboarding-start-btn').forEach(btn => {
+    btn.addEventListener('click', completeOnboarding);
+  });
+  // Also add click handlers for dots to navigate
+  $$('.onboarding-dot').forEach(dot => {
+    dot.addEventListener('click', () => setOnboardingStep(Number(dot.dataset.step)));
+  });
+  $('#btn-restart-onboarding').addEventListener('click', showOnboardingFromSettings);
+}
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1768,4 +1854,8 @@ document.addEventListener('DOMContentLoaded', () => {
   renderDashboard();
   scheduleAllNotifications();
   if (window.lucide) lucide.createIcons();
+  initOnboardingSwipe();
+  if (!isOnboardingComplete()) {
+    showOnboarding();
+  }
 });
