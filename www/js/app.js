@@ -1756,7 +1756,6 @@ function hideOnboarding() {
   const overlay = $('#screen-onboarding');
   if (!overlay) return;
   overlay.style.display = 'none';
-  completeOnboarding();
 }
 
 function setOnboardingStep(step) {
@@ -1789,7 +1788,7 @@ function showOnboardingFromSettings() {
 // Touch/swipe support for onboarding
 let onboardingTouchStartX = 0;
 function initOnboardingSwipe() {
-  const content = $('#onboarding-content');
+  const content = $('.onboarding-content');
   if (!content) return;
   content.addEventListener('touchstart', e => {
     onboardingTouchStartX = e.touches[0].clientX;
@@ -1835,7 +1834,7 @@ function bind() {
 
   // Onboarding navigation
   $$('.onboarding-close').forEach(btn => {
-    btn.addEventListener('click', hideOnboarding);
+    btn.addEventListener('click', completeOnboarding);
   });
   $$('.onboarding-start-btn').forEach(btn => {
     btn.addEventListener('click', completeOnboarding);
@@ -1844,8 +1843,16 @@ function bind() {
   $$('.onboarding-dot').forEach(dot => {
     dot.addEventListener('click', () => setOnboardingStep(Number(dot.dataset.step)));
   });
-  $('#btn-restart-onboarding').addEventListener('click', showOnboardingFromSettings);
-}
+  const restartBtn = $('#btn-restart-onboarding');
+  if (restartBtn) restartBtn.addEventListener('click', showOnboardingFromSettings);
+
+  // Onboarding nav buttons (Próximo / Pular)
+  $$('.onboarding-next-btn').forEach(btn => {
+    btn.addEventListener('click', nextOnboardingStep);
+  });
+  $$('.onboarding-skip-btn').forEach(btn => {
+    btn.addEventListener('click', completeOnboarding);
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {

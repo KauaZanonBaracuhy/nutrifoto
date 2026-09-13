@@ -473,7 +473,8 @@
     <section id="screen-onboarding" class="screen" style="display:none; z-index: 100;">
       <div class="onboarding-container">
         <div class="onboarding-header">
-          <button class="onboarding-close" aria-label="Fechar" onclick="hideOnboarding()">
+          <button class="onboarding-skip-btn" aria-label="Pular tutorial">Pular</button>
+          <button class="onboarding-close" aria-label="Fechar">
             <i data-lucide="x"></i>
           </button>
         </div>
@@ -487,11 +488,13 @@
             <div class="onboarding-icon"><i data-lucide="camera"></i></div>
             <h2>Bem-vindo ao NutriFoto!</h2>
             <p>Tire uma foto (ou digite o nome) do que você vai comer, e a IA calcula os macros pra você automaticamente.</p>
+            <button class="onboarding-next-btn">Próximo</button>
           </div>
           <div class="onboarding-step" id="onboarding-step-2">
             <div class="onboarding-icon"><i data-lucide="settings"></i></div>
             <h2>Personalize seu plano</h2>
             <p>Configure sua meta de calorias e macros em Configurações, ou gere um plano alimentar completo baseado no seu perfil em 'Meu Plano'.</p>
+            <button class="onboarding-next-btn">Próximo</button>
           </div>
           <div class="onboarding-step" id="onboarding-step-3">
             <div class="onboarding-icon"><i data-lucide="rocket"></i></div>

@@ -2453,7 +2453,8 @@ input, textarea, select { font-family: inherit; }
 .onboarding-header {
   width: 100%;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
 }
 .onboarding-close {
   background: none;
@@ -2530,6 +2531,37 @@ input, textarea, select { font-family: inherit; }
   transition: background var(--dur-fast) var(--ease-smooth);
 }
 .onboarding-start-btn:hover {
+  background: var(--surface-2);
+}
+.onboarding-skip-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+.onboarding-skip-btn:hover {
+  color: var(--text);
+}
+.onboarding-next-btn {
+  width: 100%;
+  max-width: 280px;
+  margin-top: 8px;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  background: var(--jade);
+  color: var(--bg);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-smooth);
+}
+.onboarding-next-btn:hover {
   background: var(--surface-2);
 }
 
