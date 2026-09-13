@@ -2439,6 +2439,12 @@ input, textarea, select { font-family: inherit; }
 .status-empty { opacity: 0.4; }
 
 /* ============ ONBOARDING ============ */
+#screen-onboarding {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg);
+}
 .onboarding-container {
   width: 100%;
   max-width: 360px;
