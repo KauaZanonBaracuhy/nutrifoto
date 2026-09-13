@@ -114,6 +114,8 @@ function showScreen(name) {
   const isOverlay = name === 'capture' || name === 'results';
   nav.style.display = isOverlay ? 'none' : 'flex';
   if (fab) fab.style.display = name === 'dashboard' ? 'flex' : 'none';
+  if (name !== 'dashboard') closeQuickActionMenu();
+  closeWaterModal();
 
   if (name === 'dashboard') renderDashboard();
   if (name === 'history') renderHistory();
@@ -235,7 +237,7 @@ async function renderWaterCard() {
   const data = await obterAguaHoje();
   const goals = getGoals();
   const metaMl = goals.waterGoal || 2000;
-  const mlPorCopo = data.ml_por_copo || 250;
+  const mlPorCopo = 250;
   const ml = data.ml_consumidos || 0;
   const copos = Math.round(ml / mlPorCopo);
   const totalCopos = Math.round(metaMl / mlPorCopo);
@@ -259,18 +261,73 @@ async function renderWaterCard() {
   }
 }
 
-async function handleWaterPlus() {
-  const data = await obterAguaHoje();
-  const mlPorCopo = data.ml_por_copo || 250;
-  await adicionarCopo(mlPorCopo);
+async function handleWaterGlass(sizeMl) {
+  await adicionarCopo(sizeMl);
   renderWaterCard();
 }
 
 async function handleWaterMinus() {
-  const data = await obterAguaHoje();
-  const mlPorCopo = data.ml_por_copo || 250;
-  await removerCopo(mlPorCopo);
+  await removerCopo(200);
   renderWaterCard();
+}
+
+// ============ QUICK ACTION MENU (FAB) ============
+let quickActionOpen = false;
+
+function toggleQuickActionMenu() {
+  const menu = $('#quick-action-menu');
+  const overlay = $('#quick-action-overlay');
+  if (!menu) return;
+  quickActionOpen = !quickActionOpen;
+  menu.style.display = quickActionOpen ? 'flex' : 'none';
+  overlay.style.display = quickActionOpen ? 'block' : 'none';
+}
+
+function closeQuickActionMenu() {
+  quickActionOpen = false;
+  const menu = $('#quick-action-menu');
+  const overlay = $('#quick-action-overlay');
+  if (menu) menu.style.display = 'none';
+  if (overlay) overlay.style.display = 'none';
+}
+
+function openWeightQuickInput() {
+  const display = $('#weight-card-display');
+  const input = $('#weight-card-input');
+  const field = $('#weight-input');
+  if (!display || !input || !field) return;
+  display.style.display = 'none';
+  input.style.display = 'flex';
+  obterPesoMaisRecente().then(recent => {
+    field.value = recent ? recent.peso_kg : '';
+    field.focus();
+  });
+}
+
+function openWaterModal() {
+  const overlay = $('#water-modal-overlay');
+  if (overlay) overlay.style.display = 'flex';
+  const field = $('#water-modal-ml');
+  if (field) field.value = '';
+  if (field) field.focus();
+}
+
+function closeWaterModal() {
+  const overlay = $('#water-modal-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+async function handleWaterModalAdd() {
+  const field = $('#water-modal-ml');
+  const val = parseFloat(field.value);
+  if (isNaN(val) || val < 10 || val > 2000) {
+    toast('Digite um valor entre 10 e 2000 ml', true);
+    return;
+  }
+  await adicionarCopo(val);
+  renderWaterCard();
+  closeWaterModal();
+  toast('Água registrada');
 }
 
 // ============ WEIGHT CARD ============
@@ -1918,7 +1975,66 @@ function bind() {
   $$('.nav-btn').forEach(b => {
     b.addEventListener('click', () => showScreen(b.dataset.screen));
   });
-  $('#btn-add-meal').addEventListener('click', () => { setCaptureMode('photo'); setCaptureImage(null); showScreen('capture'); });
+  $('#btn-add-meal').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleQuickActionMenu();
+  });
+
+  // Water glass chips
+  $$('.water-chip').forEach(chip => {
+    chip.addEventListener('click', async () => {
+      const sizeMl = Number(chip.dataset.ml);
+      await handleWaterGlass(sizeMl);
+    });
+  });
+
+  // Quick add meal button (below daily cards)
+  const quickAddMeal = $('#quick-add-meal');
+  if (quickAddMeal) {
+    quickAddMeal.addEventListener('click', () => {
+      setCaptureMode('photo');
+      setCaptureImage(null);
+      showScreen('capture');
+    });
+  }
+
+  // Quick action menu items
+  $('#quick-action-menu').addEventListener('click', (e) => {
+    const item = e.target.closest('.quick-action-item');
+    if (!item) return;
+    const action = item.dataset.action;
+    closeQuickActionMenu();
+    if (action === 'meal') {
+      setCaptureMode('photo');
+      setCaptureImage(null);
+      showScreen('capture');
+    } else if (action === 'weight') {
+      openWeightQuickInput();
+    } else if (action === 'water') {
+      openWaterModal();
+    }
+  });
+
+  // Close quick action menu on outside click
+  $('#quick-action-overlay').addEventListener('click', closeQuickActionMenu);
+
+  // Water modal
+  $('#water-modal-confirm').addEventListener('click', handleWaterModalAdd);
+  $('#water-modal-close').addEventListener('click', closeWaterModal);
+  $('#water-modal-overlay').addEventListener('click', (e) => {
+    if (e.target === $('#water-modal-overlay')) closeWaterModal();
+  });
+  $('#water-modal-ml').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleWaterModalAdd();
+  });
+  $$('.water-modal-chip').forEach(chip => {
+    chip.addEventListener('click', async () => {
+      const ml = Number(chip.dataset.ml);
+      await adicionarCopo(ml);
+      renderWaterCard();
+      closeWaterModal();
+    });
+  });
   $$('.capture-tab').forEach(tab => {
     tab.addEventListener('click', () => setCaptureMode(tab.dataset.mode));
   });
@@ -1943,7 +2059,6 @@ function bind() {
   $('#btn-regen-plan').addEventListener('click', handleRegenPlan);
 
   // Water buttons
-  $('#btn-water-plus').addEventListener('click', handleWaterPlus);
   $('#btn-water-minus').addEventListener('click', handleWaterMinus);
 
   // Onboarding navigation

@@ -114,13 +114,20 @@
             <div class="water-progress-bar" id="water-progress-bar"></div>
           </div>
           <div class="water-card-actions">
-            <button class="water-btn water-btn-minus" id="btn-water-minus" aria-label="Remover copo">
+            <button class="water-btn water-btn-minus" id="btn-water-minus" aria-label="Remover 200ml">
               <i data-lucide="minus" style="width:16px;height:16px"></i>
             </button>
-            <button class="water-btn water-btn-plus" id="btn-water-plus" aria-label="Adicionar copo">
-              <i data-lucide="plus" style="width:18px;height:18px"></i> +1 copo
-            </button>
+            <div class="water-glass-chips">
+              <button class="water-chip" data-ml="200" aria-label="Adicionar 200ml">200ml</button>
+              <button class="water-chip" data-ml="300" aria-label="Adicionar 300ml">300ml</button>
+              <button class="water-chip" data-ml="400" aria-label="Adicionar 400ml">400ml</button>
+              <button class="water-chip" data-ml="500" aria-label="Adicionar 500ml">500ml</button>
+            </div>
           </div>
+        </div>
+
+        <div class="quick-add-meal" id="quick-add-meal">
+          <i data-lucide="plus" style="width:18px;height:18px"></i> Adicionar alimento
         </div>
 
         <div class="section-separator">Hoje</div>
@@ -130,6 +137,47 @@
       <button class="fab" id="btn-add-meal" aria-label="Adicionar refeição">
         <i data-lucide="plus" style="width:24px;height:24px"></i>
       </button>
+
+      <!-- Quick action menu (bottom sheet above FAB) -->
+      <div class="quick-action-menu" id="quick-action-menu">
+        <div class="quick-action-item" data-action="meal">
+          <i data-lucide="utensils" style="width:18px;height:18px"></i>
+          <span>Adicionar alimento</span>
+        </div>
+        <div class="quick-action-item" data-action="weight">
+          <i data-lucide="weight" style="width:18px;height:18px"></i>
+          <span>Registrar peso</span>
+        </div>
+        <div class="quick-action-item" data-action="water">
+          <i data-lucide="droplet" style="width:18px;height:18px"></i>
+          <span>Registrar água</span>
+        </div>
+      </div>
+
+      <!-- Water quick-add modal -->
+      <div class="water-modal-overlay" id="water-modal-overlay">
+        <div class="water-modal" id="water-modal">
+          <div class="water-modal-header">
+            <span class="water-modal-title">Registrar água</span>
+            <button class="water-modal-close" id="water-modal-close" aria-label="Fechar">
+              <i data-lucide="x" style="width:16px;height:16px"></i>
+            </button>
+          </div>
+          <div class="water-modal-inputs">
+            <input type="number" id="water-modal-ml" min="10" max="2000" step="10" placeholder="Digite ml" inputmode="numeric" class="water-modal-field" />
+          </div>
+          <div class="water-modal-chips">
+            <button class="water-modal-chip" data-ml="200">200ml</button>
+            <button class="water-modal-chip" data-ml="300">300ml</button>
+            <button class="water-modal-chip" data-ml="400">400ml</button>
+            <button class="water-modal-chip" data-ml="500">500ml</button>
+          </div>
+          <button class="btn-primary water-modal-confirm" id="water-modal-confirm">Adicionar</button>
+        </div>
+      </div>
+
+      <!-- Quick action overlay (click outside to close) -->
+      <div class="quick-action-overlay" id="quick-action-overlay"></div>
     </section>
 
     <!-- ============ CAPTURE ============ -->

@@ -810,15 +810,177 @@ input, textarea, select { font-family: inherit; }
   font-size: 14px;
 }
 .water-btn-minus:hover { background: var(--text-muted); color: var(--bg); }
-.water-btn-plus {
+.water-btn:active { transform: scale(0.95); }
+.water-glass-chips {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.water-chip {
+  flex: 1 1 calc(50% - 3px);
+  min-width: 60px;
+  height: 36px;
   background: var(--jade);
   color: var(--bg);
+  border: none;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+.water-chip:hover { opacity: 0.85; transform: translateY(-1px); }
+.water-chip:active { transform: scale(0.95); }
+
+/* Quick add meal button (below daily cards) */
+.quick-add-meal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 44px;
+  margin: 14px 0 4px;
+  background: var(--jade);
+  color: var(--bg);
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-smooth);
+  box-shadow: var(--shadow-glow-jade);
+}
+.quick-add-meal:hover { opacity: 0.88; }
+.quick-add-meal:active { transform: scale(0.97); }
+
+/* Quick action menu (bottom sheet above FAB) */
+.quick-action-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 99;
+}
+.quick-action-menu {
+  display: none;
+  position: fixed;
+  bottom: calc(56px + env(safe-area-inset-bottom) + 72px);
+  right: 20px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
+  z-index: 100;
+  min-width: 200px;
+}
+.quick-action-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+.quick-action-item:hover { background: var(--surface-3); }
+.quick-action-item:active { transform: scale(0.97); }
+
+/* Water modal */
+.water-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 101;
+  align-items: center;
+  justify-content: center;
+  padding: env(safe-area-inset-bottom);
+}
+.water-modal {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+  width: 90%;
+  max-width: 340px;
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.5);
+}
+.water-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.water-modal-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+.water-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+.water-modal-close:hover { background: var(--surface-3); color: var(--text); }
+.water-modal-inputs {
+  margin-bottom: 14px;
+}
+.water-modal-field {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 10px;
+  outline: none;
+  font-family: 'Space Grotesk', sans-serif;
+  text-align: center;
+}
+.water-modal-field:focus { border-color: var(--jade); }
+.water-modal-field::placeholder { color: var(--text-muted); font-weight: 400; }
+.water-modal-chips {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.water-modal-chip {
   height: 36px;
-  padding: 0 16px;
+  background: var(--jade);
+  color: var(--bg);
+  border: none;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+.water-modal-chip:hover { opacity: 0.85; transform: translateY(-1px); }
+.water-modal-chip:active { transform: scale(0.95); }
+.water-modal-confirm {
+  width: 100%;
+  height: 42px;
   font-size: 14px;
 }
-.water-btn-plus:hover { opacity: 0.85; }
-.water-btn:active { transform: scale(0.95); }
 
 /* Section separator */
 .section-separator {
