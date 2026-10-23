@@ -1,0 +1,72 @@
+    <section id="screen-diet" class="screen">
+      <header class="header">
+        <div class="header-row">
+          <div><h2>Meu Plano</h2><p class="cabecalho-ajuda">Seu perfil e seus rascunhos</p></div>
+          <button class="icon-btn" id="btn-edit-profile" aria-label="Editar perfil" hidden>
+            <i data-lucide="pencil" style="width:18px;height:18px"></i>
+          </button>
+        </div>
+      </header>
+      <main class="main main-diet" id="diet-main">
+        <!-- Form mode -->
+        <div id="diet-form-container">
+          <div id="diet-form-content">
+            <!-- will be rendered by dietPlan.js -->
+          </div>
+        </div>
+
+        <!-- Loading state -->
+        <div class="bowl-loader-container" id="diet-skeleton" style="display:none">
+          <svg viewBox="0 0 120 140" class="bowl-loader">
+            <defs>
+              <clipPath id="bowl-clip-diet">
+                <path d="M22,50 Q22,108 60,113 Q98,108 98,50 Z"/>
+              </clipPath>
+            </defs>
+            <path class="bowl-steam bowl-steam-1" d="M42,32 Q47,22 52,32 Q57,42 62,32" stroke="var(--text-muted)" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+            <path class="bowl-steam bowl-steam-2" d="M56,28 Q61,18 66,28 Q71,38 76,28" stroke="var(--text-muted)" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M20,50 Q20,110 60,115 Q100,110 100,50" stroke="var(--border)" fill="none" stroke-width="3" stroke-linecap="round"/>
+            <line x1="15" y1="50" x2="105" y2="50" stroke="var(--border)" stroke-width="3" stroke-linecap="round"/>
+            <rect x="22" y="113" width="76" height="65" fill="var(--jade)" clip-path="url(#bowl-clip-diet)">
+              <animate attributeName="y" values="113;50;50;113" keyTimes="0;0.45;0.75;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1"/>
+              <animate attributeName="height" values="65;65;65;65" dur="3s" repeatCount="indefinite"/>
+            </rect>
+            <path fill="var(--jade)" opacity="0.85" clip-path="url(#bowl-clip-diet)">
+              <animate attributeName="d" values="M22,50 Q40,44 60,50 Q80,56 98,50;M22,48 Q38,54 60,48 Q82,42 98,48;M22,50 Q40,44 60,50 Q80,56 98,50;M22,52 Q42,46 60,52 Q78,58 98,52;M22,50 Q40,44 60,50 Q80,56 98,50" dur="3s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+          <p class="bowl-loader-text" id="bowl-text-diet">Gerando seu plano...</p>
+          <button id="cancelar-plano" type="button" class="btn-secondary" hidden>Cancelar geração</button>
+        </div>
+
+        <!-- Plan view -->
+        <div id="diet-plan-view" style="display:none">
+          <p class="aviso-rascunho" id="plan-aviso" role="status">Rascunho para revisão profissional.</p>
+          <div class="plan-header-card">
+            <div class="plan-header-top">
+              <div class="plan-tdee-card">
+                <div class="plan-tdee-label">Gasto diário estimado</div>
+                <div class="plan-tdee-value" id="plan-tdee-val">0</div>
+                <div class="plan-tdee-sub">kcal/dia</div>
+              </div>
+              <div class="plan-meta-card">
+                <div class="plan-meta-label">Energia do rascunho</div>
+                <div class="plan-meta-value" id="plan-meta-val">0</div>
+                <div class="plan-meta-sub">kcal/dia</div>
+              </div>
+            </div>
+            <div class="plan-objective" id="plan-objective">Objetivo</div>
+          </div>
+
+          <div class="plan-section-title">Macronutrientes do rascunho</div>
+          <div class="macro-bars plan-macro-bars" id="plan-macro-bars"></div>
+
+          <div class="plan-section-title">Refeições do rascunho</div>
+          <div class="plan-meals-timeline" id="plan-meals-timeline"></div>
+
+          <div class="sticky-save">
+            <p class="api-key-help">Aplicar estas informações às metas diárias está bloqueado até revisão profissional comprovada. Para atualizar seus dados, use Editar perfil no topo.</p>
+          </div>
+        </div>
+      </main>
+    </section>

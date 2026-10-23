@@ -1,0 +1,6 @@
+minimumReleaseAgeExclude:
+  - lucide@1.61.0
+allowBuilds:
+  electron-winstaller: false
+  esbuild: true
+  workerd: true

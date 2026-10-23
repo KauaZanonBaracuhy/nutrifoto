@@ -1,0 +1,167 @@
+    <section id="screen-settings" class="screen">
+      <header class="header">
+        <h2>Configurações</h2>
+      </header>
+      <main class="main main-settings"><div class="settings-card"><button class="btn-secondary" data-ir-tela="conta">Minha conta e sincronização</button><button class="btn-secondary" data-ir-tela="privacidade">Privacidade e meus dados</button></div>
+        <aside id="atualizacao-app" class="diet-disclaimer" role="status" hidden>
+          <p>Uma atualização está disponível. Salve seus rascunhos antes de atualizar.</p>
+          <button id="atualizar-app" class="btn-secondary">Atualizar aplicativo</button>
+        </aside>
+
+        <!-- 1. Meta calórica diária -->
+        <div class="settings-section open" data-section="calories">
+          <button class="settings-section-header" type="button">
+            <i data-lucide="flame" style="width:20px;height:20px"></i>
+            <span>Meta calórica diária</span>
+            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
+          </button>
+          <div class="settings-section-body">
+            <div class="settings-section-body-inner">
+              <div class="diet-field">
+                <label for="set-calories">Calorias (kcal)</label>
+                <input type="number" id="set-calories" min="0" step="50" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Metas de macronutrientes -->
+        <div class="settings-section open" data-section="macros">
+          <button class="settings-section-header" type="button">
+            <i data-lucide="target" style="width:20px;height:20px"></i>
+            <span>Metas de macronutrientes</span>
+            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
+          </button>
+          <div class="settings-section-body">
+            <div class="settings-section-body-inner">
+              <div class="goals-grid">
+                <div class="goal-field">
+                  <label>Proteína (g)</label>
+                  <input type="number" id="set-protein" min="0" />
+                </div>
+                <div class="goal-field">
+                  <label>Carboidrato (g)</label>
+                  <input type="number" id="set-carb" min="0" />
+                </div>
+                <div class="goal-field">
+                  <label>Gordura (g)</label>
+                  <input type="number" id="set-fat" min="0" />
+                </div>
+              </div>
+              <p class="api-key-help" id="macro-calc-hint">Alterar macros recalcula calorias e vice-versa automaticamente.</p>
+              <div class="diet-field">
+                <label for="set-water-goal">Meta de água (ml/dia)</label>
+                <input type="number" id="set-water-goal" min="0" step="250" placeholder="2000" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Perfil e plano alimentar (card de navegação, sem accordion) -->
+        <div class="settings-card settings-card-link">
+          <a class="settings-card-link-anchor" href="#screen-diet" data-screen-link="diet">
+            <div class="settings-card-header">
+              <i data-lucide="user" style="width:20px;height:20px"></i>
+              <h3>Perfil e plano alimentar</h3>
+              <i data-lucide="chevron-right" class="settings-card-chevron"></i>
+            </div>
+            <p class="api-key-help">Edite peso, altura, idade, objetivo e restrições na aba <strong>Meu Plano</strong>.</p>
+          </a>
+        </div>
+
+        <!-- 5. Notificações -->
+        <div class="settings-section" data-section="notifications">
+          <button class="settings-section-header" type="button">
+            <i data-lucide="bell" style="width:20px;height:20px"></i>
+            <span>Notificações</span>
+            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
+          </button>
+          <div class="settings-section-body">
+            <div class="settings-section-body-inner">
+              <p class="api-key-help">Os lembretes funcionam somente enquanto o aplicativo está aberto e ativo. Não haverá aviso garantido com o navegador fechado ou suspenso.</p><div id="meal-notifications-container">
+                <!-- renderizado dinamicamente por JS a partir do plano alimentar -->
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-label">
+                  <span class="toggle-title">Lembrete de streak</span>
+                  <span class="toggle-sub">Avisa para não perder a sequência</span>
+                </div>
+                <button class="toggle-switch" id="set-toggle-streak" data-on="0" aria-pressed="false" aria-label="Ativar lembrete de streak">
+                  <span class="toggle-knob"></span>
+                </button>
+              </div>
+              <div class="diet-field">
+                <label>Horário do lembrete</label>
+                <input type="time" id="set-streak-time" value="20:00" />
+              </div>
+              <p class="api-key-help" id="notif-hint">Gere um plano alimentar na aba Meu Plano para configurar lembretes por refeição.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Exportar dados -->
+        <div class="settings-section" data-section="export">
+          <button class="settings-section-header" type="button">
+            <i data-lucide="download" style="width:20px;height:20px"></i>
+            <span>Exportar dados</span>
+            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
+          </button>
+          <div class="settings-section-body">
+            <div class="settings-section-body-inner">
+              <p class="api-key-help">Exporte o backup completo em JSON ou o resumo de refeições em CSV. O backup contém dados pessoais; guarde-o com cuidado.</p>
+              <div class="settings-actions-row">
+                <button class="btn-secondary" id="btn-export-json">
+                  <i data-lucide="file-json" style="width:16px;height:16px"></i> Backup completo JSON
+                </button>
+                <button class="btn-secondary" id="btn-export-csv">
+                  <i data-lucide="file-text" style="width:16px;height:16px"></i> Exportar CSV
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-card"><label for="importar-backup">Restaurar backup completo (mesclar sem apagar os dados locais)</label><input type="file" id="importar-backup" accept="application/json,.json" /></div>
+        <!-- 7. Tema visual -->
+        <div class="settings-section" data-section="theme">
+          <button class="settings-section-header" type="button">
+            <i data-lucide="palette" style="width:20px;height:20px"></i>
+            <span>Tema visual</span>
+            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
+          </button>
+          <div class="settings-section-body">
+            <div class="settings-section-body-inner">
+              <div class="theme-grid" id="set-theme-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. Sobre o app -->
+        <div class="settings-section" data-section="about">
+          <button class="settings-section-header" type="button">
+            <i data-lucide="info" style="width:20px;height:20px"></i>
+            <span>Sobre o app</span>
+            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
+          </button>
+          <div class="settings-section-body">
+            <div class="settings-section-body-inner">
+              <div class="about-row"><span class="about-label">Versao</span><span class="about-value" id="about-version">—</span></div>
+              <div class="about-row"><span class="about-label">Desenvolvedor</span><span class="about-value" id="about-developer">—</span></div>
+              <div class="about-row"><span class="about-label">Suporte</span><a class="about-link" href="https://nutrifoto-rose.vercel.app" target="_blank" rel="noopener">nutrifoto-rose.vercel.app</a></div>
+              <p class="api-key-help api-key-help-about">NutriFoto analisa suas refeicoes por foto usando IA. As metas diarias ficam aqui no app; o perfil pessoal (idade, peso, objetivo, restricoes) fica na aba <strong>Meu Plano</strong> e alimenta o plano alimentar gerado por IA.</p>
+              <div class="settings-actions-row" style="margin-top:16px">
+                <button class="btn-secondary" id="btn-restart-onboarding">
+                  <i data-lucide="book-open" style="width:16px;height:16px"></i> Ver tutorial novamente
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sticky-save">
+          <button class="btn-primary" id="btn-save-settings">
+            <i data-lucide="save" style="width:18px;height:18px"></i> Salvar tudo
+          </button>
+        </div>
+      </main>
+    </section>

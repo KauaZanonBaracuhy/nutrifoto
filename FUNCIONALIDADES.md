@@ -1,3 +1,5 @@
+> DOCUMENTO HISTÓRICO. Não descreve a versão 0.2.0. Consulte README.md, ARQUITETURA_ATUAL.md e CORRECOES_REALIZADAS.md.
+
 # NutriFoto — Levantamento Completo de Funcionalidades
 
 Documento gerado a partir de inspeção direta dos arquivos do projeto em **setembro/2026**. Cobre estado atual, todas as telas, módulos JS, fluxo de dados e limitações conhecidas.

@@ -1,13 +1,14 @@
 {
   "appId": "com.nutrifoto.app",
   "appName": "NutriFoto",
-  "webDir": "www",
+  "webDir": "builds/android-web",
+  "loggingBehavior": "none",
   "server": {
-    "androidScheme": "https"
+    "androidScheme": "https",
+    "hostname": "localhost"
   },
+  "android": { "allowMixedContent": false, "webContentsDebuggingEnabled": false },
   "plugins": {
-    "Camera": {
-      "permissions": ["camera", "photos"]
-    }
+    "SystemBars": { "style": "DARK", "insetsHandling": "css", "initialViewportFitValueHint": "cover" }
   }
 }

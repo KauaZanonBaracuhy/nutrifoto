@@ -1,99 +1,32 @@
-// camera.js — Capacitor camera with input[type=file] fallback
-// Returns: { dataUrl, base64, mediaType } | null
-
-let _capacitorCamera = null;
-
-async function getCapacitorCamera() {
-  if (_capacitorCamera !== null) return _capacitorCamera;
-  try {
-    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Camera) {
-      _capacitorCamera = window.Capacitor.Plugins.Camera;
-      return _capacitorCamera;
-    }
-  } catch {}
-  _capacitorCamera = false;
-  return false;
-}
-
-async function fromCapacitor(source) {
-  const cap = await getCapacitorCamera();
-  if (!cap) return null;
-  try {
-    const photo = await cap.getPhoto({
-      resultType: 'base64',
-      source,
-      quality: 85,
-      allowEditing: false,
-    });
-    const base64 = photo.base64String;
-    const mediaType = `image/${photo.format || 'jpeg'}`;
-    return { base64, mediaType, dataUrl: `data:${mediaType};base64,${base64}` };
-  } catch (e) {
-    if (e && (e.message || '').toLowerCase().includes('cancel')) return null;
-    throw e;
-  }
-}
-
-function fromInput(capture) {
-  return new Promise((resolve) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    if (capture) input.setAttribute('capture', 'environment');
-    input.style.position = 'fixed';
-    input.style.left = '-9999px';
-    document.body.appendChild(input);
-    input.onchange = async () => {
-      const file = input.files && input.files[0];
-      document.body.removeChild(input);
-      if (!file) return resolve(null);
-      const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = reader.result;
-        const [meta, b64] = dataUrl.split(',');
-        const mediaType = meta.match(/data:(.*?);/)[1] || 'image/jpeg';
-        resolve({ dataUrl, base64: b64, mediaType });
-      };
-      reader.readAsDataURL(file);
-    };
-    input.click();
+function selecionarArquivo(usarCamera) {
+  return new Promise((resolver, rejeitar) => {
+    const entrada = document.createElement('input'); entrada.type = 'file'; entrada.accept = 'image/jpeg,image/png,image/webp';
+    if (usarCamera) entrada.setAttribute('capture', 'environment');
+    entrada.hidden = true; document.body.append(entrada);
+    entrada.oncancel = () => { entrada.remove(); resolver(null); };
+    entrada.onchange = () => {
+      const arquivo = entrada.files?.[0]; entrada.remove(); if (!arquivo) return resolver(null);
+      if (!['image/jpeg','image/png','image/webp'].includes(arquivo.type) || arquivo.size > 12 * 1024 * 1024) { rejeitar(new Error('Escolha uma imagem JPEG, PNG ou WebP de até 12 MB.')); return; }
+      const leitor = new FileReader(); leitor.onerror = () => rejeitar(new Error('Não foi possível ler a imagem. Escolha outro arquivo.'));
+      leitor.onload = () => resolver({ dataUrl: leitor.result }); leitor.readAsDataURL(arquivo);
+    }; entrada.click();
   });
 }
-
-export async function captureFromCamera() {
-  const cap = await getCapacitorCamera();
-  if (cap) return fromCapacitor('CAMERA');
-  return fromInput(true);
-}
-
-export async function pickFromGallery() {
-  const cap = await getCapacitorCamera();
-  if (cap) return fromCapacitor('PHOTOS');
-  return fromInput(false);
-}
-
-export async function downscaleImage(dataUrl, maxDim = 1024) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      let { width, height } = img;
-      if (width > maxDim || height > maxDim) {
-        if (width > height) {
-          height = Math.round(height * (maxDim / width));
-          width = maxDim;
-        } else {
-          width = Math.round(width * (maxDim / height));
-          height = maxDim;
-        }
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-      const out = canvas.toDataURL('image/jpeg', 0.85);
-      const [meta, b64] = out.split(',');
-      resolve({ dataUrl: out, base64: b64, mediaType: 'image/jpeg' });
-    };
-    img.src = dataUrl;
+export function captureFromCamera() { return window.NutriFotoAndroid?window.NutriFotoAndroid.selecionarFoto(true):selecionarArquivo(true); }
+export function pickFromGallery() { return window.NutriFotoAndroid?window.NutriFotoAndroid.selecionarFoto(false):selecionarArquivo(false); }
+export function downscaleImage(enderecoImagem, dimensaoMaxima = 1024) {
+  return new Promise((resolver, rejeitar) => {
+    const imagem = new Image(); const temporizador = setTimeout(() => rejeitar(new Error('Tempo esgotado ao abrir a imagem.')), 10000);
+    function falharImagem() { clearTimeout(temporizador); rejeitar(new Error('Imagem inválida. Escolha outro arquivo e tente novamente.')); }
+    imagem.onerror = falharImagem;
+    imagem.onload = () => {
+      try {
+        if (!imagem.width || !imagem.height || imagem.width * imagem.height > 50000000) return falharImagem();
+        const proporcao = Math.min(1, dimensaoMaxima / Math.max(imagem.width, imagem.height));
+        const tela = document.createElement('canvas'); tela.width = Math.round(imagem.width * proporcao); tela.height = Math.round(imagem.height * proporcao);
+        tela.getContext('2d').drawImage(imagem, 0, 0, tela.width, tela.height);
+        const dataUrl = tela.toDataURL('image/jpeg', 0.8); clearTimeout(temporizador); resolver({ dataUrl, base64: dataUrl.split(',')[1], mediaType: 'image/jpeg' });
+      } catch { falharImagem(); }
+    }; imagem.src = enderecoImagem;
   });
 }

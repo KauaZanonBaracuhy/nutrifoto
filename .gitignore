@@ -10,7 +10,7 @@ _android_pausado/.idea/
 local.properties
 
 # www/ é a pasta de produção e ESTÁ versionada (fonte do deploy Vercel).
-# Apenas o config.local.js (gerado a partir do .env) é ignorado.
+# Configuração privada legada é removida pelo build; nunca gerar a partir de .env.
 www/js/config.local.js
 
 # Diretórios de trabalho local (não usados pelo deploy — ver BUILD.md)
@@ -19,9 +19,34 @@ web/
 
 # Arquivo .env (chaves reais, NÃO commitar)
 .env
+.env.*
+!.env.example
+evidencias/
+supabase/.temp/
+www/vendor/
+www/LICENCAS.txt
+www/precache.json
 
 # Build outputs (APKs, etc.)
 builds/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+*.jks
+*.keystore
+*.p12
+release.properties
+
+# Configuração privada e execução local do Cloudflare
+.wrangler/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+android/**/build/
 
 # Referência local de Git para Claude Code (NÃO COMMITAR)
 GIT_INFO.local.md

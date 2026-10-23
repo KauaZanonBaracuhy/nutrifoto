@@ -1,0 +1,7 @@
+# Exemplos e configuração privada nunca são assets públicos.
+.env*
+**/*.p12
+**/*.jks
+**/*.keystore
+js/config.example.js
+js/config.local.js

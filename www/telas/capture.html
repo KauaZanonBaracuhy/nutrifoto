@@ -1,0 +1,74 @@
+    <section id="screen-capture" class="screen">
+      <header class="header">
+        <div class="header-row">
+          <h2>Nova refeição</h2>
+          <button class="icon-btn" id="btn-cancel-capture" aria-label="Cancelar">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+      </header>
+      <main class="main">
+        <div class="capture-tabs">
+          <button class="capture-tab active" data-mode="photo">
+            <i data-lucide="camera" style="width:14px;height:14px"></i> Foto
+          </button>
+          <button class="capture-tab" data-mode="text">
+            <i data-lucide="pencil" style="width:14px;height:14px"></i> Texto
+          </button>
+        </div>
+
+        <div id="capture-photo-area">
+          <div class="image-preview" id="image-preview">
+            <i data-lucide="image-plus" class="preview-icon"></i>
+            <span>Tire uma foto ou escolha da galeria</span>
+          </div>
+          <p class="capture-tip">📸 Dica: fotografe TODO o alimento que você vai comer, de cima, com boa iluminação. Se possível, inclua o prato inteiro no enquadramento — isso ajuda a IA a calcular os macros com mais precisão.</p>
+          <div class="capture-actions">
+            <button class="chip-btn" id="btn-camera">
+              <i data-lucide="camera" style="width:16px;height:16px"></i> Câmera
+            </button>
+            <button class="chip-btn" id="btn-gallery">
+              <i data-lucide="image" style="width:16px;height:16px"></i> Galeria
+            </button>
+          </div>
+        </div>
+
+        <div id="capture-text-area" style="display:none">
+          <div class="text-input-group">
+            <label class="text-input-label" for="text-food-name">Nome do alimento <span class="required">*</span></label>
+            <input class="text-input-field" type="text" id="text-food-name" placeholder="ex: banana, arroz com feijão, whey..." autocomplete="off" />
+          </div>
+          <div class="text-input-group">
+            <label class="text-input-label" for="text-food-grams">Quantidade (gramas) <span class="optional">(opcional)</span></label>
+            <input class="text-input-field" type="number" id="text-food-grams" min="0" placeholder="ex: 150" inputmode="numeric" />
+            <span class="text-input-hint">Se não informar, o app calcula uma porção padrão.</span>
+          </div>
+        </div>
+
+        <p class="api-key-help">A foto e o peso são estimativas. Revise os resultados. A busca TACO é local. No Android, IA exige licença ativa e autorização de envio; na Web, este acesso é uma demonstração.</p><p id="captura-feedback" class="mensagem-campo" role="alert"></p><button type="button" id="cancelar-analise" class="btn-secondary" hidden>Cancelar análise</button><button class="btn-primary" id="btn-analyze">
+          <i data-lucide="scan" style="width:18px;height:18px"></i> Analisar
+        </button>
+
+        <div class="bowl-loader-container" id="skeleton-loading" style="display:none">
+          <svg viewBox="0 0 120 140" class="bowl-loader">
+            <defs>
+              <clipPath id="bowl-clip-photo">
+                <path d="M22,50 Q22,108 60,113 Q98,108 98,50 Z"/>
+              </clipPath>
+            </defs>
+            <path class="bowl-steam bowl-steam-1" d="M42,32 Q47,22 52,32 Q57,42 62,32" stroke="var(--text-muted)" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+            <path class="bowl-steam bowl-steam-2" d="M56,28 Q61,18 66,28 Q71,38 76,28" stroke="var(--text-muted)" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M20,50 Q20,110 60,115 Q100,110 100,50" stroke="var(--border)" fill="none" stroke-width="3" stroke-linecap="round"/>
+            <line x1="15" y1="50" x2="105" y2="50" stroke="var(--border)" stroke-width="3" stroke-linecap="round"/>
+            <rect x="22" y="113" width="76" height="65" fill="var(--jade)" clip-path="url(#bowl-clip-photo)">
+              <animate attributeName="y" values="113;50;50;113" keyTimes="0;0.45;0.75;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1"/>
+              <animate attributeName="height" values="65;65;65;65" dur="3s" repeatCount="indefinite"/>
+            </rect>
+            <path fill="var(--jade)" opacity="0.85" clip-path="url(#bowl-clip-photo)">
+              <animate attributeName="d" values="M22,50 Q40,44 60,50 Q80,56 98,50;M22,48 Q38,54 60,48 Q82,42 98,48;M22,50 Q40,44 60,50 Q80,56 98,50;M22,52 Q42,46 60,52 Q78,58 98,52;M22,50 Q40,44 60,50 Q80,56 98,50" dur="3s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+          <p class="bowl-loader-text" id="bowl-text-photo">Analisando sua refeicao...</p>
+        </div>
+      </main>
+    </section>

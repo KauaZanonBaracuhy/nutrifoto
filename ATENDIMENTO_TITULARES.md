@@ -1,0 +1,14 @@
+# Procedimento técnico de atendimento — aprovação pendente
+
+Este roteiro não estabelece prazo legal nem base legal. O proprietário deve nomear controlador, canal e responsável antes do piloto com dados pessoais. Referências para revisão: [ANPD, titular de dados](https://www.gov.br/anpd/pt-br/assuntos/titular-de-dados) e [LGPD](https://planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709compilado.htm). Minutas em docs/minutas não foram publicadas como textos aprovados.
+
+1. Registrar protocolo, tipo de pedido e data; não copiar refeições, fotos ou documentos ao log de suporte. Confirmar identidade pelo canal autenticado existente, com o mínimo de dados adicional. Não aceitar um UUID informado como prova de titularidade.
+2. Acesso/exportação: orientar Privacidade→Exportar; conferir que o arquivo abre e contém imagens referenciadas. Na falha de imagem, corrigir o acesso/backup, sem chamar um arquivo incompleto de integral. Encaminhar solicitações adicionais ao operador responsável.
+3. Correção: usuário altera diário, perfil ou preferências e sincroniza. Conferir revisão em dois dispositivos e resolver409 explicitamente. Um dado incorreto em backup antigo não muda por essa ação; aplicar política aprovada aos backups.
+4. Exclusão: informar o escopo real. Conta com assinatura vigente precisa concluir cancelamento/encerramento; fornecer atendimento para casos excepcionais, sem confundir essa trava técnica com decisão jurídica sobre direitos. Fazer backup somente se solicitado/aplicável, com acesso e retenção aprovados.
+5. Fluxo remoto bloqueia uploads, espera operações em andamento, remove objetos e exclui Auth/cascata. Se falhar parcialmente, retomar o mesmo fluxo e não afirmar conclusão. Verificar GET protegido401, ausência de usuário/dados/objetos no ambiente autorizado e registrar apenas resultado, não dados excluídos.
+6. Explicar cópias locais em outros dispositivos, arquivos exportados, logs e retenções dos provedores. Excluir refeição individual pode manter objeto privado até excluir conta; inventário operacional agrega quantidade/bytes, sem coleta automática. A política desses objetos precisa ser definida.
+7. Solicitações referentes a Auth, pagamentos, IA, hospedagem e backups devem ser encaminhadas a operadores conforme contratos e hipóteses legais aprovadas. O aplicativo não promete apagar registros externos que não controla. Não pedir credencial ao titular.
+8. Encerrar protocolo somente com confirmação de escopo e verificação, documentando o que depende de terceiros ou exceção. Definir prazos, recurso e escalonamento com assessoria; não inventá-los no atendimento.
+
+Não criar cópias extras de conteúdo sensível para comprovar exclusão. Evidência deve indicar procedimento e resultado técnico, guardada no local de acesso restrito aprovado pelo responsável.

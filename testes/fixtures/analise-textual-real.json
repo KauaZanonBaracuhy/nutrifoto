@@ -1,0 +1,26 @@
+{
+  "alimentos": [
+    {
+      "nome": "banana nanica",
+      "porcao_estimada_g": 100,
+      "calorias": 89,
+      "proteina_g": 1.1,
+      "carboidrato_g": 23,
+      "gordura_g": 0.3
+    },
+    {
+      "nome": "leite de vaca integral",
+      "porcao_estimada_g": 100,
+      "calorias": 61,
+      "proteina_g": 3.2,
+      "carboidrato_g": 5,
+      "gordura_g": 3.3
+    }
+  ],
+  "total": {
+    "calorias": 150,
+    "proteina_g": 4.3,
+    "carboidrato_g": 28,
+    "gordura_g": 3.6
+  }
+}

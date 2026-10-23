@@ -1,47 +1,80 @@
-# NutriFoto — Contexto do Projeto
+# NutriFoto — desenvolvimento e validação
 
-App web (pasta `www/`) que analisa fotos de alimentos via IA (OpenRouter, gpt-4o-mini) para calcular macros. 100% client-side, sem backend.
+## Escopo e fontes
+- Leia este arquivo, os TXT de desenvolvimento e o pedido atual. Fonte original: `../requitos para desenvolvimento ia.txt` (oito regras, revisão de 23/10/2026); o TXT anexado à missão define o escopo. Preserve regras anteriores compatíveis; instruções atuais do proprietário prevalecem sobre missões e relatórios históricos.
+- Procure outros `AGENTS.md` no caminho afetado. Na revisão de 23/10/2026 não havia instruções adicionais na árvore própria do projeto.
+- Fontes ativas: `www/`, `servidor/`, `api/`, `supabase/`, `android/`, `scripts/` e `testes/`. `www/index.html` é o shell/painel; `www/telas/` contém fragmentos de telas montados por `navegacao.js`. `web/`, `shared/` e `_android_pausado/` são legados, não fonte de publicação.
+- Leia somente o necessário: `DESIGN.md`/`UX-CONTRACT.md` para UI, `LICENCAS_ANDROID.md` para ativação, `ANDROID_RELEASE.md` para assinatura. Confira informações históricas no código atual. Windows/EXE somente quando solicitado; a obrigação antiga de gerar EXE não consta no TXT atual.
 
-## Stack
+## Regras do proprietário
+- Código simples e limpo, com princípios de Clean Code. Use funções; não introduza orientação a objetos no código próprio. Adaptação nativa existente limita-se ao exigido pela plataforma.
+- Programe em português, com funções de nomes claros e descritivos; preserve contratos externos e aliases necessários. Cada HTML representa uma tela.
+- Considere larga escala: validação no servidor, limites, consultas proporcionais, atomicidade e idempotência quando necessárias; sem reestruturações preventivas.
+- Preserve arquitetura, funcionalidades, dados, namespaces e identidade visual. Não migre/apague dados silenciosamente. Investigue antes de substituir bibliotecas; não refatore partes que funcionam fora do escopo.
 
-- **Frontend:** HTML5 + CSS3 + JavaScript (ES modules), sem framework
-- **Armazenamento:** IndexedDB (histórico), localStorage (configurações)
-- **Gráficos:** Chart.js 4 (CDN) — donuts, barras e linhas
-- **Ícones:** Lucide (CDN)
-- **Tipografia:** Plus Jakarta Sans (Google Fonts)
-- **Empacotamento:** Capacitor 6 (gera APK Android)
+## Procedimento de trabalho
+1. Reproduza no produto, registrando plataforma, versão e passos. Build antigo, cache, configuração e eventos ausentes são hipóteses até comprovação.
+2. Localize a causa e altere somente o necessário.
+3. Execute testes específicos existentes, valide na interface final e faça regressão curta relacionada. Corrija e repita os testes afetados.
+4. Reserve suíte completa para releases, mudanças estruturais ou impacto amplo. Unitários e fixtures complementam, não substituem, validação no aplicativo.
+5. Mudanças compartilhadas exigem Web e Android quando afetarem ambas. Respeite restrições da missão, como “somente Web”, declarando a outra plataforma não testada.
 
-## Estrutura
+**Nenhuma alteração pode ser declarada funcional até ser validada no aplicativo que o usuário realmente executará.** Missões apenas documentais exigem conferir documento/comandos, sem compilar ou testar o aplicativo desnecessariamente.
 
+## Nunca entregar build antigo
+- Identifique arquivos alterados, gere o build correto e confira sua inclusão. Confira versão, identificação e caminho do artefato. Nunca renomeie APK antigo nem aprove uma versão e entregue outra. Mudança posterior exige reconstruir/revalidar os trechos afetados.
+- Web: abra a aplicação/URL realmente entregue, clique/toque e use teclado; confira estados, mensagens, navegação, console e requisições. Verifique assets carregados e service worker/cache (`www/sw.js`, versão por conteúdo). Contexto limpo ajuda no diagnóstico; teste também atualização com dados existentes, sem limpar dados do usuário para esconder falhas.
+- Android: compile, confira applicationId/versão/certificado, compare `assets/public/` do APK com `builds/android-web/` e com as alterações esperadas. Instale exatamente esse APK, abra, interaja, confira UI/logs, fechamento e reabertura. Preserve identidade de assinatura e dados: atualização com `install -r`; sem desinstalação, `pm clear` ou limpeza do usuário. Testes destrutivos só em ambiente isolado autorizado.
+- Registre caminho, versão e SHA-256 do APK entregue e vincule-os à instalação testada. Sem emulador, dispositivo ou infraestrutura, informe teste não realizado e causa exata; conclua testes independentes, sem inventar aprovação.
+- Alterou UI: capture antes quando possível e inspecione screenshots finais, alinhamento, espaçamento, legibilidade, foco, controles alcançáveis, responsividade e temas claro/escuro afetados. Alterar CSS ou gerar screenshot sem inspecionar não comprova melhoria visual.
+
+## Toda ação visível responde
+- Se disponível, executa a função. Se indisponível, explica causa real e próximo passo por aviso contextual/diálogo existente, acessível a toque, clique e teclado, sem executar a operação bloqueada.
+- Evite `disabled` em ações que precisam explicar licença, pagamento, conexão, quota, configuração ou restrição clínica. Ocupação temporária pode impedir duplicação, com feedback claro. Não crie controles decorativos, redundantes ou sem evento.
+- Teste eventos e mudanças visíveis, não só presença de HTML. Conforme o fluxo: sem licença, ativa, vencida, limite diário, servidor indisponível e perfil gestante/clínico. Diferencie defeito, configuração ausente, conexão, bloqueio intencional e limitação do ambiente; não exponha erros técnicos ou segredos.
+
+## Segurança e integrações
+- Segredos somente no servidor. Nunca publicar `.env`, service role, chaves Asaas/OpenRouter ou assinatura privada em Web/APK/Git/logs/evidências. Diagnósticos verificam presença sem imprimir valores privados.
+- Licença Android usa Keystore, desafio único e atestado validado no backend; Web é demonstração, sem vínculo seguro fictício. Preserve Auth/Stripe legados para compatibilidade. Migrações atuais: `supabase/001` a `005`.
+- Asaas somente sandbox; confirmação por webhook validado e consulta confiável no servidor. APK, URL de sucesso e comprovante não concedem licença. Preserve dispositivo único, prazo, quotas diárias atômicas, idempotência, reservas e tetos financeiros, mesmo se a configuração comercial estiver incorreta.
+- Planos clínicos e aplicação automática de metas permanecem bloqueados até homologação pertinente. Simulações/replays devem ser identificados e não comprovam precisão clínica, pagamento ou integração externa.
+- Sem autorização específica: não fazer IA paga, cobranças reais, compras, deploy, push, envio de mensagens ou reescrita de histórico. Push pode disparar deploy. Rodada anterior de IA encerrada: preserve `evidencias/homologacao-real/controle.json`, sem reiniciar seu orçamento.
+- Em 23/10/2026 não havia backend hospedado nem configuração Asaas disponível; reconfirme antes de homologar. Não fabrique Pix/pagamento aprovado. `NUTRIFOTO_BACKEND_ORIGIN` fornece apenas origem HTTPS pública ao build; configuração privada permanece no backend existente.
+
+## Comandos confirmados
+Cloudflare: entrada `cloudflare/worker.js`, assets `www/`, configuração `wrangler.jsonc`; veja `CLOUDFLARE.md`. `pnpm run build:cloudflare` faz dry run, `pnpm run test:cloudflare` testa workerd real local, `pnpm run dev:cloudflare` desabilita a leitura do `.env` legado. Prévia no Worker existente usa `pnpm run preview:cloudflare`; main/produção continuam exigindo promoção autorizada. Nunca confundir URL antiga respondendo 200 com build novo implantado.
+
+Na raiz `nutrifoto/`, PowerShell, Node >=22 e pnpm com lockfile. Reutilize dependências; instale somente se necessário: `pnpm install --frozen-lockfile --ignore-scripts`.
+
+| Objetivo | Comando |
+|---|---|
+| Build Web, assets e versão de cache | `pnpm run build:web` |
+| Web local, dados e IA explicitamente fictícios | `node servidor/local.js --simulado --porta 4173` → `http://127.0.0.1:4173/` |
+| Sintaxe / segredos públicos | `pnpm run check` / `pnpm run test:seguranca` |
+| Interface Playwright de ativação | `pnpm run test:licencas:interface` (inclui fixtures; não é APK) |
+| Outros fluxos Web | Escolha em `package.json`: `test:interface`, `test:pwa`, `test:continuidade`, conforme o impacto |
+| Licenças / PostgreSQL real local | `pnpm run test:licencas` / `pnpm run test:licencas:postgres` (Docker; Asaas/IA/atestado simulados) |
+| Suíte Node ampla | `pnpm test` (confira ignorados e dependências) |
+| Assets Android e sync separados | `node scripts/preparar-android.js`, depois `node node_modules/@capacitor/cli/bin/capacitor sync android` |
+| Release APK + AAB | `pnpm run build:android` ou `pnpm run build:aab` (já prepara/sincroniza e verifica assinatura) |
+| Somente APK | `powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/compilar-android.ps1 -SomenteApk` |
+
+Android: Capacitor 8, JDK 21, SDK/target 36, identidade `com.nutrifoto.app`. Build respeita `JAVA_HOME`, `ANDROID_HOME`, `NUTRIFOTO_SIGNING_PROPERTIES`; padrões privados em `%USERPROFILE%/.nutrifoto/android/` e `%USERPROFILE%/.nutrifoto/assinatura/release.properties`. Nunca gere outra chave para atualizar instalações existentes. Confira versões em `package.json`, `www/js/base.js`, `android/app/build.gradle`; incremente `versionCode` em atualização distribuída. Artefatos: `builds/android-release/`.
+
+ADB existente: escolha `$serial` de `devices` e defina `$apk` com o caminho exato anunciado pelo build:
+```powershell
+$adb = Join-Path $env:USERPROFILE '.nutrifoto/android/sdk/platform-tools/adb.exe'
+& $adb devices
+& $adb -s $serial install -r $apk
+& $adb -s $serial shell am start -n com.nutrifoto.app/.MainActivity
+& $adb -s $serial shell dumpsys package com.nutrifoto.app
+& $adb -s $serial logcat -d -s AndroidRuntime Capacitor/Console chromium
+& $adb -s $serial shell uiautomator dump /sdcard/nutrifoto-botoes.xml
+Get-FileHash -LiteralPath $apk -Algorithm SHA256
 ```
-nutrifoto/
-├── www/
-│   ├── index.html              # SPA com 5 telas
-│   ├── data/taco.json          # Base TACO offline (597 alimentos, 122KB)
-│   ├── css/style.css           # 10 temas via CSS variables + [data-theme]
-│   └── js/
-│       ├── app.js              # Navegação, dashboard, settings, captura, resultados
-│       ├── camera.js           # Capacitor Camera + fallback file input
-│       ├── charts.js           # Hero donut, macro bars, mini bar, bar/line charts
-│       ├── config.local.js     # Chave OpenRouter (não commitado)
-│       ├── db.js               # Wrapper IndexedDB — CRUD de refeições
-│       ├── dietPlan.js         # Gerador de plano alimentar
-│       ├── foodAlternatives.js # Alternativas alimentares
-│       ├── storage.js          # localStorage — chave API + metas diárias
-│       ├── tacoSearch.js       # Busca local na TACO (normalização + tokens)
-│       └── visionApi.js        # Chamada à OpenRouter (visão nutricional)
-└── shared/                     # Código compartilhado (css, js, icons)
-```
+Use ADB `shell input tap`/`shell input swipe` com coordenadas da UI atual. Existe `testes/android-botoes.py`, executável com o Python disponível, mas fixa `emulator-5554` e geometria 720×1600: confira ambiente/estado inicial antes de usar. Não é suíte Android universal; retomadas não comprovam execução completa. Release restringe depuração/logs; silêncio no log não prova ausência de erro.
 
-## Deploy — REGRA PERMANENTE
-
-Este projeto está conectado à Vercel via integração automática com o GitHub. Isso significa:
-
-- Qualquer commit + push feito na branch main dispara o deploy AUTOMATICAMENTE na Vercel. Não é necessário rodar `vercel login`, `vercel deploy`, nem qualquer comando da Vercel CLI.
-- Você NUNCA precisa se preocupar com autenticação da Vercel, verificar credenciais, ou tentar rodar deploy manualmente.
-- Sua única responsabilidade após qualquer alteração aprovada é: `git add`, `git commit`, `git push origin main`. O deploy e o domínio são de responsabilidade do usuário — ele acompanha isso direto no painel da Vercel.
-- NÃO pergunte se precisa fazer deploy, NÃO tente rodar comandos da Vercel CLI, e NÃO mencione falta de credenciais da Vercel em nenhuma circunstância. Apenas faça o push e informe que o push foi concluído.
-
-## Validação nutricional (TACO)
-
-Alimentos caseiros/in natura são validados contra a base TACO (4ª edição, NEPA/UNICAMP) — 597 alimentos, 100% offline via `www/data/taco.json`. Fluxo: IA identifica → busca local TACO → se encontrar, usa valores reais por 100g × peso estimado; senão, mantém estimativa da IA. Fonte: `github.com/brolesi/taco` (MIT).
+## Economia e entrega
+- Buscas direcionadas (`rg`), trechos relevantes e reutilização de resultados/testes/scripts. Não releia documentos, repita auditorias ou comandos caros sem necessidade. Não instale ferramentas pesadas nem faça IA paga para testes repetitivos. Economizar não dispensa verificações essenciais.
+- Graphify sob demanda, apenas com benefício claro ou pedido explícito; `graphify-out/` não obriga uso. Consultas focadas `query`/`explain`/`path`/`affected`, inicialmente 500–1000 tokens, reutilizando resultados e validando no código. MCP exige raiz absoluta em `project_path`. Sem watchers, extração paga ou atualização automática/global; atualize em lote quando solicitado/necessário. Se dispensável e falhar, leia diretamente. PowerShell: `graphify` ou `& 'C:\Users\kauaz\.local\bin\graphify.exe'`, nunca Bash literal.
+- Entrega curta: o que mudou e onde; testes efetivos por plataforma; reais, simulados e não executados; pendências; caminho/versão/hash do build validado. Evidência mínima em `evidencias/`, sem segredos ou relatórios duplicados. Não afirme “funcionando” sem comprovação no produto final.

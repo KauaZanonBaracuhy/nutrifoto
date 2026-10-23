@@ -1,0 +1,7 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["www/js", "www/telas", "www/css"],
+  "canonicalMap": "UX-CONTRACT.md",
+  "ownership": { "Select/Listbox": "native", "Date": "native" },
+  "commands": ["pnpm run check", "pnpm test", "pnpm run build", "pnpm run test:interface"]
+}
