@@ -5,6 +5,8 @@ fs.mkdirSync(pasta,{recursive:true});let logs='',navegador;const erros=[],result
 const processo=process.env.NUTRIFOTO_URL_PREVIA?null:spawn(process.execPath,['scripts/wrangler-local.js','--port','8791'],{cwd:raiz,env:{...process.env,WRANGLER_SEND_METRICS:'false'},stdio:['ignore','pipe','pipe']});
 processo?.stdout.on('data',dados=>logs+=dados);processo?.stderr.on('data',dados=>logs+=dados);
 async function verificar(nome,acao){await acao();resultados.push(nome);console.log('APROVADO '+nome);}
+// O checkout Linux usa LF; o cache tem hash dos bytes de cada build.
+function normalizarFonte(texto,nome){const fonte=texto.replace(/\r\n/g,'\n');return nome==='sw.js'?fonte.replace(/nutrifoto-estatico-[a-f0-9]{16}/g,'nutrifoto-estatico-BUILD'):fonte;}
 (async()=>{try{
  let pronta=false;for(let i=0;i<200;i++){try{if((await fetch(origem+'/api/saude')).ok){pronta=true;break;}}catch{}await new Promise(r=>setTimeout(r,100));}assert(pronta,'Wrangler não iniciou: '+logs.slice(-1500));
  await verificar('API real Workers: versão, planos, configuração ausente e métodos',async()=>{
@@ -15,7 +17,7 @@ async function verificar(nome,acao){await acao();resultados.push(nome);console.l
   const tentativa=await fetch(origem+'/api/licenca',{method:'POST',headers:{'content-type':'application/json',origin:'https://exemplo-malicioso.test'},body:'{"acao":"desafio"}'});assert.equal(tentativa.status,503);
  });
  await verificar('Assets corretos, exemplos privados excluídos e versão atual no workerd',async()=>{
-  for(const nome of ['js/base.js','js/captura.js','js/resultados.js','sw.js'])assert.equal(await(await fetch(origem+'/'+nome)).text(),fs.readFileSync(path.join(raiz,'www',nome),'utf8'));
+  for(const nome of ['js/base.js','js/captura.js','js/resultados.js','sw.js'])assert.equal(normalizarFonte(await(await fetch(origem+'/'+nome)).text(),nome),normalizarFonte(fs.readFileSync(path.join(raiz,'www',nome),'utf8'),nome),nome);
   for(const nome of ['/index.html','/telas/capture.html'])assert.equal((await fetch(origem+nome,{redirect:'manual'})).status,200,'HTML não deve redirecionar: '+nome);
   for(const nome of JSON.parse(fs.readFileSync(path.join(raiz,'www/precache.json'),'utf8')))assert.equal((await fetch(origem+nome,{redirect:'manual'})).status,200,'Precache ausente: '+nome);
   assert.equal((await fetch(origem+'/js/config.example.js')).status,404);assert.equal((await fetch(origem+'/.env')).status,404);assert.equal((await fetch(origem+'/nao-existe')).status,404);assert.match((await fetch(origem+'/')).headers.get('content-security-policy'),/default-src/);
