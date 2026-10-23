@@ -28,7 +28,8 @@ async function webhook(pagamento,token=ambiente.ASAAS_WEBHOOK_TOKEN){const r=awa
 async function verificar(nome,acao){await acao();resultados.push({nome,resultado:'APROVADO'});console.log('APROVADO '+nome);}
 (async()=>{try{
  await executar('docker',['run','--rm','--pull','never','--network','none','--name',conteiner,'-e','POSTGRES_HOST_AUTH_METHOD=trust','-d','postgres:15-alpine']);
- for(let i=0;i<90;i++){try{await sql('select 1');break;}catch{if(i===89)throw new Error('PostgreSQL não iniciou');await new Promise(r=>setTimeout(r,200));}}
+ // O socket aceita consultas no servidor temporário de inicialização. TCP só abre no servidor definitivo.
+ for(let i=0;i<90;i++){try{await executar('docker',['exec',conteiner,'pg_isready','-h','127.0.0.1','-U','postgres']);break;}catch{if(i===89)throw new Error('PostgreSQL não iniciou');await new Promise(r=>setTimeout(r,200));}}
  await sql('create role anon;create role authenticated;create role service_role;');await sql(fs.readFileSync(path.join(raiz,'supabase/005_licencas.sql'),'utf8'));
  const {criarApiLicencas}=await import('../servidor/licencas.js');
  const atender=criarApiLicencas({ambiente,repositorio,asaas,verificarAtestado:async()=>{},executarModelo:async()=>{chamadasIa++;return{alimentos:[{nome:'Arroz fictício',porcao_estimada_g:100,calorias:124,proteina_g:2.6,carboidrato_g:25.8,gordura_g:1}],total:{calorias:124,proteina_g:2.6,carboidrato_g:25.8,gordura_g:1},simulado:true,uso:{custoUsd:0,tokens:0}};}});
