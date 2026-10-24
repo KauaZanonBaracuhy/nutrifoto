@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "nutrifoto",
+  "account_id": "570ed1c518942b240653f3de3bf53f6c",
+  "main": "cloudflare/worker.js",
+  "compatibility_date": "2026-10-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": true,
+  "assets": {
+    "directory": "./www",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "html_handling": "none",
+    "not_found_handling": "none"
+  },
+  "build": { "command": "pnpm run build:web" },
+  "vars": {
+    "APP_ORIGIN": "https://nutrifoto.kauazanonbaracuhy1.workers.dev",
+    "PREVIEW_ORIGIN": "https://homologacao-nutrifoto.kauazanonbaracuhy1.workers.dev",
+    "LICENCAS_ANDROID": "true",
+    "ASAAS_AMBIENTE": "sandbox"
+  },
+  "observability": { "enabled": true }
+}

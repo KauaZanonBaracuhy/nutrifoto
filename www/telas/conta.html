@@ -1,0 +1,36 @@
+<section id="screen-conta" class="screen">
+  <header class="header"><h2>Minha conta</h2></header>
+  <main class="main">
+    <p id="estado-conta" role="status">Verificando sessão…</p>
+    <div id="aviso-simulacao" class="diet-disclaimer" hidden>Ambiente local de teste. Contas, IA e pagamentos são simulados.</div>
+    <form id="formulario-conta" class="superficie-card" novalidate>
+      <p id="conta-link-status" role="status"></p>
+      <button class="btn-primary" type="button" id="conta-confirmar" hidden>Confirmar meu e-mail</button>
+      <div class="diet-field"><label for="conta-email">E-mail</label><input id="conta-email" type="email" autocomplete="email" required maxlength="254" aria-describedby="conta-erro" /></div>
+      <div class="diet-field"><label for="conta-senha">Senha</label><input id="conta-senha" type="password" autocomplete="current-password" minlength="12" maxlength="128" aria-describedby="conta-senha-ajuda conta-erro" /></div>
+      <p id="conta-senha-ajuda" class="api-key-help">Use de 12 a 128 caracteres. Você pode colar uma senha ou usar seu gerenciador de senhas.</p>
+      <button type="button" id="conta-mostrar-senha" class="btn-secondary btn-discreto" aria-pressed="false">Mostrar senha</button>
+      <p id="conta-erro" role="alert"></p>
+      <button class="btn-primary" type="submit">Entrar</button>
+      <button class="btn-secondary" type="button" id="conta-cadastrar">Criar conta</button>
+      <button class="btn-secondary btn-discreto" type="button" id="conta-recuperar">Recuperar acesso</button>
+      <button class="btn-secondary" type="button" id="conta-redefinir" hidden>Salvar nova senha</button>
+    </form>
+    <div id="conta-conectada" class="superficie-card conta-acoes" hidden>
+      <button class="btn-secondary" id="conta-sincronizar">Sincronizar agora</button>
+      <button class="btn-secondary" id="conta-migrar">Copiar meus registros anteriores para esta conta</button>
+      <p id="estado-sincronizacao" role="status"></p>
+      <div id="conflito-sincronizacao" hidden>
+        <p>Há alterações neste dispositivo e na nuvem. Exporte um backup antes de escolher.</p>
+        <button class="btn-secondary" data-conflito="mesclar">Mesclar, preferindo os dados locais</button>
+        <button class="btn-secondary" data-conflito="remoto">Usar os dados da nuvem</button>
+        <button class="btn-secondary" data-conflito="local">Manter os dados deste dispositivo</button>
+      </div>
+      <p id="estado-assinatura" role="status"></p>
+      <button class="btn-secondary" data-ir-tela="assinatura">Minha assinatura e benefícios</button>
+      <button class="btn-secondary" id="conta-sair">Sair da conta</button>
+    </div>
+    <p class="api-key-help">Registros anteriores permanecem no espaço local até você escolher copiá-los. Contas diferentes têm armazenamento separado. Sem conexão, as alterações ficam neste dispositivo até a sincronização.</p>
+    <button class="btn-secondary" data-ir-tela="privacidade">Privacidade e meus dados</button>
+  </main>
+</section>

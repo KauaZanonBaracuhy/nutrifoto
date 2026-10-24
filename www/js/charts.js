@@ -64,7 +64,7 @@ let heroDonut = null;
 
 function updateHeroDonut(value, goal) {
   const canvas = document.getElementById('donut-hero');
-  if (!canvas) return;
+  if (!canvas || typeof Chart === 'undefined') return;
   const c = getColors();
   const over = value > goal && goal > 0;
   const color = over ? c.red : c.green;
@@ -102,8 +102,8 @@ function updateHeroDonut(value, goal) {
 // MACRO BARS — horizontal bar rows (protein, carb, fat)
 // ============================================================
 
-function updateMacroBars(totals, goals) {
-  const container = document.getElementById('macro-bars');
+function updateMacroBars(totals, goals, recipiente = 'macro-bars') {
+  const container = document.getElementById(recipiente);
   if (!container) return;
 
   const items = [
@@ -113,7 +113,8 @@ function updateMacroBars(totals, goals) {
   ];
 
   container.innerHTML = items.map(item => {
-    const value = totals[item.key] || 0;
+    const value = Number.isFinite(totals[item.key]) ? Math.max(0,totals[item.key]) : 0;
+    const valorExibido = new Intl.NumberFormat('pt-BR',{maximumFractionDigits:1}).format(value);
     const pct = item.goal > 0 ? Math.min((value / item.goal) * 100, 100) : 0;
     const statusPct = item.goal > 0 ? value / item.goal : 0;
     const statusClass = statusPct > 1 ? 'status-over' : statusPct > 0.85 ? 'status-warn' : 'status-ok';
@@ -125,7 +126,7 @@ function updateMacroBars(totals, goals) {
         <div class="macro-bar-track">
           <div class="macro-bar-fill ${statusClass}" style="width:${pct}%;background:${fillColor}"></div>
         </div>
-        <span class="macro-bar-value">${value}g</span>
+        <span class="macro-bar-value">${valorExibido}g</span>
         <span class="macro-bar-pct">${Math.round(pct)}%</span>
       </div>
     `;
@@ -159,7 +160,7 @@ let barChart = null;
 
 function renderBarChart(dailyData, goal) {
   const canvas = document.getElementById('chart-bars');
-  if (!canvas) return;
+  if (!canvas || typeof Chart === 'undefined') return;
   const c = getColors();
   const labels = dailyData.map(d => {
     const dt = new Date(d.day + 'T12:00:00');
@@ -213,12 +214,12 @@ function renderBarChart(dailyData, goal) {
         x: {
           grid: { display: false },
           border: { display: false },
-          ticks: { color: c.muted, font: { size: 11, family: "'Plus Jakarta Sans'" } },
+          ticks: { color: c.muted, font: { size: 11, family: "'Space Grotesk'" } },
         },
         y: {
           grid: { color: c.border, lineWidth: 0.5 },
           border: { display: false },
-          ticks: { color: c.muted, font: { size: 11, family: "'Plus Jakarta Sans'" } },
+          ticks: { color: c.muted, font: { size: 11, family: "'Space Grotesk'" } },
           beginAtZero: true,
         },
       },
@@ -232,8 +233,8 @@ function renderBarChart(dailyData, goal) {
           borderWidth: 1,
           cornerRadius: 10,
           padding: 12,
-          titleFont: { weight: '700', family: "'Plus Jakarta Sans'" },
-          bodyFont: { family: "'Plus Jakarta Sans'" },
+          titleFont: { weight: '700', family: "'Space Grotesk'" },
+          bodyFont: { family: "'Space Grotesk'" },
           displayColors: false,
         },
       },
@@ -250,7 +251,7 @@ let lineChart = null;
 
 function renderLineChart(dailyData, goal) {
   const canvas = document.getElementById('chart-line');
-  if (!canvas) return;
+  if (!canvas || typeof Chart === 'undefined') return;
   const c = getColors();
   const labels = dailyData.map(d => {
     const dt = new Date(d.day + 'T12:00:00');
@@ -302,12 +303,12 @@ function renderLineChart(dailyData, goal) {
         x: {
           grid: { display: false },
           border: { display: false },
-          ticks: { color: c.muted, font: { size: 11, family: "'Plus Jakarta Sans'" } },
+          ticks: { color: c.muted, font: { size: 11, family: "'Space Grotesk'" } },
         },
         y: {
           grid: { color: c.border, lineWidth: 0.5 },
           border: { display: false },
-          ticks: { color: c.muted, font: { size: 11, family: "'Plus Jakarta Sans'" } },
+          ticks: { color: c.muted, font: { size: 11, family: "'Space Grotesk'" } },
           beginAtZero: true,
         },
       },
@@ -321,8 +322,8 @@ function renderLineChart(dailyData, goal) {
           borderWidth: 1,
           cornerRadius: 10,
           padding: 12,
-          titleFont: { weight: '700', family: "'Plus Jakarta Sans'" },
-          bodyFont: { family: "'Plus Jakarta Sans'" },
+          titleFont: { weight: '700', family: "'Space Grotesk'" },
+          bodyFont: { family: "'Space Grotesk'" },
           displayColors: false,
         },
       },
@@ -339,7 +340,7 @@ let weightChart = null;
 
 function renderWeightChart(pesos) {
   const canvas = document.getElementById('chart-weight');
-  if (!canvas) return;
+  if (!canvas || typeof Chart === 'undefined') return;
   const c = getColors();
   const labels = pesos.map(p => {
     const dt = new Date(p.date + 'T12:00:00');
@@ -381,12 +382,12 @@ function renderWeightChart(pesos) {
         x: {
           grid: { display: false },
           border: { display: false },
-          ticks: { color: c.muted, font: { size: 11, family: "'Plus Jakarta Sans'" } },
+          ticks: { color: c.muted, font: { size: 11, family: "'Space Grotesk'" } },
         },
         y: {
           grid: { color: c.border, lineWidth: 0.5 },
           border: { display: false },
-          ticks: { color: c.muted, font: { size: 11, family: "'Plus Jakarta Sans'" } },
+          ticks: { color: c.muted, font: { size: 11, family: "'Space Grotesk'" } },
           beginAtZero: false,
         },
       },
@@ -400,8 +401,8 @@ function renderWeightChart(pesos) {
           borderWidth: 1,
           cornerRadius: 10,
           padding: 12,
-          titleFont: { weight: '700', family: "'Plus Jakarta Sans'" },
-          bodyFont: { family: "'Plus Jakarta Sans'" },
+          titleFont: { weight: '700', family: "'Space Grotesk'" },
+          bodyFont: { family: "'Space Grotesk'" },
           displayColors: false,
           callbacks: {
             label: (ctx) => `${ctx.parsed.y.toFixed(1)} kg`,

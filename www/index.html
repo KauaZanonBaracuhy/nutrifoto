@@ -12,15 +12,12 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
   <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png" />
   <title>NutriFoto</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="/vendor/lucide.js"></script>
+  <script src="/vendor/chart.js"></script>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <div class="app">
+  <div id="erro-inicial" role="alert"></div><div class="app">
 
     <!-- ============ DASHBOARD ============ -->
     <section id="screen-dashboard" class="screen active">
@@ -41,7 +38,7 @@
             <div class="hero-label">/ <span id="hero-cal-goal">2200</span> kcal</div>
             <div class="streak-badge" id="streak-badge">
               <i data-lucide="flame" class="streak-icon"></i>
-              <span class="streak-num" id="streak-num">7</span>
+              <span class="streak-num" id="streak-num">0</span>
               <span class="streak-label">dias</span>
             </div>
           </div>
@@ -140,18 +137,18 @@
 
       <!-- Quick action menu (bottom sheet above FAB) -->
       <div class="quick-action-menu" id="quick-action-menu">
-        <div class="quick-action-item" data-action="meal">
+        <button type="button" class="quick-action-item" data-action="meal">
           <i data-lucide="utensils" style="width:18px;height:18px"></i>
           <span>Adicionar alimento</span>
-        </div>
-        <div class="quick-action-item" data-action="weight">
+        </button>
+        <button type="button" class="quick-action-item" data-action="weight">
           <i data-lucide="weight" style="width:18px;height:18px"></i>
           <span>Registrar peso</span>
-        </div>
-        <div class="quick-action-item" data-action="water">
+        </button>
+        <button type="button" class="quick-action-item" data-action="water">
           <i data-lucide="droplet" style="width:18px;height:18px"></i>
           <span>Registrar água</span>
-        </div>
+        </button>
       </div>
 
       <!-- Water quick-add modal -->
@@ -181,389 +178,19 @@
     </section>
 
     <!-- ============ CAPTURE ============ -->
-    <section id="screen-capture" class="screen">
-      <header class="header">
-        <div class="header-row">
-          <h2>Nova refeição</h2>
-          <button class="icon-btn" id="btn-cancel-capture" aria-label="Cancelar">
-            <i data-lucide="x"></i>
-          </button>
-        </div>
-      </header>
-      <main class="main">
-        <div class="capture-tabs">
-          <button class="capture-tab active" data-mode="photo">
-            <i data-lucide="camera" style="width:14px;height:14px"></i> Foto
-          </button>
-          <button class="capture-tab" data-mode="text">
-            <i data-lucide="pencil" style="width:14px;height:14px"></i> Texto
-          </button>
-        </div>
 
-        <div id="capture-photo-area">
-          <div class="image-preview" id="image-preview">
-            <i data-lucide="image-plus" class="preview-icon"></i>
-            <span>Tire uma foto ou escolha da galeria</span>
-          </div>
-          <p class="capture-tip">📸 Dica: fotografe TODO o alimento que você vai comer, de cima, com boa iluminação. Se possível, inclua o prato inteiro no enquadramento — isso ajuda a IA a calcular os macros com mais precisão.</p>
-          <div class="capture-actions">
-            <button class="chip-btn" id="btn-camera">
-              <i data-lucide="camera" style="width:16px;height:16px"></i> Câmera
-            </button>
-            <button class="chip-btn" id="btn-gallery">
-              <i data-lucide="image" style="width:16px;height:16px"></i> Galeria
-            </button>
-          </div>
-        </div>
-
-        <div id="capture-text-area" style="display:none">
-          <div class="text-input-group">
-            <label class="text-input-label" for="text-food-name">Nome do alimento <span class="required">*</span></label>
-            <input class="text-input-field" type="text" id="text-food-name" placeholder="ex: banana, arroz com feijão, whey..." autocomplete="off" />
-          </div>
-          <div class="text-input-group">
-            <label class="text-input-label" for="text-food-grams">Quantidade (gramas) <span class="optional">(opcional)</span></label>
-            <input class="text-input-field" type="number" id="text-food-grams" min="0" placeholder="ex: 150" inputmode="numeric" />
-            <span class="text-input-hint">Se não informar, o app calcula uma porção padrão.</span>
-          </div>
-        </div>
-
-        <button class="btn-primary" id="btn-analyze" disabled>
-          <i data-lucide="scan" style="width:18px;height:18px"></i> Analisar
-        </button>
-
-        <div class="bowl-loader-container" id="skeleton-loading" style="display:none">
-          <svg viewBox="0 0 120 140" class="bowl-loader">
-            <defs>
-              <clipPath id="bowl-clip-photo">
-                <path d="M22,50 Q22,108 60,113 Q98,108 98,50 Z"/>
-              </clipPath>
-            </defs>
-            <path class="bowl-steam bowl-steam-1" d="M42,32 Q47,22 52,32 Q57,42 62,32" stroke="var(--text-muted)" fill="none" stroke-width="2.5" stroke-linecap="round"/>
-            <path class="bowl-steam bowl-steam-2" d="M56,28 Q61,18 66,28 Q71,38 76,28" stroke="var(--text-muted)" fill="none" stroke-width="2.5" stroke-linecap="round"/>
-            <path d="M20,50 Q20,110 60,115 Q100,110 100,50" stroke="var(--border)" fill="none" stroke-width="3" stroke-linecap="round"/>
-            <line x1="15" y1="50" x2="105" y2="50" stroke="var(--border)" stroke-width="3" stroke-linecap="round"/>
-            <rect x="22" y="113" width="76" height="65" fill="var(--jade)" clip-path="url(#bowl-clip-photo)">
-              <animate attributeName="y" values="113;50;50;113" keyTimes="0;0.45;0.75;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1"/>
-              <animate attributeName="height" values="65;65;65;65" dur="3s" repeatCount="indefinite"/>
-            </rect>
-            <path fill="var(--jade)" opacity="0.85" clip-path="url(#bowl-clip-photo)">
-              <animate attributeName="d" values="M22,50 Q40,44 60,50 Q80,56 98,50;M22,48 Q38,54 60,48 Q82,42 98,48;M22,50 Q40,44 60,50 Q80,56 98,50;M22,52 Q42,46 60,52 Q78,58 98,52;M22,50 Q40,44 60,50 Q80,56 98,50" dur="3s" repeatCount="indefinite"/>
-            </path>
-          </svg>
-          <p class="bowl-loader-text" id="bowl-text-photo">Analisando sua refeicao...</p>
-        </div>
-      </main>
-    </section>
 
     <!-- ============ RESULTS ============ -->
-    <section id="screen-results" class="screen">
-      <header class="header">
-        <div class="header-row">
-          <h2>Resultado</h2>
-          <button class="icon-btn" id="btn-back-analyze" aria-label="Voltar">
-            <i data-lucide="arrow-left"></i>
-          </button>
-        </div>
-      </header>
-      <main class="main main-results">
-        <div class="result-hero" id="result-hero"></div>
-        <div id="foods-list"></div>
-        <div class="totals-summary" id="totals-summary"></div>
-        <div class="sticky-save">
-          <button class="btn-primary" id="btn-save-meal">
-            <i data-lucide="check" style="width:18px;height:18px"></i> Salvar refeição
-          </button>
-        </div>
-      </main>
-    </section>
+
 
     <!-- ============ HISTORY ============ -->
-    <section id="screen-history" class="screen">
-      <header class="header">
-        <h2>Histórico</h2>
-      </header>
-      <main class="main" id="history-list"></main>
-    </section>
+
 
     <!-- ============ SETTINGS ============ -->
-    <section id="screen-settings" class="screen">
-      <header class="header">
-        <h2>Configurações</h2>
-      </header>
-      <main class="main main-settings">
 
-        <!-- 1. Meta calórica diária -->
-        <div class="settings-section open" data-section="calories">
-          <button class="settings-section-header" type="button">
-            <i data-lucide="flame" style="width:20px;height:20px"></i>
-            <span>Meta calórica diária</span>
-            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
-          </button>
-          <div class="settings-section-body">
-            <div class="settings-section-body-inner">
-              <div class="diet-field">
-                <label for="set-calories">Calorias (kcal)</label>
-                <input type="number" id="set-calories" min="0" step="50" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2. Metas de macronutrientes -->
-        <div class="settings-section open" data-section="macros">
-          <button class="settings-section-header" type="button">
-            <i data-lucide="target" style="width:20px;height:20px"></i>
-            <span>Metas de macronutrientes</span>
-            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
-          </button>
-          <div class="settings-section-body">
-            <div class="settings-section-body-inner">
-              <div class="goals-grid">
-                <div class="goal-field">
-                  <label>Proteína (g)</label>
-                  <input type="number" id="set-protein" min="0" />
-                </div>
-                <div class="goal-field">
-                  <label>Carboidrato (g)</label>
-                  <input type="number" id="set-carb" min="0" />
-                </div>
-                <div class="goal-field">
-                  <label>Gordura (g)</label>
-                  <input type="number" id="set-fat" min="0" />
-                </div>
-              </div>
-              <p class="api-key-help" id="macro-calc-hint">Alterar macros recalcula calorias e vice-versa automaticamente.</p>
-              <div class="diet-field">
-                <label for="set-water-goal">Meta de água (ml/dia)</label>
-                <input type="number" id="set-water-goal" min="0" step="250" placeholder="2000" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. Chave da API OpenRouter -->
-        <div class="settings-section" data-section="apikey">
-          <button class="settings-section-header" type="button">
-            <i data-lucide="key-round" style="width:20px;height:20px"></i>
-            <span>Chave da API OpenRouter</span>
-            <span class="api-status" id="api-status-badge">—</span>
-            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
-          </button>
-          <div class="settings-section-body">
-            <div class="settings-section-body-inner">
-              <p class="api-key-help">Cole sua chave da OpenRouter para usar a análise de imagem e o gerador de plano alimentar. A chave fica salva apenas no seu navegador (localStorage) e nunca é enviada a nenhum servidor do NutriFoto.</p>
-              <div class="diet-field">
-                <label for="set-apikey">Chave (formato <code>sk-or-v1-...</code>)</label>
-                <div class="api-key-wrap">
-                  <input type="password" id="set-apikey" autocomplete="off" spellcheck="false" placeholder="sk-or-v1-..." />
-                  <button type="button" class="api-key-toggle" id="btn-toggle-apikey" aria-label="Mostrar/ocultar chave">
-                    <i data-lucide="eye"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="settings-actions-row">
-                <button class="btn-secondary" id="btn-save-apikey">
-                  <i data-lucide="save" style="width:16px;height:16px"></i> Salvar chave
-                </button>
-                <button class="btn-secondary" id="btn-clear-apikey">
-                  <i data-lucide="trash-2" style="width:16px;height:16px"></i> Remover
-                </button>
-              </div>
-              <p class="api-key-help api-key-help-link">
-                <a class="about-link" href="https://openrouter.ai/keys" target="_blank" rel="noopener">Como conseguir minha chave da OpenRouter?</a>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4. Perfil e plano alimentar (card de navegação, sem accordion) -->
-        <div class="settings-card settings-card-link">
-          <a class="settings-card-link-anchor" href="#screen-diet" data-screen-link="diet">
-            <div class="settings-card-header">
-              <i data-lucide="user" style="width:20px;height:20px"></i>
-              <h3>Perfil e plano alimentar</h3>
-              <i data-lucide="chevron-right" class="settings-card-chevron"></i>
-            </div>
-            <p class="api-key-help">Edite peso, altura, idade, objetivo e restrições na aba <strong>Meu Plano</strong>.</p>
-          </a>
-        </div>
-
-        <!-- 5. Notificações -->
-        <div class="settings-section" data-section="notifications">
-          <button class="settings-section-header" type="button">
-            <i data-lucide="bell" style="width:20px;height:20px"></i>
-            <span>Notificações</span>
-            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
-          </button>
-          <div class="settings-section-body">
-            <div class="settings-section-body-inner">
-              <div id="meal-notifications-container">
-                <!-- renderizado dinamicamente por JS a partir do plano alimentar -->
-              </div>
-              <div class="toggle-row">
-                <div class="toggle-label">
-                  <span class="toggle-title">Lembrete de streak</span>
-                  <span class="toggle-sub">Avisa para não perder a sequência</span>
-                </div>
-                <button class="toggle-switch" id="set-toggle-streak" data-on="0" aria-pressed="false" aria-label="Ativar lembrete de streak">
-                  <span class="toggle-knob"></span>
-                </button>
-              </div>
-              <div class="diet-field">
-                <label>Horário do lembrete</label>
-                <input type="time" id="set-streak-time" value="20:00" />
-              </div>
-              <p class="api-key-help" id="notif-hint">Gere um plano alimentar na aba Meu Plano para configurar lembretes por refeição.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 6. Exportar dados -->
-        <div class="settings-section" data-section="export">
-          <button class="settings-section-header" type="button">
-            <i data-lucide="download" style="width:20px;height:20px"></i>
-            <span>Exportar dados</span>
-            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
-          </button>
-          <div class="settings-section-body">
-            <div class="settings-section-body-inner">
-              <p class="api-key-help">Baixe o historico de refeicoes em JSON ou CSV para usar em outros apps ou fazer backup.</p>
-              <div class="settings-actions-row">
-                <button class="btn-secondary" id="btn-export-json">
-                  <i data-lucide="file-json" style="width:16px;height:16px"></i> Exportar JSON
-                </button>
-                <button class="btn-secondary" id="btn-export-csv">
-                  <i data-lucide="file-text" style="width:16px;height:16px"></i> Exportar CSV
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 7. Tema visual -->
-        <div class="settings-section" data-section="theme">
-          <button class="settings-section-header" type="button">
-            <i data-lucide="palette" style="width:20px;height:20px"></i>
-            <span>Tema visual</span>
-            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
-          </button>
-          <div class="settings-section-body">
-            <div class="settings-section-body-inner">
-              <div class="theme-grid" id="set-theme-grid"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 8. Sobre o app -->
-        <div class="settings-section" data-section="about">
-          <button class="settings-section-header" type="button">
-            <i data-lucide="info" style="width:20px;height:20px"></i>
-            <span>Sobre o app</span>
-            <i data-lucide="chevron-down" class="settings-section-chevron"></i>
-          </button>
-          <div class="settings-section-body">
-            <div class="settings-section-body-inner">
-              <div class="about-row"><span class="about-label">Versao</span><span class="about-value" id="about-version">—</span></div>
-              <div class="about-row"><span class="about-label">Desenvolvedor</span><span class="about-value" id="about-developer">—</span></div>
-              <div class="about-row"><span class="about-label">Suporte</span><a class="about-link" href="https://nutrifoto-rose.vercel.app" target="_blank" rel="noopener">nutrifoto-rose.vercel.app</a></div>
-              <p class="api-key-help api-key-help-about">NutriFoto analisa suas refeicoes por foto usando IA. As metas diarias ficam aqui no app; o perfil pessoal (idade, peso, objetivo, restricoes) fica na aba <strong>Meu Plano</strong> e alimenta o plano alimentar gerado por IA.</p>
-              <div class="settings-actions-row" style="margin-top:16px">
-                <button class="btn-secondary" id="btn-restart-onboarding">
-                  <i data-lucide="book-open" style="width:16px;height:16px"></i> Ver tutorial novamente
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="sticky-save">
-          <button class="btn-primary" id="btn-save-settings">
-            <i data-lucide="save" style="width:18px;height:18px"></i> Salvar tudo
-          </button>
-        </div>
-      </main>
-    </section>
 
     <!-- ============ DIET PLAN ============ -->
-    <section id="screen-diet" class="screen">
-      <header class="header">
-        <div class="header-row">
-          <h2>Meu Plano</h2>
-          <button class="icon-btn" id="btn-edit-profile" aria-label="Editar perfil">
-            <i data-lucide="pencil" style="width:18px;height:18px"></i>
-          </button>
-        </div>
-      </header>
-      <main class="main main-diet" id="diet-main">
-        <!-- Form mode -->
-        <div id="diet-form-container">
-          <div id="diet-form-content">
-            <!-- will be rendered by dietPlan.js -->
-          </div>
-        </div>
 
-        <!-- Loading state -->
-        <div class="bowl-loader-container" id="diet-skeleton" style="display:none">
-          <svg viewBox="0 0 120 140" class="bowl-loader">
-            <defs>
-              <clipPath id="bowl-clip-diet">
-                <path d="M22,50 Q22,108 60,113 Q98,108 98,50 Z"/>
-              </clipPath>
-            </defs>
-            <path class="bowl-steam bowl-steam-1" d="M42,32 Q47,22 52,32 Q57,42 62,32" stroke="var(--text-muted)" fill="none" stroke-width="2.5" stroke-linecap="round"/>
-            <path class="bowl-steam bowl-steam-2" d="M56,28 Q61,18 66,28 Q71,38 76,28" stroke="var(--text-muted)" fill="none" stroke-width="2.5" stroke-linecap="round"/>
-            <path d="M20,50 Q20,110 60,115 Q100,110 100,50" stroke="var(--border)" fill="none" stroke-width="3" stroke-linecap="round"/>
-            <line x1="15" y1="50" x2="105" y2="50" stroke="var(--border)" stroke-width="3" stroke-linecap="round"/>
-            <rect x="22" y="113" width="76" height="65" fill="var(--jade)" clip-path="url(#bowl-clip-diet)">
-              <animate attributeName="y" values="113;50;50;113" keyTimes="0;0.45;0.75;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1"/>
-              <animate attributeName="height" values="65;65;65;65" dur="3s" repeatCount="indefinite"/>
-            </rect>
-            <path fill="var(--jade)" opacity="0.85" clip-path="url(#bowl-clip-diet)">
-              <animate attributeName="d" values="M22,50 Q40,44 60,50 Q80,56 98,50;M22,48 Q38,54 60,48 Q82,42 98,48;M22,50 Q40,44 60,50 Q80,56 98,50;M22,52 Q42,46 60,52 Q78,58 98,52;M22,50 Q40,44 60,50 Q80,56 98,50" dur="3s" repeatCount="indefinite"/>
-            </path>
-          </svg>
-          <p class="bowl-loader-text" id="bowl-text-diet">Gerando seu plano...</p>
-        </div>
-
-        <!-- Plan view -->
-        <div id="diet-plan-view" style="display:none">
-          <div class="plan-header-card">
-            <div class="plan-header-top">
-              <div class="plan-tdee-card">
-                <div class="plan-tdee-label">TDEE (gasto diário)</div>
-                <div class="plan-tdee-value" id="plan-tdee-val">0</div>
-                <div class="plan-tdee-sub">kcal/dia</div>
-              </div>
-              <div class="plan-meta-card">
-                <div class="plan-meta-label">Meta calórica</div>
-                <div class="plan-meta-value" id="plan-meta-val">0</div>
-                <div class="plan-meta-sub">kcal/dia</div>
-              </div>
-            </div>
-            <div class="plan-objective" id="plan-objective">Objetivo</div>
-          </div>
-
-          <div class="plan-section-title">Distribuição de macros</div>
-          <div class="macro-bars plan-macro-bars" id="plan-macro-bars"></div>
-
-          <div class="plan-section-title">Refeições sugeridas</div>
-          <div class="plan-meals-timeline" id="plan-meals-timeline"></div>
-
-          <div class="sticky-save">
-            <button class="btn-secondary" id="btn-edit-form">
-              <i data-lucide="edit-3" style="width:16px;height:16px"></i> Editar formulário
-            </button>
-            <button class="btn-primary" id="btn-apply-goals">
-              <i data-lucide="target" style="width:18px;height:18px"></i> Aplicar às metas diárias
-            </button>
-            <button class="btn-secondary" id="btn-regen-plan" style="margin-top:8px">
-              <i data-lucide="refresh-cw" style="width:16px;height:16px"></i> Gerar novo plano
-            </button>
-          </div>
-        </div>
-      </main>
-    </section>
 
     <!-- ============ CONFIRMATION OVERLAY ============ -->
     <div class="confirm-overlay" id="confirm-overlay" style="display:none">
@@ -577,151 +204,9 @@
     </div>
 
     <!-- ============ ONBOARDING ============ -->
-    <section id="screen-onboarding" class="screen">
-      <div class="onboarding-container">
-        <div class="onboarding-header">
-          <button class="onboarding-skip-btn" aria-label="Pular tutorial">Pular</button>
-          <button class="onboarding-close" aria-label="Fechar">
-            <i data-lucide="x"></i>
-          </button>
-        </div>
-        <div class="onboarding-content">
-          <div class="onboarding-track">
-            <div class="onboarding-dot active" data-step="1"></div>
-            <div class="onboarding-dot" data-step="2"></div>
-            <div class="onboarding-dot" data-step="3"></div>
-          </div>
-          <div class="onboarding-step active" id="onboarding-step-1">
-            <div class="onboarding-icon">
-              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-                <!-- Prato oval -->
-                <ellipse cx="32" cy="44" rx="26" ry="10" stroke="var(--text-muted)" stroke-width="2" fill="none"/>
-                <ellipse cx="32" cy="44" rx="20" ry="7" stroke="var(--border)" stroke-width="1" fill="none" stroke-dasharray="3 2"/>
 
-                <!-- Moldura da câmera (tracejada, pulsante) -->
-                <rect x="16" y="12" width="32" height="26" rx="3" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="4 3" fill="none" opacity="0.7">
-                  <animate attributeName="opacity" values="0.7;0.3;0.7" dur="2s" repeatCount="indefinite"/>
-                </rect>
-                <!-- Cantos em L -->
-                <path d="M16 18 L16 12 L22 12" stroke="var(--jade)" stroke-width="2" fill="none" stroke-linecap="round"/>
-                <path d="M42 12 L48 12 L48 18" stroke="var(--jade)" stroke-width="2" fill="none" stroke-linecap="round"/>
-                <path d="M16 32 L16 38 L22 38" stroke="var(--jade)" stroke-width="2" fill="none" stroke-linecap="round"/>
-                <path d="M42 38 L48 38 L48 32" stroke="var(--jade)" stroke-width="2" fill="none" stroke-linecap="round"/>
 
-                <!-- Alimentos aparecendo no prato em sequência -->
-                <!-- Alimento 1: círculo -->
-                <circle cx="26" cy="42" r="4" fill="var(--text)" opacity="0">
-                  <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.45;0.6" dur="3.6s" repeatCount="indefinite"/>
-                </circle>
-                <!-- Alimento 2: retângulo arredondado -->
-                <rect x="34" y="39" width="10" height="6" rx="2" fill="var(--jade)" opacity="0">
-                  <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.35;0.65;0.8" dur="3.6s" repeatCount="indefinite"/>
-                </rect>
-                <!-- Alimento 3: círculo menor -->
-                <circle cx="22" cy="46" r="3" fill="var(--blue)" opacity="0">
-                  <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.55;0.85;1" dur="3.6s" repeatCount="indefinite"/>
-                </circle>
-
-                <!-- Brilho/estrela ao final do ciclo -->
-                <g opacity="0">
-                  <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.82;0.9;1" dur="3.6s" repeatCount="indefinite"/>
-                  <line x1="48" y1="14" x2="54" y2="8" stroke="var(--jade)" stroke-width="1.5" stroke-linecap="round"/>
-                  <line x1="54" y1="14" x2="48" y2="8" stroke="var(--jade)" stroke-width="1.5" stroke-linecap="round"/>
-                  <line x1="51" y1="7" x2="51" y2="15" stroke="var(--jade)" stroke-width="1" stroke-linecap="round"/>
-                  <line x1="47" y1="11" x2="55" y2="11" stroke="var(--jade)" stroke-width="1" stroke-linecap="round"/>
-                </g>
-              </svg>
-            </div>
-            <h2>Bem-vindo ao NutriFoto!</h2>
-            <p>Tire uma foto (ou digite o nome) do que você vai comer, e a IA calcula os macros pra você automaticamente.</p>
-            <button class="onboarding-next-btn">Próximo</button>
-          </div>
-          <div class="onboarding-step" id="onboarding-step-2">
-            <div class="onboarding-icon">
-              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-                <!-- Engrenagem maior (horário) -->
-                <g style="transform-origin: 24px 32px;">
-                  <animateTransform attributeName="transform" type="rotate" from="0 24 32" to="360 24 32" dur="4s" repeatCount="indefinite"/>
-                  <circle cx="24" cy="32" r="8" stroke="var(--jade)" stroke-width="2.5" fill="none"/>
-                  <circle cx="24" cy="32" r="3" fill="var(--jade)"/>
-                  <!-- Dentes da engrenagem -->
-                  <rect x="21" y="21" width="6" height="4" rx="1" fill="var(--jade)"/>
-                  <rect x="21" y="39" width="6" height="4" rx="1" fill="var(--jade)"/>
-                  <rect x="13" y="29" width="4" height="6" rx="1" fill="var(--jade)"/>
-                  <rect x="31" y="29" width="4" height="6" rx="1" fill="var(--jade)"/>
-                  <rect x="14.5" y="22.5" width="5" height="3.5" rx="1" fill="var(--jade)" transform="rotate(-45 17 24.25)"/>
-                  <rect x="28.5" y="38" width="5" height="3.5" rx="1" fill="var(--jade)" transform="rotate(-45 31 39.75)"/>
-                  <rect x="28.5" y="22.5" width="5" height="3.5" rx="1" fill="var(--jade)" transform="rotate(45 31 24.25)"/>
-                  <rect x="14.5" y="38" width="5" height="3.5" rx="1" fill="var(--jade)" transform="rotate(45 17 39.75)"/>
-                </g>
-                <!-- Engrenagem menor (anti-horário) -->
-                <g style="transform-origin: 44px 28px;">
-                  <animateTransform attributeName="transform" type="rotate" from="0 44 28" to="-360 44 28" dur="2.8s" repeatCount="indefinite"/>
-                  <circle cx="44" cy="28" r="6" stroke="var(--blue)" stroke-width="2" fill="none"/>
-                  <circle cx="44" cy="28" r="2.5" fill="var(--blue)"/>
-                  <!-- Dentes da engrenagem menor -->
-                  <rect x="42" y="20" width="4" height="3" rx="1" fill="var(--blue)"/>
-                  <rect x="42" y="33" width="4" height="3" rx="1" fill="var(--blue)"/>
-                  <rect x="36" y="26.5" width="3" height="4" rx="1" fill="var(--blue)"/>
-                  <rect x="49" y="26.5" width="3" height="4" rx="1" fill="var(--blue)"/>
-                  <rect x="38" y="21" width="3.5" height="2.5" rx="1" fill="var(--blue)" transform="rotate(-45 39.75 22.25)"/>
-                  <rect x="46" y="32.5" width="3.5" height="2.5" rx="1" fill="var(--blue)" transform="rotate(-45 47.75 33.75)"/>
-                  <rect x="46" y="21" width="3.5" height="2.5" rx="1" fill="var(--blue)" transform="rotate(45 47.75 22.25)"/>
-                  <rect x="38" y="32.5" width="3.5" height="2.5" rx="1" fill="var(--blue)" transform="rotate(45 39.75 33.75)"/>
-                </g>
-              </svg>
-            </div>
-            <h2>Personalize seu plano</h2>
-            <p>Configure sua meta de calorias e macros em Configurações, ou gere um plano alimentar completo baseado no seu perfil em 'Meu Plano'.</p>
-            <button class="onboarding-next-btn">Próximo</button>
-          </div>
-          <div class="onboarding-step" id="onboarding-step-3">
-            <div class="onboarding-icon">
-              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-                <!-- Estrelas estáticas ao fundo -->
-                <circle cx="10" cy="12" r="1.5" fill="var(--text-muted)" opacity="0.3"/>
-                <circle cx="54" cy="8" r="1" fill="var(--text-muted)" opacity="0.5"/>
-                <circle cx="8" cy="50" r="1" fill="var(--text-muted)" opacity="0.4"/>
-                <circle cx="56" cy="44" r="1.5" fill="var(--text-muted)" opacity="0.25"/>
-
-                <!-- Foguete com flutuação vertical -->
-                <g>
-                  <animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur="2s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1"/>
-
-                  <!-- Corpo do foguete -->
-                  <path d="M32 10 C32 10 26 20 26 34 L38 34 C38 20 32 10 32 10Z" fill="var(--jade)"/>
-
-                  <!-- Bico (ponta) -->
-                  <path d="M32 6 L29 12 L35 12 Z" fill="var(--jade)"/>
-
-                  <!-- Janela circular -->
-                  <circle cx="32" cy="22" r="3" fill="var(--bg)" stroke="var(--surface-2)" stroke-width="1"/>
-                  <circle cx="32" cy="22" r="1.5" fill="var(--surface-2)"/>
-
-                  <!-- Aleta esquerda -->
-                  <path d="M26 30 L20 36 L26 34 Z" fill="var(--blue)"/>
-
-                  <!-- Aleta direita -->
-                  <path d="M38 30 L44 36 L38 34 Z" fill="var(--blue)"/>
-
-                  <!-- Chama pulsante -->
-                  <g opacity="1">
-                    <animate attributeName="opacity" values="1;0.4;1;0.5;1" dur="0.4s" repeatCount="indefinite"/>
-                    <path d="M29 34 L32 42 L35 34 Z" fill="var(--coral)"/>
-                    <path d="M30 34 L32 39 L34 34 Z" fill="var(--orange)" opacity="0.8"/>
-                  </g>
-                </g>
-              </svg>
-            </div>
-            <h2>Tudo pronto!</h2>
-            <p>Toque em '+' para registrar sua primeira refeição.</p>
-            <button class="onboarding-start-btn">Começar</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="toast" id="toast"></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <nav class="nav">
       <button class="nav-btn active" data-screen="dashboard">
@@ -742,7 +227,6 @@
       </button>
     </nav>
   </div>
-   <script src="js/config.local.js"></script>
    <script type="module" src="js/app.js"></script>
 </body>
 </html>

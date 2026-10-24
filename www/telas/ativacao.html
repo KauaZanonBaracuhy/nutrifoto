@@ -1,0 +1,34 @@
+<section id="screen-ativacao" class="screen">
+  <header class="header"><h2>Seu NutriFoto</h2><span id="licenca-versao" class="api-key-help">Licença por dispositivo</span></header>
+  <main class="main">
+    <div class="perfil-introducao"><span class="estado-etiqueta"><i data-lucide="shield-check"></i> Ativação segura</span><h3>Seu cuidado, no seu ritmo</h3><p>Sua licença permite utilizar o NutriFoto em um dispositivo por vez.</p></div>
+    <div class="diet-section"><p id="licenca-status" role="status">Preparando a instalação…</p><p id="licenca-dias"></p><p id="licenca-uso"></p><p id="licenca-ambiente" class="api-key-help">Ambiente de testes. Não faça pagamentos reais.</p></div>
+    <div id="licenca-ofertas"></div>
+    <p class="api-key-help">30 dias corridos, sem renovação automática. Ao renovar o mesmo plano antes do vencimento, você mantém os dias restantes. Franquias diárias renovadas à meia-noite de Brasília, sujeitas ao orçamento operacional de IA.</p>
+    <label class="diet-section licenca-ciencia"><input id="licenca-ciencia" type="checkbox"><span>Autorizo enviar o texto ou a foto escolhida ao serviço de IA para estimar os alimentos. Revisarei o resultado antes de salvar.</span></label>
+    <form id="licenca-pagador" novalidate>
+      <div class="diet-field"><label for="licenca-nome">Nome do pagador</label><input id="licenca-nome" autocomplete="name" maxlength="100" required minlength="3"></div>
+      <div class="diet-field"><label for="licenca-documento">CPF ou CNPJ do pagador</label><input id="licenca-documento" inputmode="numeric" autocomplete="off" required maxlength="18"></div>
+      <p class="api-key-help">Dados enviados ao processador do Pix. Não é necessário criar login ou senha.</p>
+      <button id="licenca-pagar" class="btn-primary" type="submit">Pagar com Pix</button>
+    </form>
+    <div id="licenca-pix" class="diet-section" hidden>
+      <h3>Seu Pix de teste</h3><img id="licenca-qr" alt="QR Code Pix sandbox" width="240" height="240">
+      <div class="diet-field"><label for="licenca-copia">Pix Copia e Cola</label><textarea id="licenca-copia" readonly rows="3"></textarea></div>
+      <button id="licenca-copiar" class="btn-secondary" type="button">Copiar código Pix</button>
+      <p class="api-key-help">A ativação ocorre somente após confirmação no servidor. Comprovantes não liberam a licença.</p>
+    </div>
+    <p id="licenca-erro" role="alert"></p>
+    <button id="licenca-atualizar" class="btn-secondary" type="button">Atualizar ativação</button>
+    <details class="diet-section"><summary>Recuperar uma compra ou trocar de celular</summary>
+      <p class="api-key-help">Informe o código secreto guardado no aparelho anterior. A transferência encerra o acesso pago do aparelho antigo e mantém o prazo. Os dados alimentares são recuperados pelo seu backup.</p>
+      <div class="diet-field"><label for="licenca-recuperacao">Código de recuperação</label><input id="licenca-recuperacao" type="password" autocomplete="off" maxlength="43"></div>
+      <button id="licenca-transferir" class="btn-secondary" type="button">Transferir para este dispositivo</button>
+      <button id="licenca-guardar" class="btn-secondary" type="button">Gerar código de recuperação</button>
+      <p id="licenca-codigo" class="api-key-help" role="status"></p>
+      <p class="api-key-help">Guarde o código fora do celular. Ele permite transferir sua licença. Gerar outro invalida o anterior. Sem aparelho e sem código, a recuperação exige atendimento autorizado; nenhum comprovante ativa o aplicativo automaticamente.</p>
+    </details>
+    <button class="btn-secondary" data-ir-tela="dashboard" type="button">Continuar no diário local</button>
+    <p class="api-key-help">Se a licença vencer, seus registros e backups continuam preservados. IA não substitui avaliação profissional. Planos clínicos e aplicação automática de metas permanecem bloqueados.</p>
+  </main>
+</section>
