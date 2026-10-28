@@ -28,6 +28,14 @@
       <p id="licenca-codigo" class="api-key-help" role="status"></p>
       <p class="api-key-help">Guarde o código fora do celular. Ele permite transferir sua licença. Gerar outro invalida o anterior. Sem aparelho e sem código, a recuperação exige atendimento autorizado; nenhum comprovante ativa o aplicativo automaticamente.</p>
     </details>
+    <details class="diet-section" id="licenca-proprietario">
+      <summary>Acesso do proprietário</summary>
+      <p class="api-key-help">Ativação exclusiva do proprietário, sem pagamento. A licença mantém os limites de IA e permite um dispositivo por vez. Para recuperar uma compra, use a opção acima.</p>
+      <form id="licenca-proprietario-form" novalidate>
+        <div class="diet-field"><label for="licenca-proprietario-codigo">Código privado do proprietário</label><input id="licenca-proprietario-codigo" type="password" autocomplete="off" minlength="12" maxlength="128" spellcheck="false"></div>
+        <button id="licenca-proprietario-ativar" class="btn-secondary" type="submit">Ativar licença do proprietário</button>
+      </form>
+    </details>
     <button class="btn-secondary" data-ir-tela="dashboard" type="button">Continuar no diário local</button>
     <p class="api-key-help">Se a licença vencer, seus registros e backups continuam preservados. IA não substitui avaliação profissional. Planos clínicos e aplicação automática de metas permanecem bloqueados.</p>
   </main>

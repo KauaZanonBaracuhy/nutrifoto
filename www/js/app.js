@@ -1,5 +1,6 @@
 import { adicionarCopo } from "./db.js";
 import { iniciarLicenca } from './licenca.js';
+import { iniciarPremiumLocal } from './premiumLocal.js';
 import { captureFromCamera, pickFromGallery } from "./camera.js";
 import { montarTelas } from "./navegacao.js";
 import { iniciarConta, vincularConta } from "./conta.js";
@@ -191,6 +192,7 @@ async function iniciarAplicativo() {
   if(!window.NutriFotoAndroid&&!window.NutriFotoDesktop)iniciarAtualizacoes(avisar);
   iniciarAmbienteNativo({mostrarTela,definirImagem:definirImagemCaptura,definirModo:definirModoCaptura,avisar});
   await iniciarLicenca();
+  iniciarPremiumLocal();
   if (window.NutriFotoAndroid) mostrarTela('ativacao');
 }
 iniciarAplicativo().catch(erro=>{document.querySelector('#erro-inicial').textContent=erro.message+' Recarregue para tentar novamente.';});

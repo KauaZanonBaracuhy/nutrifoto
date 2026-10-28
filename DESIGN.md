@@ -74,3 +74,6 @@ O anel inicial mantém a assinatura visual, com 198 px e 180 px nas telas menore
 - Mostrar estimativa, fonte e revisão necessária junto do resultado.
 - Não prometer segurança clínica ou precisão de balança.
 - Não preencher progresso fictício ou ocultar erro de sincronização.
+
+### Apresentação Premium local — 28/10/2026
+Por solicitação do proprietário, o Premium local usa rótulos de produto (“Plano Premium”, “Seu Premium”), com etiqueta discreta api-key-help no painel. Foram retirados apenas avisos de ambiente e instruções técnicas da jornada; fonte, cores, navegação, dados, consentimento, estimativas e proteções clínicas permanecem. Esta variante não cria status de pagamento nem altera o vínculo Android.

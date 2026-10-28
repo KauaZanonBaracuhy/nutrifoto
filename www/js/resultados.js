@@ -113,7 +113,8 @@ export function atualizarTotais() {
 
 export let salvandoRefeicao = false;
 export async function salvarRefeicaoAtual() {
-  if (salvandoRefeicao || !estado.currentAnalysis?.alimentos.length) return;
+  if (salvandoRefeicao) return;
+  if (!estado.currentAnalysis?.alimentos.length) { avisar('Nenhum alimento identificado. Volte e descreva os alimentos ou escolha outra foto.', true);return; }
   if (!$('#foods-list').querySelector('input:invalid') && estado.currentAnalysis.alimentos.every(alimento => alimento.porcao_estimada_g > 0)) {
     salvandoRefeicao = true; const botao = $('#btn-save-meal'); botao.disabled = true; botao.setAttribute('aria-busy','true');
     try {

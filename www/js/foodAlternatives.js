@@ -34,6 +34,8 @@ function perfilPermiteAlternativa(alternativa, perfil) {
 }
 
 export function getAlternatives(categoria, perfil = {}) {
+  categoria = normalizarTexto(categoria);
+  if (['cereal','cereais'].includes(categoria)) categoria = 'carboidrato';
   return (ALTERNATIVAS[categoria] || []).filter(alternativa => perfilPermiteAlternativa(alternativa, perfil)).map(alternativa => alternativa.nome);
 }
 

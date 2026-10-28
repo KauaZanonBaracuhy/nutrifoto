@@ -10,7 +10,7 @@ function normalizarFonte(texto,nome){const fonte=texto.replace(/\r\n/g,'\n');ret
 (async()=>{try{
  let pronta=false;for(let i=0;i<200;i++){try{if((await fetch(origem+'/api/saude')).ok){pronta=true;break;}}catch{}await new Promise(r=>setTimeout(r,100));}assert(pronta,'Wrangler não iniciou: '+logs.slice(-1500));
  await verificar('API real Workers: versão, planos, configuração ausente e métodos',async()=>{
-  const versao=await(await fetch(origem+'/api/versao')).json();assert.equal(versao.versao,'0.3.2');
+  const versao=await(await fetch(origem+'/api/versao')).json();assert.equal(versao.versao,JSON.parse(fs.readFileSync(path.join(raiz,'package.json'),'utf8')).version);
   const oferta=await(await fetch(origem+'/api/licenca')).json();assert.deepEqual(oferta.planos.map(p=>[p.centavos,p.fotos]),[[2490,50],[3490,100]]);
   for(const rota of ['conta','dados','ia','operacao','manutencao']){const r=await fetch(origem+'/api/'+rota);assert.equal(r.status,503,rota);assert.match(r.headers.get('content-type'),/json/);assert.equal(r.headers.get('cache-control'),'no-store');}
   assert.equal((await fetch(origem+'/api/inexistente',{headers:{'Sec-Fetch-Mode':'navigate'}})).status,404);assert.equal((await fetch(origem+'/api/asaas-webhook')).status,405);
@@ -26,7 +26,7 @@ function normalizarFonte(texto,nome){const fonte=texto.replace(/\r\n/g,'\n');ret
  const contexto=await navegador.newContext({viewport:{width:390,height:844}});
  const pagina=await contexto.newPage();pagina.on('pageerror',erro=>erros.push(erro.message));
  await verificar('Web no Wrangler: navegação, perfil e explicação de Pix sem login',async()=>{
-  await pagina.goto(origem+'/?tela=ativacao');await pagina.locator('#licenca-versao').filter({hasText:'0.3.2'}).waitFor();if(await pagina.locator('.onboarding-skip-btn').isVisible())await pagina.locator('.onboarding-skip-btn').click();
+  await pagina.goto(origem+'/?tela=ativacao');await pagina.locator('#licenca-versao').filter({hasText:JSON.parse(fs.readFileSync(path.join(raiz,'package.json'),'utf8')).version}).waitFor();if(await pagina.locator('.onboarding-skip-btn').isVisible())await pagina.locator('.onboarding-skip-btn').click();
   await pagina.locator('#licenca-pagar').click();await pagina.locator('#licenca-erro').filter({hasText:'nenhum Pix será criado aqui'}).waitFor();
   for(const tela of ['dashboard','history','settings','diet']){await pagina.locator('.nav-btn[data-screen='+tela+']').click();await pagina.locator('#screen-'+tela+'.active').waitFor();}
   for(const [campo,valor]of[['dp-idade','30'],['dp-peso','70'],['dp-altura','170']]){await pagina.locator('#'+campo).evaluate(e=>{const d=e.closest('details');if(d)d.open=true;});await pagina.locator('#'+campo).fill(valor);}

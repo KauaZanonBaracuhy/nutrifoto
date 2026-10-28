@@ -1,4 +1,4 @@
-const VERSAO_CACHE='nutrifoto-estatico-b6075cc6808b9ff0';
+const VERSAO_CACHE='nutrifoto-estatico-7abc1935811ac5e1';
 self.addEventListener('install',evento=>{evento.waitUntil(fetch('/precache.json').then(resposta=>resposta.json()).then(arquivos=>caches.open(VERSAO_CACHE).then(cache=>cache.addAll(arquivos))));});
 self.addEventListener('activate',evento=>{evento.waitUntil(caches.keys().then(chaves=>Promise.all(chaves.filter(chave=>chave.startsWith('nutrifoto-estatico-')&&chave!==VERSAO_CACHE).map(chave=>caches.delete(chave)))));});
 // A atualização só substitui uma versão aberta após ação explícita do usuário.

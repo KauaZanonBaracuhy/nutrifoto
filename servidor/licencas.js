@@ -6,6 +6,7 @@ import { criarAsaas } from './asaas.js';
 import { validarAtestadoAndroid } from './atestado-android.js';
 import { validarPedidoIA, executarIA } from './ia.js';
 import { obterOrcamentoIA } from './custos.js';
+import { validarCodigoProprietario } from './proprietario.js';
 
 async function atualizarLicenca(repositorio, id, alterar) {
   for (let tentativa = 0; tentativa < 12; tentativa++) {
@@ -86,7 +87,13 @@ export function criarApiLicencas({ ambiente = process.env, repositorio: adaptado
       }
       const operacao = pedido.pedido;
       let resultado;
-      if (operacao.acao === 'situacao') {
+      if (operacao.acao === 'proprietario') {
+        await repositorio.executar('nf_limitar', { p_chave: 'proprietario:rede:' + resumir((ambiente.RATE_LIMIT_SALT || '') + endereco), p_limite: 5, p_janela: 3600 });
+        await repositorio.executar('nf_limitar', { p_chave: 'proprietario:dispositivo:' + chave, p_limite: 5, p_janela: 3600 });
+        const dias = await validarCodigoProprietario(operacao.codigo, ambiente);
+        registro = await repositorio.executar('nf_licenca_proprietario_ativar', { p_id: registro.id, p_dispositivo: chave, p_dias: dias });
+        resultado = situacaoLicenca(registro, ambiente);
+      } else if (operacao.acao === 'situacao') {
         const pendente = operacao.compra || Object.keys(registro.estado.compras).find(id => { const compra = registro.estado.compras[id]; return !compra.creditada && !compra.revertida && !['CANCELLED','DELETED','OVERDUE'].includes(compra.status); });
         let qr = null;
         if (pendente) {
@@ -106,6 +113,7 @@ export function criarApiLicencas({ ambiente = process.env, repositorio: adaptado
         const transferida = await repositorio.executar('nf_licenca_transferir', { p_atual: registro.id, p_codigo: resumir(operacao.codigo), p_chave: chave, p_publica: publica });
         resultado = situacaoLicenca(transferida, ambiente);
       } else if (operacao.acao === 'pix') {
+        if (registro.estado.origem === 'proprietario') falhar(409, 'Esta é uma licença do proprietário. A validade é administrada pelo responsável, sem Pix.');
         const plano = planoLicenca(operacao.plano, ambiente), referencia = operacao.intencao;
         const dados = operacao.pagador || {};
         if (typeof dados.nome !== 'string' || dados.nome.trim().length < 3 || dados.nome.length > 100 || !/^\d{11}$|^\d{14}$/.test(dados.documento || '')) falhar(400, 'Informe nome e CPF/CNPJ válidos para o pagamento.');
@@ -119,6 +127,7 @@ export function criarApiLicencas({ ambiente = process.env, repositorio: adaptado
         let criar = false;
         registro = await atualizarLicenca(repositorio, registro.id, (estado, atual) => {
           criar = false;if (atual.chave !== chave) falhar(403, 'Licença transferida.');
+          if (estado.origem === 'proprietario') falhar(409, 'Esta é uma licença do proprietário. A validade é administrada pelo responsável, sem Pix.');
           if (estado.bloqueada) falhar(403, 'Pagamento em revisão. Procure o suporte.');
           if (!estado.compras[referencia]) {
             if (Object.values(estado.compras).some(compra => !compra.creditada && !compra.revertida && !['CANCELLED', 'DELETED', 'OVERDUE'].includes(compra.status))) falhar(409, 'Atualize a compra pendente antes de criar outra.');
@@ -148,7 +157,7 @@ export function criarApiLicencas({ ambiente = process.env, repositorio: adaptado
         resultado = { compra: referencia, status: compra.status, qr, ...situacaoLicenca(registro, ambiente) };
       } else if (operacao.acao === 'autorizar') {
         const situacao = situacaoLicenca(registro, ambiente);
-        if (!situacao.ativa || operacao.recurso !== 'acompanhamento' || !situacao.acompanhamento) falhar(403, 'Este recurso exige uma licença NutriFoto Completo vigente. Seus dados anteriores continuam preservados.');
+        if (!situacao.ativa || operacao.recurso !== 'acompanhamento' || !situacao.acompanhamento) falhar(403, 'Este recurso exige o plano com Meu Plano alimentar vigente. Seus dados anteriores continuam preservados.');
         resultado = { autorizado: true };
       } else if (operacao.acao === 'analise') {
         if (operacao.ciencia !== true) falhar(403, 'Confirme o envio da imagem ou texto à IA.');

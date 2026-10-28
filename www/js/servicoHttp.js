@@ -28,11 +28,11 @@ export async function requisitarApi(caminho, opcoes = {}) {
     const revalidando=protegeConta&&Boolean(obterContaOffline());
     if (!tokenProtecao||revalidando) await consultarSessao(controle.signal);
     const sessaoDoPedido=sessaoAtual;
-    if(usaIa&&!sessaoDoPedido?.usuario)throw new Error('A IA não está disponível neste acesso de demonstração Web. Use a busca TACO local ou ative um plano no aplicativo Android quando o serviço estiver configurado.');
+    if(usaIa&&!sessaoDoPedido?.usuario&&!sessaoDoPedido?.iaLocal)throw new Error('A IA não está disponível neste acesso de demonstração Web. Use a busca TACO local ou ative um plano no aplicativo Android quando o serviço estiver configurado.');
     if(protegeConta&&contaEsperada&&sessaoDoPedido?.usuario?.id!==contaEsperada){invalidarContextoConta();throw Object.assign(new Error('A conta mudou ou a sessão terminou. Entre novamente antes de continuar.'),{status:409,codigo:'CONTA_ALTERADA'});}
     if(contaEsperada&&obterContaArmazenamento()!==contaEsperada)throw new Error('A conta mudou durante a operação. Tente novamente.');
     if(revalidando){lembrarContaVerificada(sessaoDoPedido?.usuario?.id);if(typeof window!=='undefined')window.dispatchEvent(new Event('nutrifoto:conta-revalidada'));}
-    const intencaoIa=usaIa?await reservarChaveIa(sessaoDoPedido?.usuario?.id,opcoes.body):null;
+    const intencaoIa=usaIa?await reservarChaveIa(sessaoDoPedido?.iaLocal?'demonstracao-local':sessaoDoPedido?.usuario?.id,opcoes.body):null;
     const resposta = await fetch(caminho, { ...opcoes, credentials: 'same-origin', cache: 'no-store', signal: controle.signal,
       headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': tokenProtecao, 'X-Idempotency-Key': crypto.randomUUID(), ...(usaIa ? {'X-Ciencia-IA':'1'} : {}), ...opcoes.headers, ...(intencaoIa?{'X-Idempotency-Key':intencaoIa.chave}:{}), ...(contaEsperada?{'X-Conta-Esperada':contaEsperada}:{}) } });
     const conteudo = await resposta.json().catch(() => {

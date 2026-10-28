@@ -1,9 +1,10 @@
 {
   "name": "nutrifoto",
-  "version": "0.3.2",
+  "version": "0.3.4",
   "description": "Analise nutricional por foto usando IA (OpenRouter)",
   "type": "module",
   "scripts": {
+    "demo": "node scripts/iniciar-demonstracao.js",
     "build": "node scripts/preparar-publicacao.js",
     "build:web": "node scripts/preparar-publicacao.js",
     "serve": "node servidor/local.js",

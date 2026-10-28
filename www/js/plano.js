@@ -1,7 +1,7 @@
 
 import { getUserProfile, saveUserProfile, getCurrentPlan, saveCurrentPlan, gerarPlanoAlimentar } from "./dietPlan.js";
 import { getAlternatives, criarSubstituicao } from "./foodAlternatives.js";
-import { validarPerfil, validarPlano, somarNutrientes } from "./nutricao.js";
+import { validarPerfil, validarPlano, somarNutrientes, ajustarPorcao } from "./nutricao.js";
 import { getChaveLocal } from './storage.js';
 import { obterSessaoAtual } from './servicoHttp.js';
 import { agendarSincronizacao } from './sincronizacao.js';
@@ -275,6 +275,7 @@ function obterBloqueioPlano(){
   if(perfil.condicoesSaude)return 'Este perfil exige avaliação profissional. Salve seu perfil; a geração automática permanece bloqueada.';
   if(window.NutriFotoAndroid)return 'Geração de planos e aplicação automática de metas aguardam homologação nutricional. Seu perfil e seus rascunhos existentes continuam disponíveis.';
   const sessao=obterSessaoAtual();
+  if(sessao?.premiumLocal)return '';
   if(!sessao?.simulado&&!sessao?.planosDisponiveis)return window.NutriFotoDesktop?'Geração por IA indisponível nesta versão de teste. Você pode salvar seu perfil e consultar rascunhos existentes.':'A geração de planos aguarda homologação nutricional. Salvar seu perfil continua disponível.';
   if(!sessao.usuario)return 'A Web é uma demonstração. Você pode salvar seu perfil e consultar rascunhos existentes.';
   return '';
@@ -300,7 +301,7 @@ export function renderizarPlano(plan, profile) {
     gordura_g: plan.macros.gordura,
   };
   $('#plan-macro-bars').innerHTML=[['Proteínas',totals.proteina_g,'proteina'],['Carboidratos',totals.carboidrato_g,'carboidrato'],['Gorduras',totals.gordura_g,'gordura']].map(([nome,valor,tipo])=>`<div class="plano-macro ${tipo}"><span>${nome}</span><strong>${Number(valor).toLocaleString('pt-BR',{maximumFractionDigits:1})}<small> g</small></strong></div>`).join('');
-  $('#plan-aviso').textContent=plan.simulado?'Exemplo fictício de teste. Não utilize como plano alimentar.':'Rascunho para revisão profissional. Não altera suas metas diárias.';
+  $('#plan-aviso').textContent=plan.simulado?'Exemplo fictício de teste. Não utilize como plano alimentar.':plan.recuperadoLocal?'Sugestão real anterior recuperada sem nova chamada. Revise antes de utilizar.':'Rascunho para revisão profissional. Não altera suas metas diárias.';
 
   const timeline = $('#plan-meals-timeline');
   timeline.innerHTML = plan.refeicoes.map((r, ri) => `
@@ -315,6 +316,7 @@ export function renderizarPlano(plan, profile) {
             <div class="plan-meal-item-info">
               <span class="plan-meal-item-name">${escaparHtml(item.alimento)}</span>
               ${item.quantidade ? `<span class="plan-meal-item-qty">${escaparHtml(formatarQuantidadePlano(item.quantidade))}</span>` : ''}
+              ${obterSessaoAtual()?.premiumLocal?`<label>Porção (g)<input class="plan-porcao text-input-field" type="number" min="1" max="10000" value="${Number(item.porcao_estimada_g)}" aria-label="Porção de ${escaparHtml(item.alimento)}"></label>`:''}
             </div>
             <button class="plan-meal-swap-btn" data-refei="${ri}" data-item="${ii}" aria-label="Trocar ${escaparHtml(item.alimento)}" >
               <i data-lucide="refresh-cw" style="width:14px;height:14px"></i>
@@ -332,6 +334,29 @@ export function renderizarPlano(plan, profile) {
       const ri = Number(btn.dataset.refei);
       const ii = Number(btn.dataset.item);
       abrirSubstituicao(ri, ii, plan);
+    };
+  });
+  timeline.querySelectorAll('.plan-porcao').forEach(input => {
+    input.onchange = () => {
+      const elemento = input.closest('.plan-meal-item');
+      const ri = Number(elemento.dataset.refei), ii = Number(elemento.dataset.item);
+      try {
+        if (!input.checkValidity()) throw Error('Informe uma porção entre 1 e 10.000 g.');
+        validarPerfil(getUserProfile());
+        const copia = structuredClone(plan), item = copia.refeicoes[ri].itens[ii];
+        const novo = ajustarPorcao({...item, nome:item.alimento}, Number(input.value));
+        copia.refeicoes[ri].itens[ii] = {...item, ...novo, alimento:item.alimento, quantidade:novo.porcao_estimada_g+' g'};
+        for (const refeicao of copia.refeicoes) refeicao.kcalEstimada = somarNutrientes(refeicao.itens.map(i=>({...i,nome:i.alimento}))).calorias;
+        const total = somarNutrientes(copia.refeicoes.flatMap(r=>r.itens).map(i=>({...i,nome:i.alimento})));
+        copia.metaCalorica = total.calorias;
+        copia.macros = {proteina:total.proteina_g, carboidrato:total.carboidrato_g, gordura:total.gordura_g};
+        saveCurrentPlan(validarPlano(copia));
+        renderizarPlano(copia, getUserProfile());
+        avisar('Porção do rascunho salva');
+      } catch (e) {
+        avisar(e.message, true);
+        input.value = plan.refeicoes[ri].itens[ii].porcao_estimada_g;
+      }
     };
   });
 

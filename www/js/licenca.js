@@ -1,5 +1,6 @@
 import { reservarChaveIa, concluirChaveIa } from './chavesIa.js';
 import { VERSAO_APLICATIVO } from './base.js';
+import { obterSessaoAtual, consultarSessao } from './servicoHttp.js';
 let identidade, situacao, ocupado = false, temporizador, escolhaUsuario;
 const chaveCompra = 'nutrifoto.pixPendente';
 const elemento = id => document.getElementById(id);
@@ -23,6 +24,7 @@ export async function analisarComLicenca(dados, opcoes = {}) {
   if (sessionStorage.getItem('nutrifoto.cienciaIa') !== '1') throw new Error('Confirme o envio dos dados à IA em Seu NutriFoto · ativação.');
   if (opcoes.signal?.aborted) throw new DOMException('Cancelado', 'AbortError');
   situacao = await requisitarLicenca({ acao: 'situacao' });
+  if (!situacao.ativa && situacao.origem === 'proprietario') throw new Error(situacao.bloqueada ? 'Licença do proprietário revogada ou suspensa. Procure o responsável.' : 'Licença do proprietário vencida. Consulte o responsável para revisar a validade.');
   if (!situacao.ativa) throw new Error(situacao.bloqueada ? 'Seu pagamento está em revisão. Procure o atendimento em Seu NutriFoto.' : situacao.validade && new Date(situacao.validade) <= new Date() ? 'Seu acesso à IA terminou. Renove em Seu NutriFoto para continuar.' : 'Para utilizar a IA, ative um plano de 30 dias em Seu NutriFoto.');
   const oferta = situacao.planos.find(plano => plano.id === situacao.plano), foto = dados.tipo === 'foto';
   if (oferta && (foto ? situacao.uso?.fotos >= oferta.fotos : situacao.uso?.textos >= oferta.textos)) throw new Error('Você atingiu seu limite de análises de hoje. Ele será renovado amanhã, à meia-noite de Brasília.');
@@ -42,7 +44,7 @@ function mostrarOfertas(planos) {
     radio.onchange = () => { if (situacao?.ativa && situacao.plano !== plano.id) { radio.checked = false;recipiente.querySelector(`[value="${situacao.plano}"]`).checked = true;elemento('licenca-erro').textContent = 'Sua licença está vigente. Você pode renovar o plano atual; a troca de plano fica disponível após o vencimento.';return; } escolhaUsuario = plano.id; };
     const conteudo = document.createElement('span'), titulo = document.createElement('strong'), preco = document.createElement('b'), beneficios = document.createElement('span');
     titulo.textContent = plano.nome;preco.textContent = (plano.centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) + ' / 30 dias';
-    beneficios.textContent = `Até ${plano.fotos} fotos e ${plano.textos} análises textuais por dia. Reconhecimento alimentar e informações nutricionais.` + (plano.acompanhamento ? ' Acompanhamento, gráficos, peso, água e metas manuais.' : ' Diário alimentar e revisão das estimativas.');
+    beneficios.textContent = `Até ${plano.fotos} fotos e ${plano.textos} análises textuais por dia. Reconhecimento alimentar e informações nutricionais.` + (plano.acompanhamento ? ' Diário, gráficos, peso, água e metas manuais.' : ' Diário alimentar e revisão das estimativas.') + (plano.meuPlano ? plano.geracaoPlanoDisponivel ? ' Meu Plano alimentar.' : ' Meu Plano alimentar em preparação: geração e metas automáticas indisponíveis.' : '');
     conteudo.append(titulo, preco, beneficios);cartao.append(radio, conteudo);recipiente.append(cartao);
   }
 }
@@ -55,7 +57,8 @@ function atualizarEstado() {
   elemento('licenca-pagador').hidden = false;
   for (const id of ['licenca-nome', 'licenca-documento']) elemento(id).closest('.diet-field').hidden = !nativo;
   elemento('licenca-pagar').disabled = ocupado;
-  for (const id of ['licenca-atualizar', 'licenca-guardar', 'licenca-transferir']) elemento(id).disabled = ocupado;
+  if(situacao?.origem==='proprietario')elemento('licenca-status').textContent=situacao.bloqueada?'Licença do proprietário revogada ou suspensa. Procure o responsável.':situacao.ativa?'Licença do proprietário ativa neste dispositivo.':'Licença do proprietário vencida. Consulte o responsável para revisar a validade.';
+  for (const id of ['licenca-atualizar', 'licenca-guardar', 'licenca-transferir', 'licenca-proprietario-ativar']) elemento(id).disabled = ocupado;
 }
 async function executar(acao) {
   if (ocupado) return;ocupado = true;atualizarEstado();elemento('licenca-erro').textContent = '';
@@ -68,6 +71,7 @@ async function consultar() {
   try { situacao = await requisitarLicenca({ acao: 'situacao', ...(compra ? { compra } : {}) }); }
   catch (erro) { if (compra && erro.status === 404) { localStorage.removeItem(chaveCompra);situacao = await requisitarLicenca({ acao: 'situacao' }); } else throw erro; }
   mostrarOfertas(situacao.planos);atualizarEstado();elemento('licenca-erro').textContent = situacao.ativa ? 'Ativação atualizada. Sua licença continua ativa.' : situacao.bloqueada ? 'Pagamento em revisão. Procure o atendimento para resolver a suspensão.' : 'Consulta concluída. Escolha um plano e pague com Pix para ativar este dispositivo.';
+  if(situacao.origem==='proprietario')elemento('licenca-erro').textContent=situacao.ativa?'Licença do proprietário atualizada.':'Consulte o responsável pela validade ou revogação da licença do proprietário.';
   if (situacao.compraPendente) localStorage.setItem(chaveCompra, situacao.compraPendente);
   if (situacao.qr) mostrarPix(situacao.qr);
   if (!situacao.compraPendente || situacao.compraStatus === 'RECEIVED' || ['CANCELLED','DELETED','OVERDUE','REFUNDED','REVERTIDA'].includes(situacao.compraStatus) || situacao.bloqueada) { localStorage.removeItem(chaveCompra);elemento('licenca-pix').hidden = true;clearInterval(temporizador); }
@@ -77,14 +81,44 @@ function mostrarPix(qr) {
   elemento('licenca-qr').src = 'data:image/png;base64,' + qr.encodedImage;elemento('licenca-copia').value = qr.payload;elemento('licenca-pix').hidden = false;
 }
 export async function iniciarLicenca() {
+  if (obterSessaoAtual()?.premiumLocal) {
+    const introducao=document.querySelector('#screen-ativacao .perfil-introducao');
+    introducao.querySelector('h3').textContent='Seu Premium está pronto';
+    introducao.querySelector('p').textContent='Seus recursos de análise alimentar em um só lugar.';
+    elemento('licenca-versao').textContent='Plano Premium';
+    elemento('licenca-status').textContent='Seu acesso Premium está ativo.';
+    elemento('licenca-ambiente').textContent='Análise por foto e texto, Meu Plano alimentar, metas revisáveis e resumo dos seus registros.';
+    for(const id of ['licenca-ofertas','licenca-pagador','licenca-pix','licenca-proprietario'])elemento(id).hidden=true;
+    elemento('licenca-ofertas').nextElementSibling.hidden=true;
+    elemento('licenca-transferir').closest('details').hidden=true;
+    elemento('licenca-atualizar').onclick=async()=>{try{const s=await consultarSessao();elemento('licenca-erro').textContent=s.premiumLocal?'Seu acesso Premium está ativo.':'Seu acesso Premium não está ativo. Tente atualizar novamente.';}catch{elemento('licenca-erro').textContent='Não conseguimos conectar ao serviço. Verifique sua conexão e tente novamente. Seus registros estão preservados.';}};
+    elemento('licenca-ciencia').checked=sessionStorage.getItem('nutrifoto.cienciaIa')==='1';
+    elemento('licenca-ciencia').onchange=e=>{if(e.target.checked)sessionStorage.setItem('nutrifoto.cienciaIa','1');else sessionStorage.removeItem('nutrifoto.cienciaIa');};
+    for(const link of document.querySelectorAll('[data-ir-tela=conta],[data-ir-tela=assinatura]')){link.dataset.irTela='ativacao';link.textContent='Seu Premium';}
+    document.querySelector('#screen-ativacao [data-ir-tela=dashboard]').textContent='Voltar ao diário';
+    elemento('privacidade-excluir').hidden=true;return;
+  }
   elemento('licenca-versao').textContent = 'Licença por dispositivo · ' + VERSAO_APLICATIVO;
   elemento('privacidade-excluir').hidden = true;
   elemento('privacidade-apagar-local').textContent = 'Apagar registros locais deste dispositivo';
   for (const link of document.querySelectorAll('[data-ir-tela=conta],[data-ir-tela=assinatura]')) { link.dataset.irTela = 'ativacao';link.textContent = 'Seu NutriFoto · ativação'; }
   elemento('licenca-atualizar').onclick = () => executar(consultar);
+  elemento('licenca-proprietario-form').onsubmit = evento => {
+    evento.preventDefault();
+    const codigo=elemento('licenca-proprietario-codigo').value;
+    elemento('licenca-proprietario-codigo').value='';
+    executar(async()=>{
+      if(!window.NutriFotoAndroid)throw new Error('A Web é uma demonstração. Use o aplicativo Android para vincular a licença do proprietário com segurança.');
+      if(codigo.length<12||codigo.length>128)throw new Error('Informe o código privado completo do proprietário.');
+      situacao=await requisitarLicenca({acao:'proprietario',codigo});
+      mostrarOfertas(situacao.planos);atualizarEstado();
+      elemento('licenca-erro').textContent=situacao.ativa?'Licença do proprietário ativada neste dispositivo, sem pagamento.':'Licença do proprietário já registrada. Consulte o responsável pela validade.';
+    });
+  };
   elemento('licenca-pagador').onsubmit = evento => { evento.preventDefault();executar(async () => {
     if (!window.NutriFotoAndroid) throw new Error('Demonstração Web: o pagamento por dispositivo é feito no aplicativo Android. O backend HTTPS e o Pix sandbox ainda precisam ser configurados; nenhum Pix será criado aqui.');
     if (!situacao) throw new Error('Não foi possível consultar a ativação. Toque em Atualizar ativação e tente novamente antes de pagar.');
+    if (situacao.origem === 'proprietario') throw new Error('Esta é uma licença do proprietário. A validade é administrada pelo responsável, sem Pix.');
     if (situacao.bloqueada) throw new Error('Sua ativação está suspensa para revisão do pagamento. Procure o atendimento antes de pagar novamente.');
     if (elemento('licenca-nome').value.trim().length < 3) { elemento('licenca-nome').focus();throw new Error('Informe o nome do pagador com pelo menos três letras.'); }
     if (![11,14].includes(elemento('licenca-documento').value.replace(/\D/g, '').length)) { elemento('licenca-documento').focus();throw new Error('Informe o CPF com 11 dígitos ou CNPJ com 14 dígitos do pagador.'); }

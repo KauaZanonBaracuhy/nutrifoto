@@ -28,15 +28,21 @@ export async function requisitarIa(dados, { signal, prazoMs = 30000 } = {}) {
 
 export function recalcularTotal(alimentos) { return somarNutrientes(alimentos); }
 
+function conferirResposta(dados) {
+  const resultado = validarAnalise(dados);
+  if (dados.recuperadoLocal === true) resultado.avisos = [...(resultado.avisos || []), 'Análise real anterior recuperada do servidor local. Nenhuma nova chamada de IA foi realizada.'];
+  return resultado;
+}
+
 export async function analyzeImage({ base64, mediaType, signal }) {
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(mediaType) || typeof base64 !== 'string' || !base64 || base64.length > 8000000 || !/^[A-Za-z0-9+/]*={0,2}$/.test(base64)) throw new Error('Imagem inválida ou muito grande.');
-  return validarAnalise(await requisitarIa({ tipo: 'foto', base64, mediaType }, { signal }));
+  return conferirResposta(await requisitarIa({ tipo: 'foto', base64, mediaType }, { signal }));
 }
 
 export async function analyzeText({ nome, gramas, signal }) {
   if (typeof nome !== 'string' || !nome.trim() || nome.length > 300) throw new Error('Informe um alimento específico.');
   if (gramas != null && (typeof gramas !== 'number' || !Number.isFinite(gramas) || gramas <= 0 || gramas > 10000)) throw new Error('Informe uma quantidade válida em gramas.');
-  return validarAnalise(await requisitarIa({ tipo: 'texto', texto: nome.trim(), gramas }, { signal }));
+  return conferirResposta(await requisitarIa({ tipo: 'texto', texto: nome.trim(), gramas }, { signal }));
 }
 
 export async function testConnection() {

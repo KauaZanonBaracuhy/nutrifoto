@@ -139,7 +139,7 @@ export function obterDiaAtual() {
 }
 
 export const CHAVE_LEMBRETES = 'nutrifoto.notify';
-export const VERSAO_APLICATIVO = '0.3.2';
+export const VERSAO_APLICATIVO = '0.3.4';
 
 // PLACEHOLDER: secao futura "Comunidade / Social"
 // Quando for implementada, adicionar um novo <div class="settings-card">

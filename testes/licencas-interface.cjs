@@ -54,12 +54,13 @@ async function verificar(nome,acao){await acao();resultados.push({nome,resultado
   await pagina.reload();await pagina.locator('#diet-plan-view').waitFor({state:'visible'});assert.equal(await pagina.evaluate(async()=>(await import('/js/dietPlan.js')).getUserProfile().idade),31);
   await pagina.screenshot({path:path.join(pasta,'web-plano-persistido.png')});
  });
- const planos=JSON.parse(fs.readFileSync(path.join(raiz,'www/data/licencas.json'),'utf8'));let ativa=false,plano='ia',compra,analises=0,transferiu=false,vencida=false,foraDoAr=false,chamadasIa=0;
+ const planos=JSON.parse(fs.readFileSync(path.join(raiz,'www/data/licencas.json'),'utf8'));let proprietario=false,tentativasProprietario=0;let ativa=false,plano='ia',compra,analises=0,transferiu=false,vencida=false,foraDoAr=false,chamadasIa=0;
  await nativo.route('**/*',async rota=>{
   const req=rota.request();if(!req.url().startsWith(origem))return rota.abort();if(!req.url().includes('/api/licenca'))return rota.continue();if(foraDoAr)return rota.abort();
   const envelope=req.postDataJSON()||{},p=envelope.pedido||{};let corpo,status=200;
   if(envelope.acao==='desafio')corpo={nonce:'n'.repeat(43)};
-  else if(p.acao==='situacao')corpo={id:'33333333-3333-4333-8333-333333333333',ativa,plano,validade:vencida?new Date(Date.now()-86400000).toISOString():ativa?new Date(Date.now()+30*86400000).toISOString():null,diasRestantes:ativa?30:0,planos,sandbox:true,compraPendente:compra||null,compraStatus:compra?ativa?'RECEIVED':'PENDING':null,acompanhamento:ativa&&plano==='completo',uso:{fotos:analises,textos:0}};
+  else if(p.acao==='situacao')corpo={origem:proprietario?'proprietario':null,id:'33333333-3333-4333-8333-333333333333',ativa,plano,validade:vencida?new Date(Date.now()-86400000).toISOString():ativa?new Date(Date.now()+30*86400000).toISOString():null,diasRestantes:ativa?30:0,planos,sandbox:true,compraPendente:compra||null,compraStatus:compra?ativa?'RECEIVED':'PENDING':null,acompanhamento:ativa&&plano==='completo',uso:{fotos:analises,textos:0}};
+  else if(p.acao==='proprietario'){tentativasProprietario++;if(p.codigo==='ficticio-correto-interface'){proprietario=true;ativa=true;plano='completo';corpo={origem:'proprietario',ativa,plano,validade:new Date(Date.now()+30*86400000).toISOString(),diasRestantes:30,planos,uso:{fotos:0,textos:0}};}else{status=403;corpo={erro:'Código do proprietário inválido.'};}}
   else if(p.acao==='pix'){compra=p.intencao;plano=p.plano;corpo={compra,status:'PENDING',qr:{encodedImage:'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jJ1kAAAAASUVORK5CYII=',payload:'PIX_FICTICIO_NAO_PAGAR'}};}
   else if(p.acao==='recuperacao')corpo={codigo:'r'.repeat(43)};
   else if(p.acao==='transferir'){transferiu=true;ativa=true;corpo={ativa:true};}
@@ -102,6 +103,23 @@ async function verificar(nome,acao){await acao();resultados.push({nome,resultado
   }
   assert.equal(chamadasIa,anteriores);foraDoAr=true;await android.evaluate(async()=> (await import('/js/base.js')).mostrarTela('ativacao'));await android.locator('#licenca-erro').filter({hasText:'Não conseguimos conectar ao serviço'}).waitFor();
   await android.locator('#licenca-atualizar').click();await android.locator('#licenca-erro').filter({hasText:'Não conseguimos conectar ao serviço'}).waitFor();foraDoAr=false;
+ });
+ await verificar('proprietário: Web recusa vínculo; UI com fixtures limpa código, informa erros e persiste consulta',async()=>{
+  await pagina.evaluate(async()=> (await import('/js/base.js')).mostrarTela('ativacao'));
+  await pagina.locator('#licenca-proprietario summary').click();
+  await pagina.locator('#licenca-proprietario-codigo').fill('ficticio-correto-interface');await pagina.locator('#licenca-proprietario-codigo').press('Enter');
+  await pagina.locator('#licenca-erro').filter({hasText:'A Web é uma demonstração'}).waitFor();assert.equal(tentativasProprietario,0);
+  await android.locator('#licenca-proprietario summary').click();
+  await android.locator('#licenca-proprietario-codigo').fill('ficticio-incorreto-interface');await android.locator('#licenca-proprietario-ativar').click();
+  await android.locator('#licenca-erro').filter({hasText:'Código do proprietário inválido'}).waitFor();assert.equal(await android.locator('#licenca-proprietario-codigo').inputValue(),'');
+  foraDoAr=true;await android.locator('#licenca-proprietario-codigo').fill('ficticio-correto-interface');await android.locator('#licenca-proprietario-ativar').click();
+  await android.locator('#licenca-erro').filter({hasText:'Não conseguimos conectar'}).waitFor();foraDoAr=false;
+  await android.locator('#licenca-proprietario-codigo').fill('ficticio-correto-interface');await android.locator('#licenca-proprietario-codigo').press('Enter');
+  await android.locator('#licenca-erro').filter({hasText:'ativada neste dispositivo, sem pagamento'}).waitFor();assert.equal(await android.locator('#licenca-proprietario-codigo').inputValue(),'');
+  await android.reload();await android.locator('#licenca-status').filter({hasText:'Licença do proprietário ativa'}).waitFor();
+  assert.match(await android.locator('#licenca-ofertas').textContent(),/Meu Plano alimentar em preparação/);
+  const guardado=await android.evaluate(()=>JSON.stringify({...localStorage,...sessionStorage}));assert(!guardado.includes('ficticio-correto-interface'));
+  await android.locator('#licenca-proprietario summary').click();await android.screenshot({path:path.join(pasta,'proprietario-interface.png')});
  });assert.deepEqual(erros,[]);console.log(`${resultados.length} grupos de interface aprovados; UI Android usa fixtures explícitos.`);
 }catch(erro){console.error(erro);process.exitCode=1;resultados.push({resultado:'REPROVADO',erro:erro.stack});}
 finally{await navegador?.close();servidor.kill();fs.writeFileSync(path.join(pasta,'interface.json'),JSON.stringify({ambiente:'Web real local e UI Android emulada com fixtures; não é APK',resultados,erros},null,2));}})();

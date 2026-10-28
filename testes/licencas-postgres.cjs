@@ -3,13 +3,13 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
 const {spawn,execFile}=require('node:child_process'),{promisify}=require('node:util'),{createServer}=require('node:http');
 const {generateKeyPairSync,createHash,sign,randomUUID}=require('node:crypto');
 const executar=promisify(execFile),raiz=path.resolve(__dirname,'..'),pasta=path.join(raiz,'evidencias/licencas');fs.mkdirSync(pasta,{recursive:true});
-const conteiner='nutrifoto-licencas-'+randomUUID().slice(0,8),resultados=[];let servidor,origem,chamadasIa=0,cobrancas=0,falharCliente=false,perderResposta=false;
+const conteiner='nutrifoto-licencas-'+randomUUID().slice(0,8),resultados=[],limitesProprietario=[];let servidor,origem,chamadasIa=0,cobrancas=0,falharCliente=false,perderResposta=false,limitarProprietario=false,limiteReal=false;
 const ambiente={NUTRIFOTO_SIMULADO:'true',APP_ORIGIN:'http://127.0.0.1:4173',LICENCAS_ANDROID:'true',ASAAS_AMBIENTE:'sandbox',ASAAS_WEBHOOK_TOKEN:'token-ficticio-de-webhook-2026-licencas',IA_ORCAMENTO_MENSAL_USD:'100000',IA_ORCAMENTO_USUARIO_MENSAL_USD:'100000',IA_RESERVA_OPERACAO_USD:'0.025',IA_PRECO_MAX_ENTRADA_USD_MILHAO:'0.15',IA_PRECO_MAX_SAIDA_USD_MILHAO:'0.6'};
 function sql(texto){return new Promise((resolver,rejeitar)=>{const p=spawn('docker',['exec','-i',conteiner,'psql','-U','postgres','-X','-qAt','-v','ON_ERROR_STOP=1']);let saida='',erros='';p.stdout.on('data',x=>saida+=x);p.stderr.on('data',x=>erros+=x);p.on('error',rejeitar);p.on('close',codigo=>codigo?rejeitar(new Error(erros)):resolver(saida.trim()));p.stdin.end(texto);});}
 const literal=valor=>valor===null?'null':typeof valor==='object'?"'"+JSON.stringify(valor).replaceAll("'","''")+"'::jsonb":typeof valor==='string'?"'"+valor.replaceAll("'","''")+"'":String(valor);
 const repositorio={async executar(nome,parametros={}){
- if(nome==='nf_limitar')return true;
- assert.match(nome,/^nf_licenca_/);const bruto=await sql('select '+nome+'('+Object.entries(parametros).map(([k,v])=>k+'=>'+literal(v)).join(',')+');');
+ if(nome==='nf_limitar'&&!limiteReal){if(parametros.p_chave.startsWith('proprietario:')){limitesProprietario.push(parametros);if(limitarProprietario)throw Object.assign(new Error('Tentativas limitadas no teste'),{status:429});}return true;}
+ assert.match(nome,/^nf_licenca_|^nf_limitar$/);const bruto=await sql('select '+nome+'('+Object.entries(parametros).map(([k,v])=>k+'=>'+literal(v)).join(',')+');');
  const valor=bruto==='t'?true:bruto==='f'?false:bruto?JSON.parse(bruto):null;
  if(valor?.erro)throw Object.assign(new Error(valor.erro),{status:valor.status});return valor;
 }};
@@ -31,6 +31,10 @@ async function verificar(nome,acao){await acao();resultados.push({nome,resultado
  // O socket aceita consultas no servidor temporário de inicialização. TCP só abre no servidor definitivo.
  for(let i=0;i<90;i++){try{await executar('docker',['exec',conteiner,'pg_isready','-h','127.0.0.1','-U','postgres']);break;}catch{if(i===89)throw new Error('PostgreSQL não iniciou');await new Promise(r=>setTimeout(r,200));}}
  await sql('create role anon;create role authenticated;create role service_role;');await sql(fs.readFileSync(path.join(raiz,'supabase/005_licencas.sql'),'utf8'));
+ await sql(fs.readFileSync(path.join(raiz,'supabase/006_proprietario.sql'),'utf8'));
+ const fonteLimites=fs.readFileSync(path.join(raiz,'supabase/001_comercial.sql'),'utf8');await sql(fonteLimites.match(/create table if not exists public\.nf_limites \([\s\S]*?\n\);/)[0]+fonteLimites.match(/create or replace function public\.nf_limitar\([\s\S]*?\n\$\$;/)[0]);
+ const {gerarHashProprietario}=await import('../servidor/proprietario.js');
+ const codigoProprietario='ficticio-'+randomUUID();ambiente.PROPRIETARIO_CODIGO_HASH=await gerarHashProprietario(codigoProprietario);ambiente.PROPRIETARIO_LICENCA_DIAS='30';
  const {criarApiLicencas}=await import('../servidor/licencas.js');
  const atender=criarApiLicencas({ambiente,repositorio,asaas,verificarAtestado:async()=>{},executarModelo:async()=>{chamadasIa++;return{alimentos:[{nome:'Arroz fictício',porcao_estimada_g:100,calorias:124,proteina_g:2.6,carboidrato_g:25.8,gordura_g:1}],total:{calorias:124,proteina_g:2.6,carboidrato_g:25.8,gordura_g:1},simulado:true,uso:{custoUsd:0,tokens:0}};}});
  servidor=createServer(atender);await new Promise(r=>servidor.listen(0,'127.0.0.1',r));origem='http://127.0.0.1:'+servidor.address().port+'/api/licenca';
@@ -112,6 +116,57 @@ async function verificar(nome,acao){await acao();resultados.push({nome,resultado
   await assert.rejects(()=>sql('set role anon;select * from nf_licencas;'),/permission denied/);
   await assert.rejects(()=>sql("set role authenticated;select nf_licenca_ler('x');"),/permission denied/);
  });
- console.log('13 grupos aprovados: PostgreSQL real; Asaas, atestado e IA simulados. Nenhuma chamada externa.');
+ let dono,outro,donoId,validadeDono;const cobrancasAntesDono=cobrancas;
+ await verificar('proprietário falha fechado sem configuração, código incorreto e excesso de tentativas',async()=>{
+  dono=dispositivo();outro=dispositivo();const hash=ambiente.PROPRIETARIO_CODIGO_HASH;delete ambiente.PROPRIETARIO_CODIGO_HASH;
+  assert.equal((await enviar(dono,{acao:'proprietario',codigo:codigoProprietario})).status,503);ambiente.PROPRIETARIO_CODIGO_HASH=hash;
+  assert.equal((await enviar(dono,{acao:'proprietario',codigo:'incorreto-ficticio'})).status,403);
+  limitarProprietario=true;assert.equal((await enviar(dono,{acao:'proprietario',codigo:codigoProprietario})).status,429);limitarProprietario=false;
+  assert.equal(await sql('select count(*) from nf_licenca_proprietario;'),'0');
+  assert(limitesProprietario.every(p=>p.p_limite===5&&p.p_janela===3600));
+ });
+ await verificar('concessão concorrente única, completa, sem Asaas e retry sem ampliar validade',async()=>{
+  const respostas=await Promise.all([enviar(dono,{acao:'proprietario',codigo:codigoProprietario}),enviar(outro,{acao:'proprietario',codigo:codigoProprietario})]);
+  assert.deepEqual(respostas.map(r=>r.status).sort(),[200,409]);if(respostas[0].status!==200)[dono,outro]=[outro,dono];
+  const atual=(await enviar(dono,{acao:'situacao'})).dados;donoId=atual.id;validadeDono=atual.validade;
+  assert.equal(atual.origem,'proprietario');assert.equal(atual.plano,'completo');assert(atual.ativa&&atual.acompanhamento);assert.equal(atual.diasRestantes,30);
+  const repetido=await enviar(dono,{acao:'proprietario',codigo:codigoProprietario});assert.equal(repetido.dados.validade,validadeDono);
+  assert.equal(await sql('select count(*) from nf_licenca_proprietario;'),'1');assert.equal(cobrancas,cobrancasAntesDono);
+  assert.equal((await enviar(dono,{acao:'pix'})).status,409);
+  const guardado=await sql(`select estado from nf_licencas where id='${donoId}';`);assert(!guardado.includes(codigoProprietario));assert.deepEqual(JSON.parse(guardado).compras,{});
+ });
+ await verificar('proprietário mantém orçamento, quota e bloqueio clínico',async()=>{
+  assert.equal((await enviar(dono,{acao:'analise',ciencia:true,intencao:randomUUID(),dados:{tipo:'texto',texto:'arroz'}})).status,429);
+  assert.equal((await enviar(dono,{acao:'analise',ciencia:true,intencao:randomUUID(),dados:{tipo:'plano'}})).status,403);
+  await sql('update nf_licenca_orcamentos set valor=0;');
+  await sql(`insert into nf_licenca_operacoes select '${donoId}',gen_random_uuid(),'ficticio','foto',(now() at time zone 'America/Sao_Paulo')::date,date_trunc('month',now())::date,0,'{}',0 from generate_series(1,100);`);
+  assert.equal((await enviar(dono,{acao:'analise',ciencia:true,intencao:randomUUID(),dados:{tipo:'foto',mediaType:'image/png',base64:'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jJ1kAAAAASUVORK5CYII='}})).status,429);
+ });
+ await verificar('proprietário expira sem renovação por repetição e recuperação transfere a mesma licença',async()=>{
+  await sql(`update nf_licencas set estado=jsonb_set(estado,'{validade}',to_jsonb((now()-interval '1 day')::text)) where id='${donoId}';`);
+  const vencida=(await enviar(dono,{acao:'proprietario',codigo:codigoProprietario})).dados;assert.equal(vencida.ativa,false);
+  await sql(`update nf_licencas set estado=jsonb_set(estado,'{validade}',to_jsonb('${validadeDono}'::text)) where id='${donoId}';`);
+  const rec=await enviar(dono,{acao:'recuperacao'});const transferida=await enviar(outro,{acao:'transferir',codigo:rec.dados.codigo});
+  assert.equal(transferida.status,200);assert.equal(transferida.dados.id,donoId);assert.equal(transferida.dados.validade,validadeDono);assert.equal(transferida.dados.origem,'proprietario');
+  assert.equal((await enviar(outro,{acao:'situacao'})).dados.uso.fotos,100);assert.equal((await enviar(dono,{acao:'situacao'})).dados.ativa,false);
+  assert.equal((await enviar(dono,{acao:'proprietario',codigo:codigoProprietario})).status,409);
+ });
+ await verificar('revogação administrativa persiste após recuperação e código não reativa',async()=>{
+  await assert.rejects(()=>sql('set role anon;select * from nf_licenca_proprietario;'),/permission denied/);
+  await assert.rejects(()=>sql('set role authenticated;select nf_licenca_proprietario_revogar();'),/permission denied/);
+  assert.equal(await sql('select nf_licenca_proprietario_revogar();'),'t');
+  assert.equal((await enviar(outro,{acao:'situacao'})).dados.ativa,false);
+  assert.equal((await enviar(outro,{acao:'proprietario',codigo:codigoProprietario})).status,403);
+  const rec=await enviar(outro,{acao:'recuperacao'});const novo=dispositivo();await enviar(novo,{acao:'situacao'});
+  const transferida=await enviar(novo,{acao:'transferir',codigo:rec.dados.codigo});assert.equal(transferida.status,200);assert.equal(transferida.dados.ativa,false);assert(transferida.dados.bloqueada);
+  assert.equal(cobrancas,cobrancasAntesDono);
+ });
+ await verificar('limitação real SQL: cinco tentativas, sexta negada e troca de dispositivo não contorna limite de rede',async()=>{
+  limiteReal=true;const atacante=dispositivo();for(let i=0;i<5;i++)assert.equal((await enviar(atacante,{acao:'proprietario',codigo:'ficticio-incorreto-sql'})).status,403);
+  assert.equal((await enviar(atacante,{acao:'proprietario',codigo:codigoProprietario})).status,429);
+  assert.equal((await enviar(dispositivo(),{acao:'proprietario',codigo:codigoProprietario})).status,429);
+  assert.equal(await sql("select max(chamadas) from nf_limites where chave like 'proprietario:rede:%';"),'7');
+ });
+ console.log(resultados.length+' grupos aprovados: PostgreSQL real; Asaas, atestado e IA simulados. Nenhuma chamada externa.');
 }catch(erro){console.error(erro);process.exitCode=1;resultados.push({resultado:'REPROVADO',erro:erro.stack});}
 finally{await new Promise(r=>servidor?servidor.close(r):r());await executar('docker',['rm','-f',conteiner]).catch(()=>{});fs.writeFileSync(path.join(pasta,'postgres.json'),JSON.stringify({ambiente:'PostgreSQL real isolado, sem portas; Asaas/atestado/IA ficticios',chamadasIa,cobrancas,resultados},null,2));}})();

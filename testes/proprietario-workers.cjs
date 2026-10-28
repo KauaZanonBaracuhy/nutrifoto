@@ -1,0 +1,9 @@
+// Runtime Workers real e código aleatório fictício; sem configuração privada ou rede externa.
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),{spawn}=require('node:child_process');
+const raiz=path.resolve(__dirname,'..'),pasta=path.join(raiz,'builds/proprietario-teste');fs.mkdirSync(pasta,{recursive:true});
+fs.writeFileSync(path.join(pasta,'worker.js'),`import {gerarHashProprietario,validarCodigoProprietario} from '../../servidor/proprietario.js';
+export default {async fetch(){const codigo='ficticio-workerd-'+crypto.randomUUID(),hash=await gerarHashProprietario(codigo),ambiente={PROPRIETARIO_CODIGO_HASH:hash,PROPRIETARIO_LICENCA_DIAS:'30'};const dias=await validarCodigoProprietario(codigo,ambiente);let recusou=false;try{await validarCodigoProprietario('ficticio-incorreto',ambiente);}catch(e){recusou=e.status===403;}return Response.json({dias,recusou});}};`);
+fs.writeFileSync(path.join(pasta,'wrangler.json'),JSON.stringify({name:'nutrifoto-proprietario-teste',main:'worker.js',compatibility_date:'2026-10-01',compatibility_flags:['nodejs_compat']}));
+const processo=spawn(process.execPath,['node_modules/wrangler/bin/wrangler.js','dev','--local','--config',path.join(pasta,'wrangler.json'),'--port','8794','--show-interactive-dev-session=false'],{cwd:raiz,env:{...process.env,CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV:'false',WRANGLER_SEND_METRICS:'false'},stdio:['ignore','pipe','pipe']});
+let logs='';processo.stdout.on('data',d=>logs+=d);processo.stderr.on('data',d=>logs+=d);
+(async()=>{try{let resposta;for(let i=0;i<200;i++){try{resposta=await fetch('http://127.0.0.1:8794');break;}catch{await new Promise(r=>setTimeout(r,100));}}assert(resposta,'Wrangler não iniciou: '+logs.slice(-1200));assert.deepEqual(await resposta.json(),{dias:30,recusou:true});console.log('APROVADO PBKDF2 e validação do proprietário no workerd real');}catch(e){console.error(e);process.exitCode=1;}finally{processo.kill();}})();
