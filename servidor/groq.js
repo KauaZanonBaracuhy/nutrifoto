@@ -62,5 +62,3 @@ export function criarGroq(ambiente, { enviar=fetch, lerPausa=()=>0, gravarPausa=
   }
   return {preparar,transporte,obterModelo:()=>modelo};
 }
-
-

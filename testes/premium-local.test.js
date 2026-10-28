@@ -17,4 +17,3 @@ teste('metas/resumo exigem schema estrito, unidades válidas e não aceitam form
  tipo='resumo';resposta={resumo:'Há um dia registrado.',observacoes:['Sem dados suficientes para tendência.']};assert.match((await executarPremium({tipo,perfil,registros:[]},config,transporte)).resumo,/um dia/);
  resposta={resumo:'Texto',observacoes:[{texto:'formato incorreto'}]};await assert.rejects(()=>executarPremium({tipo,perfil,registros:[]},config,transporte),e=>e.status===502);
 });
-
